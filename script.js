@@ -65,59 +65,48 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ----- 5. منطق جدید: بارگذاری داده‌ها از فایل JSON هنگام کلیک -----
     mainContent.addEventListener('click', async (e) => {
-    const fileGroup = e.target.closest('.file-group');
-    if (fileGroup && e.target.tagName === 'SPAN') {
-        const divisionsContainer = fileGroup.querySelector('.divisions-container');
-        const isLoaded = fileGroup.dataset.loaded === 'true';
+        const fileGroup = e.target.closest('.file-group');
+        if (fileGroup && e.target.tagName === 'SPAN') {
+            const divisionsContainer = fileGroup.querySelector('.divisions-container');
+            const isLoaded = fileGroup.dataset.loaded === 'true';
 
-        if (!isLoaded) {
-            try {
-                divisionsContainer.innerHTML = '<p>در حال بارگذاری...</p>';
-                const response = await fetch(fileGroup.dataset.path);
-                if (!response.ok) throw new Error('فایل قانون یافت نشد!');
-                const data = await response.json();
-                
-                renderDivisions(divisionsContainer, data); 
-                fileGroup.dataset.loaded = 'true';
-            } catch (error) {
-                divisionsContainer.innerHTML = `<p>خطا در بارگذاری: ${error.message}</p>`;
+            if (!isLoaded) {
+                try {
+                    divisionsContainer.innerHTML = '<p>در حال بارگذاری...</p>';
+                    const response = await fetch(fileGroup.dataset.path);
+                    if (!response.ok) throw new Error('فایل قانون یافت نشد!');
+                    const data = await response.json();
+                    
+                    renderDivisions(divisionsContainer, data.divisions); // رندر کردن بخش‌ها و مواد
+                    fileGroup.dataset.loaded = 'true';
+                } catch (error) {
+                    divisionsContainer.innerHTML = `<p>خطا در بارگذاری: ${error.message}</p>`;
+                }
             }
+            
+            fileGroup.classList.toggle('expanded');
+            divisionsContainer.classList.toggle('hidden');
         }
-        
-        fileGroup.classList.toggle('expanded');
-        divisionsContainer.classList.toggle('hidden');
-    }
-});
+    });
 
     // ----- 6. تابع جدید برای رندر کردن ساختار تو در توی قانون -----
-// ----- 6. تابع جدید و اصلاح شده برای رندر کردن محتوا -----
-function renderDivisions(container, data) {
-    container.innerHTML = ''; // پاک کردن محتوای قبلی (مثلاً متن "در حال بارگذاری")
-    const ul = document.createElement('ul');
+    function renderDivisions(container, divisions) {
+        container.innerHTML = ''; 
+        const ul = document.createElement('ul');
 
-    // چون فایل JSON شما یک لیست ساده از مقالات است، مستقیماً به سراغ آنها می‌رویم
-    if (data.articles && data.articles.length > 0) {
-        data.articles.forEach(article => {
+        divisions.forEach(division => {
             const li = document.createElement('li');
+            li.className = `division-item type-${division.type}`;
             
-            // بررسی می‌کنیم که نوع مقاله چیست
-            if (article.entry_type === 'numbering_gap_notice') {
-                li.className = 'article gap-notice';
-                li.innerHTML = `<strong>توجه:</strong> ${article.description} (مواد ${article.article_range})`;
-            } else {
-                li.className = 'article';
-                // این همان منطق فرمت کردن متن است که از قبل داشتیم و درست است
-                const formattedText = article.text.replace(/\n/g, '<br>');
-                li.innerHTML = `<strong>اصل/ماده ${article.article_number}:</strong> ${formattedText}`;
-            }
-            ul.appendChild(li);
-        });
-    }
-
-    container.appendChild(ul);
-    // دیگر نیازی به افزودن event listener برای باز و بسته کردن نداریم چون ساختار ساده شده است.
-    }
-});
+            let contentHTML = '';
+            if (division.articles) {
+                division.articles.forEach(article => {
+                    if(article.entry_type === 'numbering_gap_notice') {
+                         contentHTML += `<li class="article gap-notice"><strong>توجه:</strong> ${article.description} (مواد ${article.article_range})</li>`;
+                    } else {
+                         contentHTML += `<li class="article"><strong>اصل/ماده ${article.article_number}:</strong> ${article.text}</li>`;
+                    }
+                });
             }
 
             // بازگشتی برای زیرمجموعه‌ها
