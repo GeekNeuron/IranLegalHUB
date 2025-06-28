@@ -11,7 +11,7 @@ const lawManifest = {
         title: 'قانون مدنی',
         info: 'قانون مدنی ایران در سه جلد تصویب شده و دارای ۱۳۳۵ ماده است. این قانون شالوده اصلی حقوق خصوصی ایران را تشکیل می‌دهد.',
         files: [
-            { title: 'جلد اول، بخش اول (اموال، عقود، وصیت و ارث)', path: 'laws/civil_code/civil_code_vol_1.json' },
+            { title: 'جلد اول (اموال، عقود، وصیت و ارث)', path: 'laws/civil_code/civil_code_vol_1.json' },
             { title: 'جلد دوم (اشخاص)', path: 'laws/civil_code/civil_code_vol_2.json' },
             { title: 'جلد سوم (ادله اثبات دعوی)', path: 'laws/civil_code/civil_code_vol_3.json' }
         ],
