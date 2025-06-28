@@ -65,29 +65,29 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ----- 5. منطق جدید: بارگذاری داده‌ها از فایل JSON هنگام کلیک -----
     mainContent.addEventListener('click', async (e) => {
-        const fileGroup = e.target.closest('.file-group');
-        if (fileGroup && e.target.tagName === 'SPAN') {
-            const divisionsContainer = fileGroup.querySelector('.divisions-container');
-            const isLoaded = fileGroup.dataset.loaded === 'true';
+    const fileGroup = e.target.closest('.file-group');
+    if (fileGroup && e.target.tagName === 'SPAN') {
+        const divisionsContainer = fileGroup.querySelector('.divisions-container');
+        const isLoaded = fileGroup.dataset.loaded === 'true';
 
-            if (!isLoaded) {
-                try {
-                    divisionsContainer.innerHTML = '<p>در حال بارگذاری...</p>';
-                    const response = await fetch(fileGroup.dataset.path);
-                    if (!response.ok) throw new Error('فایل قانون یافت نشد!');
-                    const data = await response.json();
-                    
-                    renderDivisions(divisionsContainer, data.divisions); // رندر کردن بخش‌ها و مواد
-                    fileGroup.dataset.loaded = 'true';
-                } catch (error) {
-                    divisionsContainer.innerHTML = `<p>خطا در بارگذاری: ${error.message}</p>`;
-                }
+        if (!isLoaded) {
+            try {
+                divisionsContainer.innerHTML = '<p>در حال بارگذاری...</p>';
+                const response = await fetch(fileGroup.dataset.path);
+                if (!response.ok) throw new Error('فایل قانون یافت نشد!');
+                const data = await response.json();
+                
+                renderDivisions(divisionsContainer, [data]); 
+                fileGroup.dataset.loaded = 'true';
+            } catch (error) {
+                divisionsContainer.innerHTML = `<p>خطا در بارگذاری: ${error.message}</p>`;
             }
-            
-            fileGroup.classList.toggle('expanded');
-            divisionsContainer.classList.toggle('hidden');
         }
-    });
+        
+        fileGroup.classList.toggle('expanded');
+        divisionsContainer.classList.toggle('hidden');
+    }
+});
 
     // ----- 6. تابع جدید برای رندر کردن ساختار تو در توی قانون -----
     function renderDivisions(container, divisions) {
