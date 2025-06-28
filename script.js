@@ -100,13 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let contentHTML = '';
             if (division.articles) {
-                division.articles.forEach(article => {
-                    if(article.entry_type === 'numbering_gap_notice') {
-                         contentHTML += `<li class="article gap-notice"><strong>توجه:</strong> ${article.description} (مواد ${article.article_range})</li>`;
-                    } else {
-                         contentHTML += `<li class="article"><strong>اصل/ماده ${article.article_number}:</strong> ${article.text}</li>`;
-                    }
-                });
+division.articles.forEach(article => {
+    if(article.entry_type === 'numbering_gap_notice') {
+        contentHTML += `<li class="article gap-notice"><strong>توجه:</strong> ${article.description} (مواد ${article.article_range})</li>`;
+    } else {
+        const formattedText = article.text.replace(/\n/g, '<br>');
+        contentHTML += `<li class="article"><strong>اصل/ماده ${article.article_number}:</strong> ${formattedText}</li>`;
+    }
+});
             }
 
             // بازگشتی برای زیرمجموعه‌ها
