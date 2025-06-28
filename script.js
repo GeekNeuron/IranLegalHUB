@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) throw new Error('فایل قانون یافت نشد!');
                 const data = await response.json();
                 
-                renderDivisions(divisionsContainer, [data]); 
+                renderDivisions(divisionsContainer, data); 
                 fileGroup.dataset.loaded = 'true';
             } catch (error) {
                 divisionsContainer.innerHTML = `<p>خطا در بارگذاری: ${error.message}</p>`;
@@ -90,22 +90,32 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
     // ----- 6. تابع جدید برای رندر کردن ساختار تو در توی قانون -----
-    function renderDivisions(container, divisions) {
-        container.innerHTML = ''; 
-        const ul = document.createElement('ul');
+// ----- 6. تابع جدید و اصلاح شده برای رندر کردن محتوا -----
+function renderDivisions(container, data) {
+    container.innerHTML = ''; // پاک کردن محتوای قبلی (مثلاً متن "در حال بارگذاری")
+    const ul = document.createElement('ul');
 
-        divisions.forEach(division => {
+    // چون فایل JSON شما یک لیست ساده از مقالات است، مستقیماً به سراغ آنها می‌رویم
+    if (data.articles && data.articles.length > 0) {
+        data.articles.forEach(article => {
             const li = document.createElement('li');
-            li.className = `division-item type-${division.type}`;
             
-            let contentHTML = '';
-            if (division.articles) {
-division.articles.forEach(article => {
-    if(article.entry_type === 'numbering_gap_notice') {
-        contentHTML += `<li class="article gap-notice"><strong>توجه:</strong> ${article.description} (مواد ${article.article_range})</li>`;
-    } else {
-        const formattedText = article.text.replace(/\n/g, '<br>');
-        contentHTML += `<li class="article"><strong>اصل/ماده ${article.article_number}:</strong> ${formattedText}</li>`;
+            // بررسی می‌کنیم که نوع مقاله چیست
+            if (article.entry_type === 'numbering_gap_notice') {
+                li.className = 'article gap-notice';
+                li.innerHTML = `<strong>توجه:</strong> ${article.description} (مواد ${article.article_range})`;
+            } else {
+                li.className = 'article';
+                // این همان منطق فرمت کردن متن است که از قبل داشتیم و درست است
+                const formattedText = article.text.replace(/\n/g, '<br>');
+                li.innerHTML = `<strong>اصل/ماده ${article.article_number}:</strong> ${formattedText}`;
+            }
+            ul.appendChild(li);
+        });
+    }
+
+    container.appendChild(ul);
+    // دیگر نیازی به افزودن event listener برای باز و بسته کردن نداریم چون ساختار ساده شده است.
     }
 });
             }
