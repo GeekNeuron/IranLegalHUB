@@ -1,0 +1,328 @@
+:root {
+    --bg-color-light: #f4f4f4;
+    --text-color-light: #333;
+    --header-bg-light: #fff;
+    --accent-color-light: #007bff;
+    --border-color-light: #ddd;
+
+    --bg-color-dark: #121212;
+    --text-color-dark: #e0e0e0;
+    --header-bg-dark: #1e1e1e;
+    --accent-color-dark: #4dabf7;
+    --border-color-dark: #444;
+}
+
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color-light);
+    color: var(--text-color-light);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark-theme {
+    background-color: var(--bg-color-dark);
+    color: var(--text-color-dark);
+}
+
+/* ----- استایل‌های نهایی برای چیدمان هدر ----- */
+header#main-header {
+    background-color: var(--header-bg-light);
+    padding: 0.5rem 1.5rem;
+    border-bottom: 1px solid var(--border-color-light);
+    transition: background-color 0.3s, border-color 0.3s;
+    
+    /* چیدمان اصلی هدر */
+    display: flex;
+    justify-content: space-between; /* دو بخش راست و چپ را به طرفین می‌چسباند */
+    align-items: center;
+}
+
+body.dark-theme header#main-header {
+    background-color: var(--header-bg-dark);
+    border-bottom: 1px solid var(--border-color-dark);
+}
+
+/* گروه‌بندی آیتم‌های سمت راست */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* فاصله بین عنوان و آیکون */
+    cursor: pointer; /* برای اینکه کلیک روی این بخش، تم را عوض کند */
+}
+
+#header-title {
+    font-size: 1.8rem;
+    color: var(--text-color-light);
+    transition: color 0.3s;
+    margin: 0; 
+}
+
+body.dark-theme #header-title {
+    color: var(--text-color-dark);
+}
+
+/* ----- استایل‌های آیکون ----- */
+.header-icon {
+    width: 40px;   /* اندازه ثابت برای آیکون */
+    height: 40px;  /* اندازه ثابت برای آیکون */
+}
+
+/* منطق نمایش آیکون بر اساس تم */
+.dark-theme-icon {
+    display: none; /* آیکون سفید در حالت پیش‌فرض (روشن) مخفی است */
+}
+.light-theme-icon {
+    display: block; /* آیکون تیره در حالت پیش‌فرض (روشن) نمایش داده می‌شود */
+}
+
+body.dark-theme .light-theme-icon {
+    display: none; /* آیکون تیره در حالت تاریک مخفی می‌شود */
+}
+
+body.dark-theme .dark-theme-icon {
+    display: block; /* آیکون سفید در حالت تاریک نمایش داده می‌شود */
+}
+
+
+/* ----- استایل کادر جستجو ----- */
+#search-input {
+    width: 250px;
+    padding: 0.6rem;
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    background-color: var(--bg-color-light);
+    color: var(--text-color-light);
+    font-family: 'Vazirmatn', sans-serif;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+body.dark-theme #search-input {
+    background-color: #2c2c2c;
+    color: var(--text-color-dark);
+    border: 1px solid var(--border-color-dark);
+}
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border-color-light);
+    padding: 0 1rem;
+}
+
+body.dark-theme .tabs {
+    border-bottom: 1px solid var(--border-color-dark);
+}
+
+.tab-link {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    color: var(--text-color-light);
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.3s, color 0.3s;
+}
+
+body.dark-theme .tab-link {
+    color: var(--text-color-dark);
+}
+
+.tab-link.active {
+    border-bottom: 3px solid var(--accent-color-light);
+    font-weight: bold;
+}
+
+body.dark-theme .tab-link.active {
+    border-bottom: 3px solid var(--accent-color-dark);
+}
+
+.tab-content {
+    display: none;
+    padding: 2rem;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.law-info {
+    line-height: 1.8;
+    background-color: var(--header-bg-light);
+    padding: 1rem;
+    border-radius: 8px;
+    border-right: 5px solid var(--accent-color-light);
+    margin-bottom: 2rem;
+}
+body.dark-theme .law-info {
+    background-color: var(--header-bg-dark);
+     border-right: 5px solid var(--accent-color-dark);
+}
+
+.content-selector {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.content-selector button {
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+    margin: 0 0.5rem;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid var(--accent-color-light);
+    background-color: transparent;
+    color: var(--accent-color-light);
+    font-family: 'Vazirmatn', sans-serif;
+}
+body.dark-theme .content-selector button {
+    border: 1px solid var(--accent-color-dark);
+    color: var(--accent-color-dark);
+}
+
+.content-selector button.active {
+    background-color: var(--accent-color-light);
+    color: #fff;
+}
+
+body.dark-theme .content-selector button.active {
+    background-color: var(--accent-color-dark);
+    color: var(--bg-color-dark);
+}
+
+/* Accordion Styles */
+.accordion ul {
+    list-style-type: none;
+    padding-right: 20px;
+}
+.accordion .volume > span, .accordion .part > span {
+    cursor: pointer;
+    font-weight: bold;
+    display: block;
+    padding: 10px;
+    background-color: var(--header-bg-light);
+    border: 1px solid var(--border-color-light);
+    margin-top: 5px;
+    border-radius: 5px;
+}
+body.dark-theme .accordion .volume > span, body.dark-theme .accordion .part > span {
+     background-color: var(--header-bg-dark);
+     border: 1px solid var(--border-color-dark);
+}
+.accordion .article {
+    padding: 10px;
+    border-bottom: 1px dashed var(--border-color-light);
+}
+body.dark-theme .accordion .article {
+     border-bottom: 1px dashed var(--border-color-dark);
+}
+
+.accordion .hidden {
+    display: none;
+}
+.accordion span::before {
+    content: '◀';
+    display: inline-block;
+    margin-left: 10px;
+    transition: transform 0.2s;
+}
+
+.accordion .expanded > span::before {
+    transform: rotate(-90deg);
+}
+
+/* Quiz Styles */
+.quiz-container {
+    background-color: var(--header-bg-light);
+    padding: 2rem;
+    border-radius: 8px;
+}
+body.dark-theme .quiz-container {
+    background-color: var(--header-bg-dark);
+}
+.quiz-question {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+}
+.quiz-options label {
+    display: block;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border-color-light);
+    border-radius: 5px;
+    cursor: pointer;
+}
+body.dark-theme .quiz-options label {
+    border: 1px solid var(--border-color-dark);
+}
+.quiz-options label:hover {
+    background-color: var(--bg-color-light);
+}
+body.dark-theme .quiz-options label:hover {
+     background-color: var(--bg-color-dark);
+}
+
+#finish-quiz-btn {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.2rem;
+    margin-top: 2rem;
+    background-color: var(--accent-color-light);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+body.dark-theme #finish-quiz-btn {
+    background-color: var(--accent-color-dark);
+    color: var(--bg-color-dark);
+}
+
+.quiz-results table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+}
+.quiz-results th, .quiz-results td {
+    border: 1px solid var(--border-color-light);
+    padding: 0.8rem;
+    text-align: center;
+}
+body.dark-theme .quiz-results th, body.dark-theme .quiz-results td {
+     border: 1px solid var(--border-color-dark);
+}
+.quiz-results .correct { color: #28a745; }
+.quiz-results .incorrect { color: #dc3545; }
+
+/* ----- کدهای مخصوص موبایل (ریسپانسیو) ----- */
+/* این کدها فقط روی صفحه‌هایی با عرض کمتر از ۷۶۸ پیکسل اعمال می‌شود */
+@media (max-width: 768px) {
+    
+    header#main-header {
+        flex-direction: column; /* آیتم‌های اصلی هدر (چپ و راست) را زیر هم می‌چیند */
+        gap: 15px;              /* فاصله بین ردیف عنوان و ردیف جستجو */
+        padding: 1rem;
+    }
+
+    .header-right {
+        order: 1; /* گروه عنوان و آیکون در بالا قرار می‌گیرد */
+    }
+
+    .search-container {
+        order: 2; /* کادر جستجو در ردیف پایین قرار می‌گیرد */
+        width: 100%; /* تمام عرض را اشغال می‌کند */
+    }
+
+    #search-input {
+        width: 90%; /* برای اینکه به لبه‌ها نچسبد */
+    }
+
+    #header-title {
+        font-size: 1.6rem; /* کمی کوچک‌تر کردن فونت عنوان در موبایل */
+    }
+}
