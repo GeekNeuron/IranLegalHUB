@@ -222,7 +222,6 @@ body.dark-theme mark {
         padding: 1rem;
     }
     .tabs {
-        position: static; /* نوار تب‌ها هم در موبایل عادی می‌شود */
         top: 132px;
     }
     .header-right {
