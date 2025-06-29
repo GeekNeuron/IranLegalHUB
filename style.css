@@ -195,8 +195,6 @@ body.dark-theme .file-group > span, body.dark-theme .division-item > .division-t
     border-color: var(--border-color-dark);
 }
 
-.hidden { display: none; }
-
 .article {
     background: #fff;
     padding: 15px;
@@ -223,6 +221,36 @@ body.dark-theme mark {
     background-color: var(--highlight-bg-dark);
     color: inherit;
 }
+
+/* ===== شروع کد انیمیشن آکاردئون ===== */
+
+.divisions-container, 
+.subdivisions-container, 
+.article-list {
+    max-height: 0; /* در حالت بسته، حداکثر ارتفاع صفر است */
+    overflow: hidden; /* محتوای اضافی را پنهان می‌کند */
+    transition: max-height 0.4s ease-in-out; /* <<-- خود انیمیشن نرم -->> */
+    padding-right: 20px; /* این خط از کدهای قبلی منتقل شده */
+    border-right: 2px solid var(--accent-color-light); /* این خط از کدهای قبلی منتقل شده */
+    margin: 0;
+}
+
+/* وقتی یک بخش باز می‌شود (کلاس expanded اضافه می‌شود)... */
+li.expanded > .divisions-container,
+li.expanded > .subdivisions-container,
+li.expanded > .article-list {
+    max-height: 500vh; /* ...حداکثر ارتفاع بسیار بزرگی به آن می‌دهیم تا تمام محتوا جا شود */
+}
+
+/* استایل تم تاریک برای بوردر کنار منوها */
+body.dark-theme .divisions-container,
+body.dark-theme .subdivisions-container,
+body.dark-theme .article-list {
+    border-right-color: var(--accent-color-dark);
+}
+
+
+/* ===== پایان کد انیمیشن آکاردئون ===== */
 
 /* Responsive (Mobile) */
 @media (max-width: 768px) {
