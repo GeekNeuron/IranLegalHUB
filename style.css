@@ -26,17 +26,16 @@ body.dark-theme {
     color: var(--text-color-dark);
 }
 
-/* ----- استایل‌های نهایی برای چیدمان هدر ----- */
+/* ------------------- HEADER ------------------- */
 header#main-header {
     background-color: var(--header-bg-light);
     padding: 0.5rem 1.5rem;
     border-bottom: 1px solid var(--border-color-light);
     transition: background-color 0.3s, border-color 0.3s;
-    
-    /* چیدمان اصلی هدر */
     display: flex;
-    justify-content: space-between; /* دو بخش راست و چپ را به طرفین می‌چسباند */
+    justify-content: space-between;
     align-items: center;
+    min-height: 60px;
 }
 
 body.dark-theme header#main-header {
@@ -44,49 +43,35 @@ body.dark-theme header#main-header {
     border-bottom: 1px solid var(--border-color-dark);
 }
 
-/* گروه‌بندی آیتم‌های سمت راست */
 .header-right {
     display: flex;
     align-items: center;
-    gap: 15px; /* فاصله بین عنوان و آیکون */
-    cursor: pointer; /* برای اینکه کلیک روی این بخش، تم را عوض کند */
+    gap: 15px;
+    cursor: pointer;
 }
 
 #header-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: var(--text-color-light);
     transition: color 0.3s;
-    margin: 0; 
+    margin: 0;
 }
 
 body.dark-theme #header-title {
     color: var(--text-color-dark);
 }
 
-/* ----- استایل‌های آیکون ----- */
 .header-icon {
-    width: 40px;   /* اندازه ثابت برای آیکون */
-    height: 40px;  /* اندازه ثابت برای آیکون */
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
 }
 
-/* منطق نمایش آیکون بر اساس تم */
-.dark-theme-icon {
-    display: none; /* آیکون سفید در حالت پیش‌فرض (روشن) مخفی است */
-}
-.light-theme-icon {
-    display: block; /* آیکون تیره در حالت پیش‌فرض (روشن) نمایش داده می‌شود */
-}
+.dark-theme-icon { display: none; }
+.light-theme-icon { display: block; }
+body.dark-theme .light-theme-icon { display: none; }
+body.dark-theme .dark-theme-icon { display: block; }
 
-body.dark-theme .light-theme-icon {
-    display: none; /* آیکون تیره در حالت تاریک مخفی می‌شود */
-}
-
-body.dark-theme .dark-theme-icon {
-    display: block; /* آیکون سفید در حالت تاریک نمایش داده می‌شود */
-}
-
-
-/* ----- استایل کادر جستجو ----- */
 #search-input {
     width: 250px;
     padding: 0.6rem;
@@ -104,46 +89,69 @@ body.dark-theme #search-input {
     border: 1px solid var(--border-color-dark);
 }
 
+
+/* ------------------- TABS (اصلاح شده) ------------------- */
 .tabs {
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+    overflow-x: auto; /* مهم: اسکرول افقی را فعال می‌کند */
+    white-space: nowrap; /* مهم: از شکستن خط و زیر هم رفتن زبانه‌ها جلوگیری می‌کند */
+    -webkit-overflow-scrolling: touch; /* اسکرول نرم در موبایل */
+    background-color: var(--header-bg-light);
     border-bottom: 1px solid var(--border-color-light);
-    padding: 0 1rem;
+    padding: 0 10px;
+}
+/* استایل ظاهری اسکرول‌بار (اختیاری) */
+.tabs::-webkit-scrollbar {
+    height: 5px;
+}
+.tabs::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.tabs::-webkit-scrollbar-thumb {
+    background: #aaa;
+    border-radius: 5px;
+}
+body.dark-theme .tabs::-webkit-scrollbar-track {
+    background: #2c2c2c;
+}
+body.dark-theme .tabs::-webkit-scrollbar-thumb {
+    background: #555;
 }
 
-body.dark-theme .tabs {
-    border-bottom: 1px solid var(--border-color-dark);
-}
 
 .tab-link {
-    padding: 1rem 1.5rem;
+    padding: 12px 18px;
     cursor: pointer;
     border: none;
     background-color: transparent;
+    font-size: 1em;
     font-family: 'Vazirmatn', sans-serif;
-    font-size: 1rem;
-    color: var(--text-color-light);
     border-bottom: 3px solid transparent;
-    transition: border-color 0.3s, color 0.3s;
+    transition: all 0.3s;
+    flex-shrink: 0;
 }
 
-body.dark-theme .tab-link {
-    color: var(--text-color-dark);
+.tab-link:hover {
+    background-color: #f0f0f0;
 }
-
+body.dark-theme .tab-link:hover {
+    background-color: #2a2a2a;
+}
 .tab-link.active {
-    border-bottom: 3px solid var(--accent-color-light);
-    font-weight: bold;
+    font-weight: 700;
+    border-bottom-color: var(--accent-color-light);
+}
+body.dark-theme .tab-link.active {
+    border-bottom-color: var(--accent-color-dark);
 }
 
-body.dark-theme .tab-link.active {
-    border-bottom: 3px solid var(--accent-color-dark);
+/* ------------------- MAIN CONTENT & ACCORDION ------------------- */
+#main-content {
+    padding: 20px;
 }
 
 .tab-content {
     display: none;
-    padding: 2rem;
 }
 
 .tab-content.active {
@@ -151,178 +159,130 @@ body.dark-theme .tab-link.active {
 }
 
 .law-info {
-    line-height: 1.8;
-    background-color: var(--header-bg-light);
-    padding: 1rem;
-    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    line-height: 1.7;
     border-right: 5px solid var(--accent-color-light);
-    margin-bottom: 2rem;
 }
+
 body.dark-theme .law-info {
-    background-color: var(--header-bg-dark);
-     border-right: 5px solid var(--accent-color-dark);
-}
-
-.content-selector {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-.content-selector button {
-    padding: 0.8rem 2rem;
-    font-size: 1.1rem;
-    margin: 0 0.5rem;
-    cursor: pointer;
-    border-radius: 8px;
-    border: 1px solid var(--accent-color-light);
-    background-color: transparent;
-    color: var(--accent-color-light);
-    font-family: 'Vazirmatn', sans-serif;
-}
-body.dark-theme .content-selector button {
-    border: 1px solid var(--accent-color-dark);
-    color: var(--accent-color-dark);
-}
-
-.content-selector button.active {
-    background-color: var(--accent-color-light);
-    color: #fff;
-}
-
-body.dark-theme .content-selector button.active {
-    background-color: var(--accent-color-dark);
-    color: var(--bg-color-dark);
+    background-color: #2a2a2a;
+    border-right-color: var(--accent-color-dark);
 }
 
 /* Accordion Styles */
 .accordion ul {
-    list-style-type: none;
+    list-style: none;
     padding-right: 20px;
-}
-.accordion .volume > span, .accordion .part > span {
-    cursor: pointer;
-    font-weight: bold;
-    display: block;
-    padding: 10px;
-    background-color: var(--header-bg-light);
-    border: 1px solid var(--border-color-light);
-    margin-top: 5px;
-    border-radius: 5px;
-}
-body.dark-theme .accordion .volume > span, body.dark-theme .accordion .part > span {
-     background-color: var(--header-bg-dark);
-     border: 1px solid var(--border-color-dark);
-}
-.accordion .article {
-    padding: 10px;
-    border-bottom: 1px dashed var(--border-color-light);
-}
-body.dark-theme .accordion .article {
-     border-bottom: 1px dashed var(--border-color-dark);
+    margin: 0;
 }
 
-.accordion .hidden {
+.accordion li {
+    margin-top: 5px;
+}
+
+.file-group > span, .division-item > .division-title {
+    display: block;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s;
+    position: relative;
+    padding-right: 35px;
+}
+
+.file-group > span::before, .division-item.has-children > .division-title::before {
+    content: '◀';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s;
+    font-size: 0.8em;
+}
+
+.file-group.expanded > span::before, .division-item.expanded > .division-title::before {
+    transform: translateY(-50%) rotate(-90deg);
+}
+
+body.dark-theme .file-group > span, body.dark-theme .division-item > .division-title {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+
+.file-group > span:hover, .division-item > .division-title:hover {
+    background-color: #e9ecef;
+}
+
+body.dark-theme .file-group > span:hover, body.dark-theme .division-item > .division-title:hover {
+    background-color: #383838;
+}
+
+.divisions-container, .subdivisions-container, .article-list {
+    padding-right: 20px;
+    border-right: 2px solid var(--accent-color-light);
+}
+
+body.dark-theme .divisions-container,
+body.dark-theme .subdivisions-container,
+body.dark-theme .article-list {
+    border-right-color: var(--accent-color-dark);
+}
+
+.hidden {
     display: none;
 }
-.accordion span::before {
-    content: '◀';
-    display: inline-block;
-    margin-left: 10px;
-    transition: transform 0.2s;
+
+.article, .gap-notice {
+    background: #fff;
+    padding: 15px;
+    margin-top: 5px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    line-height: 2;
+    text-align: justify; /* <<-- کد اصلی برای تراز کردن متن -->> */
 }
 
-.accordion .expanded > span::before {
-    transform: rotate(-90deg);
+body.dark-theme .article, body.dark-theme .gap-notice {
+    background-color: #222;
+    border-color: #444;
 }
 
-/* Quiz Styles */
-.quiz-container {
-    background-color: var(--header-bg-light);
-    padding: 2rem;
-    border-radius: 8px;
-}
-body.dark-theme .quiz-container {
-    background-color: var(--header-bg-dark);
-}
-.quiz-question {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 1.5rem;
-}
-.quiz-options label {
-    display: block;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border: 1px solid var(--border-color-light);
-    border-radius: 5px;
-    cursor: pointer;
-}
-body.dark-theme .quiz-options label {
-    border: 1px solid var(--border-color-dark);
-}
-.quiz-options label:hover {
-    background-color: var(--bg-color-light);
-}
-body.dark-theme .quiz-options label:hover {
-     background-color: var(--bg-color-dark);
+.article strong {
+    color: #0056b3;
+    margin-left: 8px;
 }
 
-#finish-quiz-btn {
-    display: block;
-    width: 100%;
-    padding: 1rem;
-    font-size: 1.2rem;
-    margin-top: 2rem;
-    background-color: var(--accent-color-light);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-}
-body.dark-theme #finish-quiz-btn {
-    background-color: var(--accent-color-dark);
-    color: var(--bg-color-dark);
+body.dark-theme .article strong {
+    color: #bb86fc;
 }
 
-.quiz-results table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 2rem;
-}
-.quiz-results th, .quiz-results td {
-    border: 1px solid var(--border-color-light);
-    padding: 0.8rem;
-    text-align: center;
-}
-body.dark-theme .quiz-results th, body.dark-theme .quiz-results td {
-     border: 1px solid var(--border-color-dark);
-}
-.quiz-results .correct { color: #28a745; }
-.quiz-results .incorrect { color: #dc3545; }
-
-/* ----- کدهای مخصوص موبایل (ریسپانسیو) ----- */
-/* این کدها فقط روی صفحه‌هایی با عرض کمتر از ۷۶۸ پیکسل اعمال می‌شود */
+/* ------------------- RESPONSIVE (MOBILE) ------------------- */
 @media (max-width: 768px) {
-    
     header#main-header {
-        flex-direction: column; /* آیتم‌های اصلی هدر (چپ و راست) را زیر هم می‌چیند */
-        gap: 15px;              /* فاصله بین ردیف عنوان و ردیف جستجو */
+        flex-direction: column;
+        gap: 15px;
         padding: 1rem;
     }
 
     .header-right {
-        order: 1; /* گروه عنوان و آیکون در بالا قرار می‌گیرد */
+        order: 1; 
+        width: 100%;
+        justify-content: space-between;
     }
 
     .search-container {
-        order: 2; /* کادر جستجو در ردیف پایین قرار می‌گیرد */
-        width: 100%; /* تمام عرض را اشغال می‌کند */
+        order: 2; 
+        width: 100%;
+        margin: 0;
     }
 
     #search-input {
-        width: 90%; /* برای اینکه به لبه‌ها نچسبد */
-    }
-
-    #header-title {
-        font-size: 1.6rem; /* کمی کوچک‌تر کردن فونت عنوان در موبایل */
+        width: 100%;
+        box-sizing: border-box; /* برای اینکه padding داخل عرض محاسبه شود */
     }
 }
