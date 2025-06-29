@@ -6,6 +6,7 @@
     --accent-color-light: #0d6efd;
     --border-color-light: #dee2e6;
     --hover-bg-light: #e9ecef;
+    --highlight-bg: rgba(255, 255, 0, 0.4);
 
     --bg-color-dark: #121212;
     --text-color-dark: #e0e0e0;
@@ -13,6 +14,7 @@
     --accent-color-dark: #64b5f6;
     --border-color-dark: #444;
     --hover-bg-dark: #2a2a2a;
+    --highlight-bg-dark: rgba(187, 134, 252, 0.3);
 }
 
 body {
@@ -29,7 +31,7 @@ body.dark-theme {
     color: var(--text-color-dark);
 }
 
-/* Header */
+/* Header -->> اصلاح شده برای حالت Sticky <<-- */
 header#main-header {
     background-color: var(--header-bg-light);
     padding: 0.5rem 1.5rem;
@@ -39,6 +41,11 @@ header#main-header {
     align-items: center;
     min-height: 60px;
     transition: background-color 0.3s, border-color 0.3s;
+    
+    /* این کد هدر را در بالا ثابت نگه می‌دارد */
+    position: sticky;
+    top: 0;
+    z-index: 1001; /* بالاتر از نوار تب‌ها */
 }
 body.dark-theme header#main-header {
     background-color: var(--header-bg-dark);
@@ -76,7 +83,7 @@ body.dark-theme #header-title {
     width: 250px;
     padding: 0.7rem;
     border: 1px solid var(--border-color-light);
-    border-radius: 8px; /* گوشه گرد */
+    border-radius: 8px;
     background-color: var(--bg-color-light);
     color: var(--text-color-light);
     font-family: 'Vazirmatn', sans-serif;
@@ -88,7 +95,7 @@ body.dark-theme #search-input {
     border-color: var(--border-color-dark);
 }
 
-/* Tabs Navigation */
+/* Tabs Navigation -->> اصلاح شده برای حالت Sticky <<-- */
 .tabs {
     display: flex;
     overflow-x: auto;
@@ -97,14 +104,18 @@ body.dark-theme #search-input {
     background-color: var(--header-bg-light);
     padding: 0 10px;
     border-bottom: 1px solid var(--border-color-light);
+
+    /* این کد نوار تب‌ها را زیر هدر ثابت نگه می‌دارد */
+    position: sticky;
+    top: 77px; /* به اندازه ارتفاع هدر */
+    z-index: 1000;
 }
 .tabs::-webkit-scrollbar { height: 5px; }
 .tabs::-webkit-scrollbar-track { background: #f1f1f1; }
 .tabs::-webkit-scrollbar-thumb { background: #aaa; border-radius: 5px; }
-body.dark-theme .tabs { border-bottom-color: var(--border-color-dark); }
+body.dark-theme .tabs { border-bottom-color: var(--border-color-dark); background-color: var(--header-bg-dark); }
 body.dark-theme .tabs::-webkit-scrollbar-track { background: #2c2c2c; }
 body.dark-theme .tabs::-webkit-scrollbar-thumb { background: #555; }
-
 
 .tab-link {
     padding: 12px 18px;
@@ -124,16 +135,16 @@ body.dark-theme .tabs::-webkit-scrollbar-thumb { background: #555; }
 body.dark-theme .tab-link:hover {
     background-color: var(--hover-bg-dark);
 }
-body.dark-theme .tabs {
-    background-color: var(--header-bg-dark);
-    border-bottom-color: var(--border-color-dark); 
-}
+
+/* >> اصلاح برای ثابت ماندن رنگ تب فعال << */
 .tab-link.active {
     font-weight: 700;
     border-bottom-color: var(--accent-color-light);
+    background-color: var(--hover-bg-light); /* رنگ پس‌زمینه برای تب فعال */
 }
 body.dark-theme .tab-link.active {
     border-bottom-color: var(--accent-color-dark);
+    background-color: var(--hover-bg-dark); /* رنگ پس‌زمینه برای تب فعال در تم تاریک */
 }
 
 /* Main Content & Accordion */
@@ -144,7 +155,7 @@ body.dark-theme .tab-link.active {
 .law-info {
     padding: 15px;
     background-color: var(--hover-bg-light);
-    border-radius: 8px; /* گوشه گرد */
+    border-radius: 8px;
     line-height: 1.7;
     border-right: 5px solid var(--accent-color-light);
     margin-bottom: 20px;
@@ -154,16 +165,12 @@ body.dark-theme .law-info {
     border-right-color: var(--accent-color-dark);
 }
 
-.accordion ul {
-    list-style: none;
-    padding-right: 20px;
-    margin: 0;
-}
+.accordion ul { list-style: none; padding-right: 20px; margin: 0; }
 .accordion li { margin-top: 5px; }
 
 .file-group > span, .division-item > .division-title {
     display: block;
-    padding: 12px;
+    padding: 12px 35px 12px 12px;
     background-color: #fff;
     border: 1px solid var(--border-color-light);
     cursor: pointer;
@@ -171,15 +178,13 @@ body.dark-theme .law-info {
     font-size: 1.1em;
     transition: background-color 0.3s;
     position: relative;
-    padding-right: 35px;
-    border-radius: 8px; /* گوشه گرد */
+    border-radius: 8px;
 }
 body.dark-theme .file-group > span, body.dark-theme .division-item > .division-title {
     background-color: #2a2a2a;
     border-color: var(--border-color-dark);
 }
 
-/* >> کد اصلاح شده برای نمایش آیکون مثلثی << */
 li.has-children > span::before,
 li.has-children > .division-title::before {
     content: '◀';
@@ -203,23 +208,27 @@ li.has-children.expanded > .division-title::before {
     padding: 15px;
     margin-top: 5px;
     border: 1px solid #eee;
-    border-radius: 8px; /* گوشه گرد */
+    border-radius: 8px;
     line-height: 2;
-    text-align: justify; /* تراز کامل متن */
+    text-align: justify;
 }
 body.dark-theme .article {
     background-color: #222;
     border-color: #444;
 }
 
-.article strong {
-    color: #0056b3;
-    margin-left: 8px;
-}
-body.dark-theme .article strong {
-    color: #bb86fc;
-}
+.article strong { color: #0056b3; margin-left: 8px; }
+body.dark-theme .article strong { color: #bb86fc; }
 
+mark {
+    background-color: var(--highlight-bg);
+    border-radius: 3px;
+    padding: 0 2px;
+}
+body.dark-theme mark {
+    background-color: var(--highlight-bg-dark);
+    color: inherit;
+}
 
 /* Responsive (Mobile) */
 @media (max-width: 768px) {
@@ -227,6 +236,10 @@ body.dark-theme .article strong {
         flex-direction: column;
         gap: 10px;
         padding: 1rem;
+        position: static; /* در موبایل هدر را از حالت چسبان خارج می‌کنیم تا فضا اشغال نکند */
+    }
+    .tabs {
+        position: static; /* نوار تب‌ها هم در موبایل عادی می‌شود */
     }
     .header-right {
         order: 1; 
@@ -242,4 +255,5 @@ body.dark-theme .article strong {
         width: 100%;
         box-sizing: border-box;
     }
+    .tab-content { padding: 1rem; }
 }
