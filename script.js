@@ -7,9 +7,6 @@ function toPersianNumerals(str) {
     return String(str).replace(/[0-9]/g, (w) => persian[w]);
 }
 
-let allLawsData = {}; // برای ذخیره داده‌های تمام قوانین پس از بارگذاری
-let isDataLoaded = false; // فلگ برای اینکه بدانیم آیا داده‌ها یک‌بار بارگذاری شده‌اند یا نه
-
 document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('main-content');
     const tabs = document.querySelectorAll('.tab-link');
@@ -23,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ----- 1. قابلیت: تغییر تم -----
     if (headerRight) {
         headerRight.addEventListener('click', (e) => {
+            // جلوگیری از تغییر تم با کلیک روی بخش‌های دیگر هدر
             if (!e.target.closest('.search-container')) {
                 document.body.classList.toggle('dark-theme');
             }
@@ -43,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // ----- 3. ایجاد اسکلت اولیه محتوا -----
+    // ----- 3. ایجاد اسکلت اولیه محتوا (اصلاح شده برای حذف آزمون) -----
     function createInitialSkeletons() {
         for (const key in lawManifest) {
             const law = lawManifest[key];
@@ -52,14 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
             contentDiv.className = 'tab-content';
             
             contentDiv.innerHTML = `
-            <p class="law-info">${law.info}</p>
-            <div class="articles-container accordion"></div>
-            <div class="search-results-container" style="display: none;"></div>
-       `;
+                <p class="law-info">${law.info}</p>
+                <div class="articles-container accordion"></div>
+                <div class="search-results-container" style="display: none;"></div>
+            `;
             mainContent.appendChild(contentDiv);
 
             renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files, key);
-            setupQuiz(contentDiv, key);
         }
         if (document.querySelector('.tab-content')) {
             document.querySelector('.tab-content').classList.add('active');
@@ -176,178 +173,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isDataLoaded) return;
         const promises = [];
         for (const lawKey in lawManifest) {
-            if (!allLawsData[lawKey]) {
-                allLawsData[lawKey] = [];
-            }
+            if (!allLawsData[lawKey]) allLawsData[lawKey] = [];
             lawManifest[lawKey].files.forEach(fileInfo => {
                 promises.push(
                     fetch(fileInfo.path)
-                        .then(res => {
-                            if (!res.ok) throw new Error(`Network response was not ok for ${fileInfo.path}`);
-                            return res.json();
-                        })
-                        .then(data => {
-                            allLawsData[lawKey].push({ lawKey, fileInfo, data });
-                        })
-                );
-            });
-        }
-        await Promise.all(promises);
-        isDataLoaded = true;
-    }
-
-    function performSearch(term) {
-        const results = [];
-        term = term.toLowerCase();
-
-        for (const lawKey in allLawsData) {
-            const lawFiles = allLawsData[lawKey];
-            lawFiles.forEach(fileData => {
-                function searchInDivisions(divisions) {
-                    divisions.forEach(division => {
-                        if (division.title && division.title.toLowerCase().includes(term)) {
-                            if (division.articles) {
-                                division.articles.forEach(article => {
-                                    if (!results.some(r => r.article === article)) results.push({ lawInfo: lawManifest[lawKey], division, article });
-                                });
-                            }
-                        }
-                        if (division.articles) {
-                            division.articles.forEach(article => {
-                                const articleNum = String(article.article_number).toLowerCase();
-                                const articleText = (article.text || article.description || '').toLowerCase();
-                                if (articleNum.includes(term) || articleText.includes(term)) {
-                                    if (!results.some(r => r.article === article)) results.push({ lawInfo: lawManifest[lawKey], division, article });
-                                }
-                            });
-                        }
-                        if (division.subdivisions) searchInDivisions(division.subdivisions);
-                    });
-                }
-                searchInDivisions(fileData.data.divisions);
-            });
-        }
-        renderSearchResults(results, term);
-    }
-    
-    function renderSearchResults(results, term) {
-        document.querySelectorAll('.tab-content').forEach(tc => {
-            const resultsContainer = tc.querySelector('.search-results-container');
-            const articlesContainer = tc.querySelector('.articles-container');
-            articlesContainer.style.display = 'none';
-            resultsContainer.style.display = 'block';
-            resultsContainer.innerHTML = '';
-
-            if (results.length === 0) {
-                resultsContainer.innerHTML = '<p>هیچ نتیجه‌ای یافت نشد.</p>';
-                return;
-            }
-            
-            const resultCount = document.createElement('p');
-            resultCount.innerHTML = `تعداد نتایج یافت شده: <strong>${toPersianNumerals(results.length)}</strong>`;
-            resultsContainer.appendChild(resultCount);
-            
-            const regex = new RegExp(term, 'gi');
-
-            results.forEach(res => {
-                const resDiv = document.createElement('div');
-                resDiv.className = 'search-result-item';
-                const rawText = res.article.text || (res.article.description || '');
-                const formattedText = rawText.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>");
-                const highlightedText = term ? formattedText.replace(regex, match => `<mark>${match}</mark>`) : formattedText;
-
-                let titlePrefix = '';
-                if (res.article.article_number) {
-                    if (!isNaN(parseInt(res.article.article_number, 10))) {
-                        titlePrefix = `<strong>${res.lawInfo.article_word} ${res.article.article_number}:</strong>`;
-                    } else {
-                        titlePrefix = `<strong>${res.article.article_number}:</strong>`;
-                    }
-                }
-                
-                resDiv.innerHTML = `<div class="result-path">${res.lawInfo.title} > ${toPersianNumerals(res.division.title)}</div><div class="article">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(highlightedText)}</div>`;
-                resultsContainer.appendChild(resDiv);
-            });
-        });
-    }
-
-    function hideSearchResults() {
-        document.querySelectorAll('.tab-content').forEach(tc => {
-            const resultsContainer = tc.querySelector('.search-results-container');
-            const articlesContainer = tc.querySelector('.articles-container');
-            if (resultsContainer) resultsContainer.style.display = 'none';
-            if (articlesContainer) articlesContainer.style.display = 'block';
-        });
-    }
-
-    searchInput.addEventListener('input', async (e) => {
-        const searchTerm = e.target.value.trim();
-        if (searchTerm.length < 2) {
-            hideSearchResults();
-            return;
-        }
-        if (!isDataLoaded) {
-            const activeTab = document.querySelector('.tab-content.active');
-            if(activeTab) {
-                const resultsContainer = activeTab.querySelector('.search-results-container');
-                resultsContainer.style.display = 'block';
-                resultsContainer.innerHTML = '<p>برای اولین جستجو، در حال آماده‌سازی داده‌ها... لطفاً صبر کنید.</p>';
-            }
-            await loadAllDataForSearch();
-        }
-        performSearch(searchTerm);
-    });
-
-    // ----- قابلیت: نمایش محتوای ماده‌ها یا آزمون -----
-    mainContent.addEventListener('click', e => {
-        if (e.target.classList.contains('view-toggle-btn')) {
-            const parentContent = e.target.closest('.tab-content');
-            parentContent.querySelectorAll('.view-toggle-btn').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-
-            const articlesView = parentContent.querySelector('.articles-container');
-            const searchView = parentContent.querySelector('.search-results-container');
-            const quizView = parentContent.querySelector('.quiz-container');
-
-            articlesView.style.display = 'none';
-            searchView.style.display = 'none';
-            quizView.style.display = 'none';
-
-            if (e.target.dataset.view === 'quiz') {
-                quizView.style.display = 'block';
-            } else {
-                articlesView.style.display = 'block';
-            }
-        }
-    });
-
-    // ----- قابلیت: منطق آزمون -----
-    function setupQuiz(container, lawKey) {
-        // This function can be filled out later if needed
-    }
-
-// ===== شروع قطعه کد جدید برای افزودن =====
-
-    // ----- 7. منطق جدید و کامل برای جستجو -----
-
-    // این تابع تمام فایل‌های JSON را یک‌بار در پس‌زمینه بارگذاری می‌کند
-    async function loadAllDataForSearch() {
-        if (isDataLoaded) return;
-        const promises = [];
-        for (const lawKey in lawManifest) {
-            if (!allLawsData[lawKey]) {
-                allLawsData[lawKey] = [];
-            }
-            lawManifest[lawKey].files.forEach(fileInfo => {
-                promises.push(
-                    fetch(fileInfo.path)
-                        .then(res => {
-                            if (!res.ok) throw new Error(`پاسخ شبکه برای فایل ${fileInfo.path} موفقیت‌آمیز نبود`);
-                            return res.json();
-                        })
-                        .then(data => {
-                            allLawsData[lawKey].push({ lawKey, fileInfo, data });
-                        }).catch(err => console.error(`خطا در بارگذاری فایل ${fileInfo.path}:`, err))
+                        .then(res => res.json())
+                        .then(data => { allLawsData[lawKey].push({ lawKey, fileInfo, data }); })
+                        .catch(err => console.error(`خطا در بارگذاری فایل ${fileInfo.path}:`, err))
                 );
             });
         }
@@ -356,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("تمام داده‌های جستجو در پس‌زمینه بارگذاری شد.");
     }
 
-    // تابع اصلی که جستجو را انجام می‌دهد
     function performSearch(term) {
         const results = [];
         term = term.toLowerCase();
@@ -367,15 +198,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 function searchInDivisions(divisions, path) {
                     divisions.forEach(division => {
                         const currentPath = path.concat(division.title);
-                        // جستجو در عنوان بخش
-                        if (division.title.toLowerCase().includes(term)) {
+                        if (division.title && division.title.toLowerCase().includes(term)) {
                             if (division.articles) {
                                 division.articles.forEach(article => {
                                     if (!results.some(r => r.article === article)) results.push({ lawInfo: lawManifest[lawKey], division, article, path: currentPath });
                                 });
                             }
                         }
-                        // جستجو در مواد
                         if (division.articles) {
                             division.articles.forEach(article => {
                                 const articleNum = String(article.article_number).toLowerCase();
@@ -385,10 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 }
                             });
                         }
-                        // جستجو در زیرمجموعه‌ها
-                        if (division.subdivisions) {
-                            searchInDivisions(division.subdivisions, currentPath);
-                        }
+                        if (division.subdivisions) searchInDivisions(division.subdivisions, currentPath);
                     });
                 }
                 if (fileData.data && fileData.data.divisions) {
@@ -399,14 +225,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSearchResults(results, term);
     }
     
-    // تابع نمایش نتایج جستجو
     function renderSearchResults(results, term) {
-        // نتایج در تمام تب‌ها نمایش داده می‌شود تا کاربر آنها را ببیند
         document.querySelectorAll('.tab-content').forEach(tc => {
             const resultsContainer = tc.querySelector('.search-results-container');
-            if(!resultsContainer) return; // اگر کانتینر وجود نداشت، ادامه نده
-            
-            resultsContainer.innerHTML = ''; // پاک کردن نتایج قبلی
+            if(!resultsContainer) return;
+            resultsContainer.innerHTML = '';
 
             const relevantResults = results.filter(r => r.lawInfo.title === lawManifest[tc.id].title);
 
@@ -435,13 +258,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 
-                resDiv.innerHTML = `<div class="result-path">${toPersianNumerals(res.path.join(' > '))}</div><div class="article">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(highlightedText)}</div>`;
+                resDiv.innerHTML = `
+                    <div class="result-path">${toPersianNumerals(res.path.join(' > '))}</div>
+                    <div class="article">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(highlightedText)}</div>
+                `;
                 resultsContainer.appendChild(resDiv);
             });
         });
     }
 
-    // تابع مخفی کردن نتایج جستجو
     function hideSearchResults() {
         document.querySelectorAll('.tab-content').forEach(tc => {
             const resultsContainer = tc.querySelector('.search-results-container');
@@ -451,11 +276,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // رویداد اصلی جستجو
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.trim();
         
-        // نمایش یا عدم نمایش بخش نتایج
         document.querySelectorAll('.tab-content').forEach(tc => {
              const resultsContainer = tc.querySelector('.search-results-container');
              const articlesContainer = tc.querySelector('.articles-container');
@@ -467,10 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
              }
         });
 
-
-        if (searchTerm.length < 2) {
-            return;
-        }
+        if (searchTerm.length < 2) return;
         
         if (!isDataLoaded) {
             document.querySelectorAll('.search-results-container').forEach(rc => {
@@ -478,14 +298,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             return;
         }
-
         performSearch(searchTerm);
     });
 
-// ===== پایان قطعه کد جدید =====
-
-    // ----- اجرای تابع اولیه -----
+    // ----- اجرای توابع اولیه -----
     createInitialSkeletons();
-    // >> اصلاح نهایی: بارگذاری داده‌ها در پس‌زمینه بلافاصله بعد از بالا آمدن صفحه <<
     loadAllDataForSearch(); 
 });
+
+// ===== پایان کد کامل و نهایی script.js =====
