@@ -379,25 +379,33 @@ body.dark-theme .tab-link {
     }
 }
 
-/* ===== شروع کد اصلاحی برای حذف کامل سایه کلیک ===== */
+/* ===== شروع کد نهایی برای حذف کامل سایه کلیک ===== */
 
 /* این کد، سایه آبی پیش‌فرض مرورگر را از روی تمام عناصر تعاملی حذف می‌کند */
-button, a, input, span[data-path], .division-title {
+button,
+a,
+input,
+.header-right, /* برای کلیک روی هدر */
+.file-group > span, /* برای کلیک روی عنوان فایل‌ها */
+.division-item > .division-title /* برای کلیک روی عناوین داخلی */
+{
     -webkit-tap-highlight-color: transparent; /* حذف هایلایت در موبایل‌های لمسی */
 }
 
 button:focus,
-input:focus,
 a:focus,
-span[data-path]:focus,
-.division-title:focus,
+input:focus,
+.header-right:focus,
+.file-group > span:focus,
+.division-item > .division-title:focus,
 button:focus-visible,
-input:focus-visible,
 a:focus-visible,
-span[data-path]:focus-visible,
-.division-title:focus-visible {
-    outline: none !important; /* !important برای اطمینان از اعمال شدن */
-    box-shadow: none !important; /* حذف هرگونه سایه دیگر */
+input:focus-visible,
+.header-right:focus-visible,
+.file-group > span:focus-visible,
+.division-item > .division-title:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* ===== پایان کد اصلاحی ===== */
