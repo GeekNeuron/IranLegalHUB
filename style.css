@@ -229,7 +229,7 @@ body.dark-theme mark {
 .article-list {
     max-height: 0; /* در حالت بسته، حداکثر ارتفاع صفر است */
     overflow: hidden; /* محتوای اضافی را پنهان می‌کند */
-    transition: max-height 0.4s ease-in-out; /* <<-- خود انیمیشن نرم -->> */
+    transition: max-height 0.6s ease-in-out; /* <<-- خود انیمیشن نرم -->> */
     padding-right: 20px; /* این خط از کدهای قبلی منتقل شده */
     border-right: 2px solid var(--accent-color-light); /* این خط از کدهای قبلی منتقل شده */
     margin: 0;
@@ -239,7 +239,7 @@ body.dark-theme mark {
 li.expanded > .divisions-container,
 li.expanded > .subdivisions-container,
 li.expanded > .article-list {
-    max-height: 500vh; /* ...حداکثر ارتفاع بسیار بزرگی به آن می‌دهیم تا تمام محتوا جا شود */
+    max-height: 10000vh; /* ...حداکثر ارتفاع بسیار بزرگی به آن می‌دهیم تا تمام محتوا جا شود */
 }
 
 /* استایل تم تاریک برای بوردر کنار منوها */
@@ -379,16 +379,25 @@ body.dark-theme .tab-link {
     }
 }
 
-/* ===== شروع کد اصلاحی برای حذف سایه کلیک ===== */
+/* ===== شروع کد اصلاحی برای حذف کامل سایه کلیک ===== */
 
 /* این کد، سایه آبی پیش‌فرض مرورگر را از روی تمام عناصر تعاملی حذف می‌کند */
+button, a, input, span[data-path], .division-title {
+    -webkit-tap-highlight-color: transparent; /* حذف هایلایت در موبایل‌های لمسی */
+}
+
 button:focus,
 input:focus,
 a:focus,
-[data-path] > span:focus,
-.division-title:focus {
-    outline: none;
-    box-shadow: none; /* اطمینان از حذف هرگونه سایه دیگر هنگام فوکوس */
+span[data-path]:focus,
+.division-title:focus,
+button:focus-visible,
+input:focus-visible,
+a:focus-visible,
+span[data-path]:focus-visible,
+.division-title:focus-visible {
+    outline: none !important; /* !important برای اطمینان از اعمال شدن */
+    box-shadow: none !important; /* حذف هرگونه سایه دیگر */
 }
 
 /* ===== پایان کد اصلاحی ===== */
