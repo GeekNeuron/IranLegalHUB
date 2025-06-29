@@ -79,31 +79,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // ----- تابع جدید برای رندر کردن ساختار تو در توی قانون -----
-    function renderDivisions(container, divisions, articleWord) {
-        container.innerHTML = '';
-        const ul = document.createElement('ul');
-        ul.className = 'top-level-division';
+// ----- این تابع را در script.js خود به طور کامل جایگزین کنید -----
 
-        divisions.forEach(division => {
-            const li = document.createElement('li');
-            li.className = `division-item type-${division.type}`;
+function renderDivisions(container, divisions, articleWord) {
+    container.innerHTML = ''; 
+    const ul = document.createElement('ul');
+    ul.className = 'top-level-division';
 
-            // بررسی اینکه آیا زیرمجموعه دارد یا خیر
-            const hasChildren = division.subdivisions && division.subdivisions.length > 0;
-            if (hasChildren) {
-                li.classList.add('has-children');
-            }
+    divisions.forEach(division => {
+        const li = document.createElement('li');
+        li.className = `division-item type-${division.type}`;
+        
+        const hasChildren = division.subdivisions && division.subdivisions.length > 0;
+        if (hasChildren) {
+            li.classList.add('has-children');
+        }
 
-            // ساخت HTML برای مواد/اصول
-            let articlesHTML = '';
-            if (division.articles) {
-                articlesHTML = '<ul class="article-list hidden">';
-                division.articles.forEach(article => {
-                    const formattedText = article.text.replace(/(\r\n|\n|\r|\\n|\/n)/g, "<br>");
-                    
-                    // >> منطق تشخیص اصل/ماده/عنوان <<
-                    let titlePrefix = '';
+        let articlesHTML = '';
+        if (division.articles) {
+            articlesHTML = '<ul class="article-list hidden">';
+            division.articles.forEach(article => {
+                // --- >> شروع بخش اصلاح شده << ---
+
+                // 1. تمام حالت‌های ممکن خط جدید را با <br> جایگزین می‌کنیم
+                // این کد هم /n و هم \n واقعی را پوشش می‌دهد
+                const formattedText = article.text.replace(/(\r\n|\n|\r|\\n|\/n)/g, "<br>");
+
+                // 2. پیشوند "اصل" یا "ماده" را به درستی مدیریت می‌کنیم
+                let titlePrefix = '';
+                if (article.article_number) {
                     if (!isNaN(parseInt(article.article_number, 10))) {
                         // اگر شماره ماده یک عدد بود
                         titlePrefix = `<strong>${articleWord} ${article.article_number}:</strong>`;
@@ -111,45 +115,44 @@ document.addEventListener('DOMContentLoaded', () => {
                         // اگر یک عنوان بود (مثل مقدمه)
                         titlePrefix = `<strong>${article.article_number}:</strong>`;
                     }
-
-                    articlesHTML += `<li class="article">${titlePrefix} ${formattedText}</li>`;
-                });
-                articlesHTML += '</ul>';
-            }
-            
-            // ساخت HTML برای زیرمجموعه‌ها (بازگشتی)
-            let subdivisionsHTML = '';
-            if (hasChildren) {
-                const subContainer = document.createElement('div');
-                subContainer.className = 'subdivisions-container hidden';
-                renderDivisions(subContainer, division.subdivisions, articleWord);
-                subdivisionsHTML = subContainer.outerHTML;
-            }
-            
-            li.innerHTML = `
-                <span class="division-title">${division.type} ${division.title}</span>
-                ${articlesHTML}
-                ${subdivisionsHTML}
-            `;
-            ul.appendChild(li);
-        });
-
-        container.appendChild(ul);
-        
-        // افزودن event listener برای باز و بسته کردن زیرمجموعه‌های جدید
-        container.querySelectorAll('.division-title').forEach(title => {
-            title.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const parentItem = e.target.parentElement;
-                parentItem.classList.toggle('expanded');
-                // باز کردن کانتینر فرزند (چه مواد باشد چه زیربخش)
-                const childContainer = parentItem.querySelector('.article-list, .subdivisions-container');
-                if (childContainer) {
-                    childContainer.classList.toggle('hidden');
                 }
+                
+                articlesHTML += `<li class="article">${titlePrefix} ${formattedText}</li>`;
+                // --- >> پایان بخش اصلاح شده << ---
             });
+            articlesHTML += '</ul>';
+        }
+        
+        let subdivisionsHTML = '';
+        if (hasChildren) {
+            const subContainer = document.createElement('div');
+            subContainer.className = 'subdivisions-container hidden';
+            renderDivisions(subContainer, division.subdivisions, articleWord);
+            subdivisionsHTML = subContainer.outerHTML;
+        }
+        
+        li.innerHTML = `
+            <span class="division-title">${division.title}</span>
+            ${articlesHTML}
+            ${subdivisionsHTML}
+        `;
+        ul.appendChild(li);
+    });
+
+    container.appendChild(ul);
+    
+    container.querySelectorAll('.division-title').forEach(title => {
+        title.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const parentItem = e.target.parentElement;
+            parentItem.classList.toggle('expanded');
+            const childContainer = parentItem.querySelector('.article-list, .subdivisions-container');
+            if (childContainer) {
+                childContainer.classList.toggle('hidden');
+            }
         });
-    }
+    });
+}
 
     // ----- اجرای تابع اولیه -----
     createInitialSkeletons();
