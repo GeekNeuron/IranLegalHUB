@@ -147,3 +147,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // ----- اجرای تابع اولیه -----
     createInitialSkeletons();
 });
+
