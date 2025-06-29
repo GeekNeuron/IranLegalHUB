@@ -124,6 +124,10 @@ body.dark-theme .tabs::-webkit-scrollbar-thumb { background: #555; }
 body.dark-theme .tab-link:hover {
     background-color: var(--hover-bg-dark);
 }
+body.dark-theme .tabs {
+    background-color: var(--header-bg-dark);
+    border-bottom-color: var(--border-color-dark); 
+}
 .tab-link.active {
     font-weight: 700;
     border-bottom-color: var(--accent-color-light);
