@@ -18,14 +18,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const headerRight = document.querySelector('.header-right');
 
-    // ----- 1. تعویض تم -----
+    // ----- 1. قابلیت: تغییر تم -----
     if (headerRight) {
         headerRight.addEventListener('click', (e) => {
-            if (e.target.tagName !== 'INPUT') {
+            // جلوگیری از تغییر تم با کلیک روی بخش‌های دیگر هدر
+            if (e.target.closest('.header-right')) {
                 document.body.classList.toggle('dark-theme');
             }
         });
     }
+    // جلوگیری از تغییر تم هنگام کلیک روی کادر جستجو
+    if(searchInput) {
+        searchInput.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
 
     // ----- 2. منطق زبانه‌ها (Tabs) -----
     tabs.forEach(tab => {
@@ -46,12 +54,20 @@ document.addEventListener('DOMContentLoaded', () => {
             contentDiv.id = key;
             contentDiv.className = 'tab-content';
             
-            contentDiv.innerHTML = `<p class="law-info">${law.info}</p>`;
-            const articlesContainer = document.createElement('div');
-            articlesContainer.className = 'articles-container accordion';
-            contentDiv.appendChild(articlesContainer);
+            // اضافه کردن بخش انتخاب نما (ماده‌ها / آزمون)
+            contentDiv.innerHTML = `
+                <p class="law-info">${law.info}</p>
+                <div class="content-selector">
+                    <button class="view-toggle-btn active" data-view="articles">ماده‌ها / اصول</button>
+                    <button class="view-toggle-btn" data-view="quiz">آزمون</button>
+                </div>
+                <div class="articles-container accordion"></div>
+                <div class="quiz-container" style="display: none;"></div>
+            `;
             mainContent.appendChild(contentDiv);
-            renderAccordionSkeleton(articlesContainer, law.files, key);
+
+            renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files, key);
+            setupQuiz(contentDiv, key); // آماده‌سازی بخش آزمون برای هر تب
         }
         if (document.querySelector('.tab-content')) {
             document.querySelector('.tab-content').classList.add('active');
@@ -76,37 +92,36 @@ document.addEventListener('DOMContentLoaded', () => {
         container.appendChild(mainUl);
     }
     
-    // ----- 5. بارگذاری داده‌ها -----
+    // ----- 5. بارگذاری داده‌ها از JSON -----
     mainContent.addEventListener('click', async (e) => {
-        const targetSpan = e.target.closest('span');
-        const fileGroup = e.target.closest('.file-group');
-        
-        if (fileGroup && targetSpan && fileGroup.contains(targetSpan)) {
-            const divisionsContainer = fileGroup.querySelector('.divisions-container');
-            const isLoaded = fileGroup.dataset.loaded === 'true';
+        const fileGroup = e.target.closest('.file-group > span');
+        if (fileGroup) {
+            const parentLi = fileGroup.parentElement;
+            const divisionsContainer = parentLi.querySelector('.divisions-container');
+            const isLoaded = parentLi.dataset.loaded === 'true';
 
             if (!isLoaded) {
                 try {
                     divisionsContainer.innerHTML = '<p>در حال بارگذاری...</p>';
-                    const response = await fetch(fileGroup.dataset.path);
+                    const response = await fetch(parentLi.dataset.path);
                     if (!response.ok) throw new Error(`فایل یافت نشد!`);
                     const data = await response.json();
                     
-                    const lawKey = fileGroup.dataset.lawKey;
+                    const lawKey = parentLi.dataset.lawKey;
                     const articleWord = lawManifest[lawKey].article_word;
                     
                     renderDivisions(divisionsContainer, data.divisions, articleWord);
-                    fileGroup.dataset.loaded = 'true';
+                    parentLi.dataset.loaded = 'true';
                 } catch (error) {
                     divisionsContainer.innerHTML = `<p style="color: red;">خطا: ${error.message}</p>`;
                 }
             }
-            fileGroup.classList.toggle('expanded');
+            parentLi.classList.toggle('expanded');
             divisionsContainer.classList.toggle('hidden');
         }
     });
     
-    // ----- 6. تابع رندر کردن ساختار تو در تو (با تمام اصلاحات) -----
+    // ----- 6. تابع رندر کردن ساختار تو در توی قانون -----
     function renderDivisions(container, divisions, articleWord) {
         container.innerHTML = '';
         const ul = document.createElement('ul');
@@ -114,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         divisions.forEach(division => {
             const li = document.createElement('li');
-            li.className = `division-item type-${division.type.replace(/\s+/g, '-').toLowerCase()}`;
+            li.className = `division-item`;
             
             const hasChildren = division.subdivisions && division.subdivisions.length > 0;
             if (hasChildren) {
@@ -125,35 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (division.articles) {
                 articlesHTML = '<ul class="article-list hidden">';
                 division.articles.forEach(article => {
-                    let articleContent = '';
-                    
-                    // --- >> شروع بخش اصلاح شده اصلی << ---
-                    // ابتدا نوع آیتم را چک می‌کنیم
-                    if (article.entry_type === 'numbering_gap_notice') {
-                        // اگر آیتم از نوع "اعلان جای خالی" بود
-                        articleContent = `<li class="article gap-notice">
-                            <strong>توجه:</strong> ${toPersianNumerals(article.description)} (مواد ${toPersianNumerals(article.article_range)})
-                        </li>`;
-                    } else {
-                        // اگر یک ماده یا اصل عادی بود
-                        const formattedText = article.text ? article.text.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>") : '';
-                        
-                        let titlePrefix = '';
-                        if (article.article_number) {
-                            if (!isNaN(parseInt(article.article_number, 10))) {
-                                titlePrefix = `<strong>${articleWord} ${article.article_number}:</strong>`;
-                            } else {
-                                titlePrefix = `<strong>${article.article_number}:</strong>`;
-                            }
+                    const formattedText = article.text ? article.text.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>") : '';
+                    let titlePrefix = '';
+                    if (article.article_number) {
+                        if (!isNaN(parseInt(article.article_number, 10))) {
+                            titlePrefix = `<strong>${articleWord} ${article.article_number}:</strong>`;
+                        } else {
+                            titlePrefix = `<strong>${article.article_number}:</strong>`;
                         }
-                        
-                        const persianTitle = toPersianNumerals(titlePrefix);
-                        const persianText = toPersianNumerals(formattedText);
-                        
-                        articleContent = `<li class="article" data-number="${article.article_number}">${persianTitle} ${persianText}</li>`;
                     }
-                    articlesHTML += articleContent;
-                    // --- >> پایان بخش اصلاح شده اصلی << ---
+                    articlesHTML += `<li class="article" data-number="${article.article_number}">${titlePrefix} ${formattedText}</li>`;
                 });
                 articlesHTML += '</ul>';
             }
@@ -166,11 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 subdivisionsHTML = subContainer.outerHTML;
             }
             
-            li.innerHTML = `
-                <span class="division-title">${toPersianNumerals(division.title)}</span>
-                ${articlesHTML}
-                ${subdivisionsHTML}
-            `;
+            li.innerHTML = `<span class="division-title">${toPersianNumerals(division.title)}</span>${articlesHTML}${subdivisionsHTML}`;
             ul.appendChild(li);
         });
 
@@ -189,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ----- 7. منطق جستجو -----
+    // ----- 7. قابلیت: جستجو -----
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.trim().toLowerCase();
         const activeTabContent = document.querySelector('.tab-content.active');
@@ -211,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (cleanText.includes(searchTerm)) {
                     article.style.display = 'list-item';
                     const regex = new RegExp(searchTerm, 'gi');
-                    article.innerHTML = originalHTML.replace(regex, (match) => `<mark>${match}</mark>`);
+                    article.innerHTML = originalHTML.replace(/<mark>|<\/mark>/g, '').replace(regex, (match) => `<mark>${match}</mark>`);
                 } else {
                     article.style.display = 'none';
                 }
@@ -219,6 +211,122 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ----- 8. قابلیت: نمایش محتوای ماده‌ها یا آزمون -----
+    mainContent.addEventListener('click', e => {
+        if (e.target.classList.contains('view-toggle-btn')) {
+            const parentContent = e.target.closest('.tab-content');
+            parentContent.querySelectorAll('.view-toggle-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            const articlesView = parentContent.querySelector('.articles-container');
+            const quizView = parentContent.querySelector('.quiz-container');
+
+            if (e.target.dataset.view === 'quiz') {
+                articlesView.style.display = 'none';
+                quizView.style.display = 'block';
+            } else {
+                articlesView.style.display = 'block';
+                quizView.style.display = 'none';
+            }
+        }
+    });
+
+    // ----- 9. قابلیت: منطق آزمون -----
+    function setupQuiz(container, lawKey) {
+        const quizContainer = container.querySelector('.quiz-container');
+        const law = lawManifest[lawKey];
+        const allQuestions = [];
+        
+        // جمع‌آوری سوالات از فایل‌های مختلف در صورت وجود
+        if (law.quiz && law.quiz.length > 0) {
+            allQuestions.push(...law.quiz);
+        }
+
+        if (allQuestions.length === 0) {
+            quizContainer.innerHTML = '<p>آزمونی برای این بخش تعریف نشده است.</p>';
+            return;
+        }
+
+        const startBtn = document.createElement('button');
+        startBtn.textContent = 'شروع آزمون';
+        startBtn.className = 'start-quiz-btn';
+        quizContainer.innerHTML = ''; // پاک کردن محتوای قبلی
+        quizContainer.appendChild(startBtn);
+
+        startBtn.addEventListener('click', () => {
+            runQuiz(quizContainer, allQuestions);
+        });
+    }
+
+    function runQuiz(container, questions) {
+        const randomQuestions = [...questions].sort(() => 0.5 - Math.random()).slice(0, 20);
+        let userAnswers = {};
+
+        let questionsHTML = '';
+        randomQuestions.forEach((q, index) => {
+            const shuffledOptions = [...q.options].sort(() => 0.5 - Math.random());
+            let optionsHTML = '';
+            shuffledOptions.forEach(opt => {
+                optionsHTML += `<label><input type="radio" name="question-${index}" value="${opt}"> ${opt}</label>`;
+            });
+            questionsHTML += `<div class="quiz-question-block"><p class="quiz-question">${toPersianNumerals(index + 1)}. ${q.question}</p><div class="quiz-options">${optionsHTML}</div></div><hr>`;
+        });
+        
+        container.innerHTML = `
+            <div class="quiz-header"><h3>زمان سپری شده: ۰ دقیقه و ۰ ثانیه</h3></div>
+            <div id="quiz-area">${questionsHTML}</div>
+            <button id="finish-quiz-btn">پایان آزمون</button>
+            <div class="quiz-results"></div>
+        `;
+        const quizStartTime = new Date();
+        const quizTimerInterval = setInterval(() => {
+            const now = new Date();
+            const timeDiff = Math.round((now - quizStartTime) / 1000);
+            const minutes = Math.floor(timeDiff / 60);
+            const seconds = timeDiff % 60;
+            const timerDisplay = container.querySelector('.quiz-header h3');
+            if (timerDisplay) {
+                timerDisplay.textContent = `زمان سپری شده: ${toPersianNumerals(minutes)} دقیقه و ${toPersianNumerals(seconds)} ثانیه`;
+            }
+        }, 1000);
+
+        container.querySelector('#finish-quiz-btn').addEventListener('click', () => {
+            clearInterval(quizTimerInterval);
+            randomQuestions.forEach((q, index) => {
+                const selected = container.querySelector(`input[name="question-${index}"]:checked`);
+                userAnswers[index] = selected ? selected.value : null;
+            });
+            showResults(container, randomQuestions, userAnswers, quizStartTime);
+        });
+    }
+
+    function showResults(container, questions, answers, startTime) {
+        let correctCount = 0;
+        let resultsHTML = `<table><tr><th>سوال</th><th>پاسخ شما</th><th>پاسخ صحیح</th><th>نتیجه</th></tr>`;
+        questions.forEach((q, index) => {
+            const isCorrect = answers[index] === q.correctAnswer;
+            if (isCorrect) correctCount++;
+            resultsHTML += `<tr>
+                <td>${q.question}</td>
+                <td>${answers[index] || 'بدون پاسخ'}</td>
+                <td>${q.correctAnswer}</td>
+                <td class="${isCorrect ? 'correct' : 'incorrect'}">${isCorrect ? '✔' : '✖'}</td>
+            </tr>`;
+        });
+        resultsHTML += '</table>';
+        
+        const timeDiff = Math.round((new Date() - startTime) / 1000);
+        const score = (correctCount / questions.length) * 100;
+        const summaryHTML = `<h2>امتیاز شما: ${toPersianNumerals(score.toFixed(1))}% (${toPersianNumerals(correctCount)} از ${toPersianNumerals(questions.length)})</h2>
+                             <p>زمان پاسخگویی: ${toPersianNumerals(Math.floor(timeDiff/60))} دقیقه و ${toPersianNumerals(timeDiff%60)} ثانیه</p>`;
+
+        container.querySelector('.quiz-results').innerHTML = summaryHTML + resultsHTML;
+        container.querySelector('#quiz-area').style.display = 'none';
+        container.querySelector('#finish-quiz-btn').style.display = 'none';
+    }
+
     // ----- اجرای تابع اولیه -----
     createInitialSkeletons();
 });
+
+// ===== پایان کد کامل و نهایی script.js =====
