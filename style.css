@@ -245,3 +245,98 @@ body.dark-theme mark {
 body.dark-theme .tab-link {
     color: var(--text-color-dark);
 }
+
+/* ===== استایل‌های فوتر ===== */
+.site-footer {
+    background-color: var(--header-bg-dark); /* همیشه تیره، شبیه نمونه */
+    color: #a0a0a0; /* رنگ متن خنثی برای فوتر */
+    padding: 40px 20px 10px 20px;
+    font-size: 0.9em;
+}
+
+.footer-container {
+    display: flex;
+    flex-wrap: wrap; /* برای نمایش زیر هم در موبایل */
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 20px; /* فاصله بین ستون‌ها */
+}
+
+.footer-column {
+    flex: 1;
+    min-width: 220px; /* حداقل عرض برای هر ستون */
+}
+
+.footer-column h4 {
+    color: #ffffff;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    border-bottom: 2px solid var(--accent-color-dark);
+    padding-bottom: 10px;
+}
+
+.footer-column p {
+    line-height: 1.8;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    color: #a0a0a0;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: var(--accent-color-dark);
+}
+
+.social-icons {
+    margin-top: 20px;
+}
+
+.social-icons a {
+    display: inline-block;
+    color: #a0a0a0;
+    font-size: 1.5rem; /* اندازه آیکون‌ها */
+    margin-left: 15px;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: var(--accent-color-dark);
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color-dark);
+    font-size: 0.8em;
+}
+
+/* استایل ریسپانسیو برای فوتر در موبایل */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .social-icons {
+        text-align: center;
+    }
+    
+    .social-icons a {
+        margin: 0 10px;
+    }
+}
