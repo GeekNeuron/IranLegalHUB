@@ -7,6 +7,9 @@ function toPersianNumerals(str) {
     return String(str).replace(/[0-9]/g, (w) => persian[w]);
 }
 
+let allLawsData = {}; // برای ذخیره داده‌های تمام قوانین پس از بارگذاری
+let isDataLoaded = false; // فلگ برای اینکه بدانیم آیا داده‌ها یک‌بار بارگذاری شده‌اند یا نه
+
 document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('main-content');
     const tabs = document.querySelectorAll('.tab-link');
@@ -49,15 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
             contentDiv.className = 'tab-content';
             
             contentDiv.innerHTML = `
-                <p class="law-info">${law.info}</p>
-                <div class="content-selector">
-                    <button class="view-toggle-btn active" data-view="articles">ماده‌ها / اصول</button>
-                    <button class="view-toggle-btn" data-view="quiz">آزمون</button>
-                </div>
-                <div class="articles-container accordion"></div>
-                <div class="search-results-container" style="display: none;"></div>
-                <div class="quiz-container" style="display: none;"></div>
-            `;
+            <p class="law-info">${law.info}</p>
+            <div class="articles-container accordion"></div>
+            <div class="search-results-container" style="display: none;"></div>
+       `;
             mainContent.appendChild(contentDiv);
 
             renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files, key);
@@ -328,6 +326,166 @@ document.addEventListener('DOMContentLoaded', () => {
         // This function can be filled out later if needed
     }
 
+// ===== شروع قطعه کد جدید برای افزودن =====
+
+    // ----- 7. منطق جدید و کامل برای جستجو -----
+
+    // این تابع تمام فایل‌های JSON را یک‌بار در پس‌زمینه بارگذاری می‌کند
+    async function loadAllDataForSearch() {
+        if (isDataLoaded) return;
+        const promises = [];
+        for (const lawKey in lawManifest) {
+            if (!allLawsData[lawKey]) {
+                allLawsData[lawKey] = [];
+            }
+            lawManifest[lawKey].files.forEach(fileInfo => {
+                promises.push(
+                    fetch(fileInfo.path)
+                        .then(res => {
+                            if (!res.ok) throw new Error(`پاسخ شبکه برای فایل ${fileInfo.path} موفقیت‌آمیز نبود`);
+                            return res.json();
+                        })
+                        .then(data => {
+                            allLawsData[lawKey].push({ lawKey, fileInfo, data });
+                        }).catch(err => console.error(`خطا در بارگذاری فایل ${fileInfo.path}:`, err))
+                );
+            });
+        }
+        await Promise.all(promises);
+        isDataLoaded = true;
+        console.log("تمام داده‌های جستجو در پس‌زمینه بارگذاری شد.");
+    }
+
+    // تابع اصلی که جستجو را انجام می‌دهد
+    function performSearch(term) {
+        const results = [];
+        term = term.toLowerCase();
+
+        for (const lawKey in allLawsData) {
+            const lawFiles = allLawsData[lawKey];
+            lawFiles.forEach(fileData => {
+                function searchInDivisions(divisions, path) {
+                    divisions.forEach(division => {
+                        const currentPath = path.concat(division.title);
+                        // جستجو در عنوان بخش
+                        if (division.title.toLowerCase().includes(term)) {
+                            if (division.articles) {
+                                division.articles.forEach(article => {
+                                    if (!results.some(r => r.article === article)) results.push({ lawInfo: lawManifest[lawKey], division, article, path: currentPath });
+                                });
+                            }
+                        }
+                        // جستجو در مواد
+                        if (division.articles) {
+                            division.articles.forEach(article => {
+                                const articleNum = String(article.article_number).toLowerCase();
+                                const articleText = (article.text || article.description || '').toLowerCase();
+                                if (articleNum.includes(term) || articleText.includes(term)) {
+                                    if (!results.some(r => r.article === article)) results.push({ lawInfo: lawManifest[lawKey], division, article, path: currentPath });
+                                }
+                            });
+                        }
+                        // جستجو در زیرمجموعه‌ها
+                        if (division.subdivisions) {
+                            searchInDivisions(division.subdivisions, currentPath);
+                        }
+                    });
+                }
+                if (fileData.data && fileData.data.divisions) {
+                    searchInDivisions(fileData.data.divisions, [fileData.fileInfo.title]);
+                }
+            });
+        }
+        renderSearchResults(results, term);
+    }
+    
+    // تابع نمایش نتایج جستجو
+    function renderSearchResults(results, term) {
+        // نتایج در تمام تب‌ها نمایش داده می‌شود تا کاربر آنها را ببیند
+        document.querySelectorAll('.tab-content').forEach(tc => {
+            const resultsContainer = tc.querySelector('.search-results-container');
+            if(!resultsContainer) return; // اگر کانتینر وجود نداشت، ادامه نده
+            
+            resultsContainer.innerHTML = ''; // پاک کردن نتایج قبلی
+
+            const relevantResults = results.filter(r => r.lawInfo.title === lawManifest[tc.id].title);
+
+            if (relevantResults.length > 0) {
+                 const resultCount = document.createElement('p');
+                 resultCount.innerHTML = `تعداد نتایج یافت شده در این قانون: <strong>${toPersianNumerals(relevantResults.length)}</strong>`;
+                 resultsContainer.appendChild(resultCount);
+            }
+
+            const regex = new RegExp(term, 'gi');
+
+            relevantResults.forEach(res => {
+                const resDiv = document.createElement('div');
+                resDiv.className = 'search-result-item';
+                const rawText = res.article.text || (res.article.description || '');
+                const formattedText = rawText.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>");
+                const highlightedText = term ? formattedText.replace(regex, match => `<mark>${match}</mark>`) : formattedText;
+
+                let titlePrefix = '';
+                if (res.article.article_number) {
+                    const articleWord = res.lawInfo.article_word;
+                    if (!isNaN(parseInt(res.article.article_number, 10))) {
+                        titlePrefix = `<strong>${articleWord} ${res.article.article_number}:</strong>`;
+                    } else {
+                        titlePrefix = `<strong>${res.article.article_number}:</strong>`;
+                    }
+                }
+                
+                resDiv.innerHTML = `<div class="result-path">${toPersianNumerals(res.path.join(' > '))}</div><div class="article">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(highlightedText)}</div>`;
+                resultsContainer.appendChild(resDiv);
+            });
+        });
+    }
+
+    // تابع مخفی کردن نتایج جستجو
+    function hideSearchResults() {
+        document.querySelectorAll('.tab-content').forEach(tc => {
+            const resultsContainer = tc.querySelector('.search-results-container');
+            const articlesContainer = tc.querySelector('.articles-container');
+            if (resultsContainer) resultsContainer.style.display = 'none';
+            if (articlesContainer) articlesContainer.style.display = 'block';
+        });
+    }
+
+    // رویداد اصلی جستجو
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.trim();
+        
+        // نمایش یا عدم نمایش بخش نتایج
+        document.querySelectorAll('.tab-content').forEach(tc => {
+             const resultsContainer = tc.querySelector('.search-results-container');
+             const articlesContainer = tc.querySelector('.articles-container');
+             if (searchTerm.length > 1) {
+                 articlesContainer.style.display = 'none';
+                 resultsContainer.style.display = 'block';
+             } else {
+                 hideSearchResults();
+             }
+        });
+
+
+        if (searchTerm.length < 2) {
+            return;
+        }
+        
+        if (!isDataLoaded) {
+            document.querySelectorAll('.search-results-container').forEach(rc => {
+                rc.innerHTML = '<p>داده‌های جستجو در حال آماده‌سازی است، لطفاً چند لحظه بعد دوباره امتحان کنید...</p>';
+            });
+            return;
+        }
+
+        performSearch(searchTerm);
+    });
+
+// ===== پایان قطعه کد جدید =====
+
     // ----- اجرای تابع اولیه -----
     createInitialSkeletons();
+    // >> اصلاح نهایی: بارگذاری داده‌ها در پس‌زمینه بلافاصله بعد از بالا آمدن صفحه <<
+    loadAllDataForSearch(); 
 });
