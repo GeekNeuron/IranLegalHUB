@@ -1,15 +1,18 @@
+/* General Body Styles */
 :root {
-    --bg-color-light: #f4f4f4;
-    --text-color-light: #333;
-    --header-bg-light: #fff;
-    --accent-color-light: #007bff;
-    --border-color-light: #ddd;
+    --bg-color-light: #f8f9fa;
+    --text-color-light: #212529;
+    --header-bg-light: #ffffff;
+    --accent-color-light: #0d6efd;
+    --border-color-light: #dee2e6;
+    --hover-bg-light: #e9ecef;
 
     --bg-color-dark: #121212;
     --text-color-dark: #e0e0e0;
     --header-bg-dark: #1e1e1e;
-    --accent-color-dark: #4dabf7;
+    --accent-color-dark: #64b5f6;
     --border-color-dark: #444;
+    --hover-bg-dark: #2a2a2a;
 }
 
 body {
@@ -26,21 +29,20 @@ body.dark-theme {
     color: var(--text-color-dark);
 }
 
-/* ------------------- HEADER ------------------- */
+/* Header */
 header#main-header {
     background-color: var(--header-bg-light);
     padding: 0.5rem 1.5rem;
     border-bottom: 1px solid var(--border-color-light);
-    transition: background-color 0.3s, border-color 0.3s;
     display: flex;
     justify-content: space-between;
     align-items: center;
     min-height: 60px;
+    transition: background-color 0.3s, border-color 0.3s;
 }
-
 body.dark-theme header#main-header {
     background-color: var(--header-bg-dark);
-    border-bottom: 1px solid var(--border-color-dark);
+    border-bottom-color: var(--border-color-dark);
 }
 
 .header-right {
@@ -48,17 +50,6 @@ body.dark-theme header#main-header {
     align-items: center;
     gap: 15px;
     cursor: pointer;
-}
-
-#header-title {
-    font-size: 1.5rem;
-    color: var(--text-color-light);
-    transition: color 0.3s;
-    margin: 0;
-}
-
-body.dark-theme #header-title {
-    color: var(--text-color-dark);
 }
 
 .header-icon {
@@ -72,51 +63,47 @@ body.dark-theme #header-title {
 body.dark-theme .light-theme-icon { display: none; }
 body.dark-theme .dark-theme-icon { display: block; }
 
+#header-title {
+    font-size: 1.5rem;
+    margin: 0;
+    color: var(--text-color-light);
+}
+body.dark-theme #header-title {
+    color: var(--text-color-dark);
+}
+
 #search-input {
     width: 250px;
-    padding: 0.6rem;
+    padding: 0.7rem;
     border: 1px solid var(--border-color-light);
-    border-radius: 8px;
+    border-radius: 8px; /* گوشه گرد */
     background-color: var(--bg-color-light);
     color: var(--text-color-light);
     font-family: 'Vazirmatn', sans-serif;
     transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
-
 body.dark-theme #search-input {
     background-color: #2c2c2c;
     color: var(--text-color-dark);
-    border: 1px solid var(--border-color-dark);
+    border-color: var(--border-color-dark);
 }
 
-
-/* ------------------- TABS (اصلاح شده) ------------------- */
+/* Tabs Navigation */
 .tabs {
     display: flex;
-    overflow-x: auto; /* مهم: اسکرول افقی را فعال می‌کند */
-    white-space: nowrap; /* مهم: از شکستن خط و زیر هم رفتن زبانه‌ها جلوگیری می‌کند */
-    -webkit-overflow-scrolling: touch; /* اسکرول نرم در موبایل */
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
     background-color: var(--header-bg-light);
-    border-bottom: 1px solid var(--border-color-light);
     padding: 0 10px;
+    border-bottom: 1px solid var(--border-color-light);
 }
-/* استایل ظاهری اسکرول‌بار (اختیاری) */
-.tabs::-webkit-scrollbar {
-    height: 5px;
-}
-.tabs::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-.tabs::-webkit-scrollbar-thumb {
-    background: #aaa;
-    border-radius: 5px;
-}
-body.dark-theme .tabs::-webkit-scrollbar-track {
-    background: #2c2c2c;
-}
-body.dark-theme .tabs::-webkit-scrollbar-thumb {
-    background: #555;
-}
+.tabs::-webkit-scrollbar { height: 5px; }
+.tabs::-webkit-scrollbar-track { background: #f1f1f1; }
+.tabs::-webkit-scrollbar-thumb { background: #aaa; border-radius: 5px; }
+body.dark-theme .tabs { border-bottom-color: var(--border-color-dark); }
+body.dark-theme .tabs::-webkit-scrollbar-track { background: #2c2c2c; }
+body.dark-theme .tabs::-webkit-scrollbar-thumb { background: #555; }
 
 
 .tab-link {
@@ -132,10 +119,10 @@ body.dark-theme .tabs::-webkit-scrollbar-thumb {
 }
 
 .tab-link:hover {
-    background-color: #f0f0f0;
+    background-color: var(--hover-bg-light);
 }
 body.dark-theme .tab-link:hover {
-    background-color: #2a2a2a;
+    background-color: var(--hover-bg-dark);
 }
 .tab-link.active {
     font-weight: 700;
@@ -145,109 +132,78 @@ body.dark-theme .tab-link.active {
     border-bottom-color: var(--accent-color-dark);
 }
 
-/* ------------------- MAIN CONTENT & ACCORDION ------------------- */
-#main-content {
-    padding: 20px;
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
+/* Main Content & Accordion */
+#main-content { padding: 20px; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
 
 .law-info {
-    margin-bottom: 20px;
     padding: 15px;
-    background-color: #e9ecef;
-    border-radius: 5px;
+    background-color: var(--hover-bg-light);
+    border-radius: 8px; /* گوشه گرد */
     line-height: 1.7;
     border-right: 5px solid var(--accent-color-light);
+    margin-bottom: 20px;
 }
-
 body.dark-theme .law-info {
-    background-color: #2a2a2a;
+    background-color: var(--hover-bg-dark);
     border-right-color: var(--accent-color-dark);
 }
 
-/* Accordion Styles */
 .accordion ul {
     list-style: none;
     padding-right: 20px;
     margin: 0;
 }
-
-.accordion li {
-    margin-top: 5px;
-}
+.accordion li { margin-top: 5px; }
 
 .file-group > span, .division-item > .division-title {
     display: block;
     padding: 12px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
+    background-color: #fff;
+    border: 1px solid var(--border-color-light);
     cursor: pointer;
     font-weight: 700;
+    font-size: 1.1em;
     transition: background-color 0.3s;
     position: relative;
     padding-right: 35px;
+    border-radius: 8px; /* گوشه گرد */
+}
+body.dark-theme .file-group > span, body.dark-theme .division-item > .division-title {
+    background-color: #2a2a2a;
+    border-color: var(--border-color-dark);
 }
 
-.file-group > span::before, .division-item.has-children > .division-title::before {
+/* >> کد اصلاح شده برای نمایش آیکون مثلثی << */
+li.has-children > span::before,
+li.has-children > .division-title::before {
     content: '◀';
     position: absolute;
     right: 15px;
     top: 50%;
     transform: translateY(-50%);
-    transition: transform 0.3s;
+    transition: transform 0.2s ease-in-out;
     font-size: 0.8em;
 }
 
-.file-group.expanded > span::before, .division-item.expanded > .division-title::before {
+li.has-children.expanded > span::before,
+li.has-children.expanded > .division-title::before {
     transform: translateY(-50%) rotate(-90deg);
 }
 
-body.dark-theme .file-group > span, body.dark-theme .division-item > .division-title {
-    background-color: #2a2a2a;
-    border-color: #444;
-}
+.hidden { display: none; }
 
-.file-group > span:hover, .division-item > .division-title:hover {
-    background-color: #e9ecef;
-}
-
-body.dark-theme .file-group > span:hover, body.dark-theme .division-item > .division-title:hover {
-    background-color: #383838;
-}
-
-.divisions-container, .subdivisions-container, .article-list {
-    padding-right: 20px;
-    border-right: 2px solid var(--accent-color-light);
-}
-
-body.dark-theme .divisions-container,
-body.dark-theme .subdivisions-container,
-body.dark-theme .article-list {
-    border-right-color: var(--accent-color-dark);
-}
-
-.hidden {
-    display: none;
-}
-
-.article, .gap-notice {
+.article {
     background: #fff;
     padding: 15px;
     margin-top: 5px;
     border: 1px solid #eee;
-    border-radius: 4px;
+    border-radius: 8px; /* گوشه گرد */
     line-height: 2;
-    text-align: justify; /* <<-- کد اصلی برای تراز کردن متن -->> */
+    text-align: justify; /* تراز کامل متن */
 }
-
-body.dark-theme .article, body.dark-theme .gap-notice {
+body.dark-theme .article {
     background-color: #222;
     border-color: #444;
 }
@@ -256,33 +212,30 @@ body.dark-theme .article, body.dark-theme .gap-notice {
     color: #0056b3;
     margin-left: 8px;
 }
-
 body.dark-theme .article strong {
     color: #bb86fc;
 }
 
-/* ------------------- RESPONSIVE (MOBILE) ------------------- */
+
+/* Responsive (Mobile) */
 @media (max-width: 768px) {
     header#main-header {
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
         padding: 1rem;
     }
-
     .header-right {
         order: 1; 
         width: 100%;
         justify-content: space-between;
     }
-
     .search-container {
         order: 2; 
         width: 100%;
         margin: 0;
     }
-
     #search-input {
         width: 100%;
-        box-sizing: border-box; /* برای اینکه padding داخل عرض محاسبه شود */
+        box-sizing: border-box;
     }
 }
