@@ -1,150 +1,267 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const header = document.getElementById('main-header');
-    const mainContent = document.getElementById('main-content');
-    const tabs = document.querySelectorAll('.tab-link');
-    const searchInput = document.getElementById('search-input');
+/* General Body Styles */
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    transition: background-color 0.3s, color 0.3s;
+}
 
-    // ----- 1. تعویض تم -----
-    const headerRight = document.querySelector('.header-right'); 
-    headerRight.addEventListener('click', () => {
-    document.body.classList.toggle('dark-theme');
-    });
+/* Dark Theme */
+body.dark-theme {
+    background-color: #121212;
+    color: #e0e0e0;
+}
 
-    // ----- 2. منطق زبانه‌ها (Tabs) -----
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(tab.dataset.tab).classList.add('active');
-        });
-    });
-    
-    // ----- 3. ایجاد اسکلت اولیه محتوا از روی مانیفست -----
-    function createInitialSkeletons() {
-        for (const key in lawManifest) {
-            const law = lawManifest[key];
-            const contentDiv = document.createElement('div');
-            contentDiv.id = key;
-            contentDiv.className = 'tab-content';
-            
-            contentDiv.innerHTML = `
-                <p class="law-info">${law.info}</p>
-                <div class="content-selector">
-                    <button class="view-toggle-btn active" data-view="articles">ماده‌ها</button>
-                    <button class="view-toggle-btn" data-view="quiz">آزمون</button>
-                </div>
-                <div class="articles-container accordion"></div>
-                <div class="quiz-container" style="display: none;"></div>
-            `;
-            mainContent.appendChild(contentDiv);
+body.dark-theme #main-header,
+body.dark-theme .tabs,
+body.dark-theme .tab-link {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
 
-            renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files);
-            // setupQuiz(contentDiv, key); // منطق آزمون در صورت نیاز در اینجا فراخوانی می‌شود
-        }
-        document.querySelector('.tab-content').classList.add('active');
-    }
+body.dark-theme .tab-link.active {
+    background-color: #333;
+    border-bottom-color: #bb86fc;
+}
 
-    // ----- 4. ساخت اسکلت آکاردئون (فقط تیتر فایل‌ها) -----
-    function renderAccordionSkeleton(container, files) {
-        if (!files || files.length === 0) {
-            container.innerHTML = '<p>محتوای این بخش هنوز اضافه نشده است.</p>';
-            return;
-        }
+body.dark-theme .division-item .division-title {
+    background-color: #2a2a2a;
+}
 
-        const mainUl = document.createElement('ul');
-        files.forEach(fileInfo => {
-            const fileLi = document.createElement('li');
-            fileLi.className = 'file-group';
-            fileLi.dataset.path = fileInfo.path; // مسیر فایل را در یک attribute ذخیره می‌کنیم
-            fileLi.innerHTML = `<span>${fileInfo.title}</span><div class="divisions-container hidden"></div>`;
-            mainUl.appendChild(fileLi);
-        });
-        container.appendChild(mainUl);
-    }
-    
-    // ----- 5. منطق جدید: بارگذاری داده‌ها از فایل JSON هنگام کلیک -----
-    mainContent.addEventListener('click', async (e) => {
-        const fileGroup = e.target.closest('.file-group');
-        if (fileGroup && e.target.tagName === 'SPAN') {
-            const divisionsContainer = fileGroup.querySelector('.divisions-container');
-            const isLoaded = fileGroup.dataset.loaded === 'true';
+body.dark-theme .division-item.expanded > .division-title {
+    background-color: #333;
+}
 
-            if (!isLoaded) {
-                try {
-                    divisionsContainer.innerHTML = '<p>در حال بارگذاری...</p>';
-                    const response = await fetch(fileGroup.dataset.path);
-                    if (!response.ok) throw new Error('فایل قانون یافت نشد!');
-                    const data = await response.json();
-                    
-                    renderDivisions(divisionsContainer, data.divisions); // رندر کردن بخش‌ها و مواد
-                    fileGroup.dataset.loaded = 'true';
-                } catch (error) {
-                    divisionsContainer.innerHTML = `<p>خطا در بارگذاری: ${error.message}</p>`;
-                }
-            }
-            
-            fileGroup.classList.toggle('expanded');
-            divisionsContainer.classList.toggle('hidden');
-        }
-    });
+body.dark-theme .article,
+body.dark-theme .gap-notice {
+    background-color: #222;
+    border-color: #444;
+}
 
-    // ----- 6. تابع جدید برای رندر کردن ساختار تو در توی قانون -----
-    function renderDivisions(container, divisions) {
-        container.innerHTML = ''; 
-        const ul = document.createElement('ul');
+/* Header */
+#main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
 
-        divisions.forEach(division => {
-            const li = document.createElement('li');
-            li.className = `division-item type-${division.type}`;
-            
-            let contentHTML = '';
-            if (division.articles) {
-                division.articles.forEach(article => {
-                    if(article.entry_type === 'numbering_gap_notice') {
-                         contentHTML += `<li class="article gap-notice"><strong>توجه:</strong> ${article.description} (مواد ${article.article_range})</li>`;
-                    } else {
-                         const formattedText = article.text.replace(/\n/g, '<br>');
-                         contentHTML += `<li class="article"><strong>اصل/ماده ${article.article_number}:</strong> ${formattedText}</li>`;
-                    }
-                });
-            }
+.header-right {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
 
-            // بازگشتی برای زیرمجموعه‌ها
-            let subdivisionsHTML = '';
-            if(division.subdivisions) {
-                const subContainer = document.createElement('div');
-                subContainer.className = 'subdivisions-container hidden';
-                renderDivisions(subContainer, division.subdivisions);
-                subdivisionsHTML = subContainer.outerHTML;
-            }
+.header-icon {
+    width: 40px;
+    height: 40px;
+    margin-left: 15px;
+}
 
-            li.innerHTML = `
-                <span class="division-title">${division.title}</span>
-                ${subdivisionsHTML || `<ul class="hidden">${contentHTML}</ul>`}
-            `;
-            ul.appendChild(li);
-        });
+.dark-theme-icon { display: none; }
+.dark-theme .light-theme-icon { display: none; }
+.dark-theme .dark-theme-icon { display: block; }
 
-        container.appendChild(ul);
-        
-        // افزودن event listener برای باز و بسته کردن زیرمجموعه‌های جدید
-        container.querySelectorAll('.division-title').forEach(title => {
-            title.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const parentItem = e.target.parentElement;
-                parentItem.classList.toggle('expanded');
-                const nextContainer = parentItem.querySelector('.subdivisions-container, ul');
-                if (nextContainer) {
-                    nextContainer.classList.toggle('hidden');
-                }
-            });
-        });
-    }
+#header-title {
+    font-size: 1.5em;
+    font-weight: 700;
+}
 
-    // منطق جستجو و آزمون فعلا به صورت ساده باقی می‌ماند و می‌تواند بعدا تکمیل شود.
+/* Search Container */
+.search-container {
+    flex-grow: 1;
+    margin: 0 40px;
+}
 
-    // ----- اجرای تابع اولیه -----
-    createInitialSkeletons();
-});
+#search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #f9f9f9;
+}
 
+body.dark-theme #search-input {
+    background: #333;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+/* Tabs Navigation -->> کد اصلاح شده برای ریلی شدن <<-- */
+.tabs {
+    display: flex;
+    overflow-x: auto; /* این خط اصلی‌ترین تغییر است */
+    -webkit-overflow-scrolling: touch; /* برای اسکرول نرم در iOS */
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    white-space: nowrap; /* جلوگیری از شکستن دکمه‌ها به خط بعد */
+    scrollbar-width: thin; /* برای فایرفاکس */
+    scrollbar-color: #bb86fc #333;
+}
+/* استایل اسکرول‌بار برای کروم و سافاری */
+.tabs::-webkit-scrollbar {
+    height: 5px;
+}
+.tabs::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.dark-theme .tabs::-webkit-scrollbar-track {
+    background: #333;
+}
+.tabs::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+.tabs::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+.dark-theme .tabs::-webkit-scrollbar-thumb {
+    background: #bb86fc;
+}
+
+
+.tab-link {
+    padding: 12px 18px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-size: 1em;
+    font-family: 'Vazirmatn', sans-serif;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    flex-shrink: 0; /* جلوگیری از کوچک شدن دکمه‌ها */
+}
+
+.tab-link:hover {
+    background-color: #f0f0f0;
+}
+
+.tab-link.active {
+    border-bottom-color: #007bff;
+    font-weight: 700;
+}
+
+body.dark-theme .tab-link:hover {
+    background-color: #333;
+}
+
+/* Main Content */
+#main-content {
+    padding: 20px;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.law-info {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    line-height: 1.7;
+}
+
+body.dark-theme .law-info {
+    background-color: #2a2a2a;
+}
+
+/* Accordion Styles */
+.accordion ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.accordion li {
+    margin-bottom: 5px;
+}
+
+.file-group > span, .division-item > .division-title {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1em;
+    transition: background-color 0.3s;
+    position: relative;
+    padding-right: 35px; /* فضا برای آیکون */
+}
+
+.file-group > span::before, .division-item.has-children > .division-title::before {
+    content: '◀';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s;
+    font-size: 0.8em;
+}
+
+.file-group.expanded > span::before, .division-item.expanded > .division-title::before {
+    transform: translateY(-50%) rotate(-90deg);
+}
+
+
+.file-group > span:hover, .division-item > .division-title:hover {
+    background-color: #e9ecef;
+}
+
+.divisions-container, .subdivisions-container, .article-list {
+    padding-right: 20px;
+    border-right: 2px solid #007bff;
+}
+
+body.dark-theme .divisions-container,
+body.dark-theme .subdivisions-container,
+body.dark-theme .article-list {
+    border-right-color: #bb86fc;
+}
+
+.hidden {
+    display: none;
+}
+
+.article, .gap-notice {
+    background: #fff;
+    padding: 15px;
+    margin-top: 5px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    line-height: 2; /* افزایش فاصله خطوط برای خوانایی */
+    text-align: justify; /* >> کد اصلی برای تراز کردن متن << */
+}
+
+.article strong {
+    color: #0056b3;
+    margin-left: 8px;
+}
+
+body.dark-theme .article strong {
+    color: #bb86fc;
+}
+
+.gap-notice {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+body.dark-theme .gap-notice {
+    background-color: #3b3109;
+    color: #ffeaa7;
+}
