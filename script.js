@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (division.articles) {
                 articlesHTML = '<ul class="article-list hidden">';
                 division.articles.forEach(article => {
-                    const formattedText = article.text.replace(/\n/g, '<br>'); // >> رفع مشکل \n <<
+                    const formattedText = article.text.replace(/(\r\n|\n|\r|\\n|\/n)/g, "<br>");
                     
                     // >> منطق تشخیص اصل/ماده/عنوان <<
                     let titlePrefix = '';
