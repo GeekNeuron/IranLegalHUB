@@ -115,65 +115,81 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // ----- 6. تابع رندر کردن ساختار تو در توی قانون -----
-    function renderDivisions(container, divisions, articleWord) {
-        container.innerHTML = '';
-        const ul = document.createElement('ul');
-        ul.className = 'top-level-division';
+    // ===== این تابع را در script.js خود به طور کامل جایگزین کنید =====
 
-        divisions.forEach(division => {
-            const li = document.createElement('li');
-            li.className = `division-item`;
-            
-            const hasChildren = division.subdivisions && division.subdivisions.length > 0;
-            if (hasChildren) {
-                li.classList.add('has-children');
-            }
+function renderDivisions(container, divisions, articleWord) {
+    container.innerHTML = '';
+    const ul = document.createElement('ul');
+    ul.className = 'top-level-division';
 
-            let articlesHTML = '';
-            if (division.articles) {
-                articlesHTML = '<ul class="article-list hidden">';
-                division.articles.forEach(article => {
-                    const formattedText = article.text ? article.text.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>") : '';
-                    let titlePrefix = '';
-                    if (article.article_number) {
-                        if (!isNaN(parseInt(article.article_number, 10))) {
-                            titlePrefix = `<strong>${articleWord} ${article.article_number}:</strong>`;
-                        } else {
-                            titlePrefix = `<strong>${article.article_number}:</strong>`;
-                        }
-                    }
-                    articlesHTML += `<li class="article" data-number="${article.article_number}">${titlePrefix} ${formattedText}</li>`;
-                });
-                articlesHTML += '</ul>';
-            }
-            
-            let subdivisionsHTML = '';
-            if (hasChildren) {
-                const subContainer = document.createElement('div');
-                subContainer.className = 'subdivisions-container hidden';
-                renderDivisions(subContainer, division.subdivisions, articleWord);
-                subdivisionsHTML = subContainer.outerHTML;
-            }
-            
-            li.innerHTML = `<span class="division-title">${toPersianNumerals(division.title)}</span>${articlesHTML}${subdivisionsHTML}`;
-            ul.appendChild(li);
-        });
-
-        container.appendChild(ul);
+    divisions.forEach(division => {
+        const li = document.createElement('li');
+        li.className = `division-item type-${division.type.replace(/\s+/g, '-').toLowerCase()}`;
         
-        container.querySelectorAll('.division-title').forEach(title => {
-            title.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const parentItem = e.target.parentElement;
-                parentItem.classList.toggle('expanded');
-                const childContainer = parentItem.querySelector('.article-list, .subdivisions-container');
-                if (childContainer) {
-                    childContainer.classList.toggle('hidden');
+        const hasChildren = division.subdivisions && division.subdivisions.length > 0;
+        if (hasChildren) {
+            li.classList.add('has-children');
+        }
+
+        let articlesHTML = '';
+        if (division.articles) {
+            articlesHTML = '<ul class="article-list hidden">';
+            division.articles.forEach(article => {
+                // اطمینان از وجود متن برای جلوگیری از خطا
+                const rawText = article.text || ''; 
+                const formattedText = rawText.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>");
+                
+                let titlePrefix = '';
+                if (article.article_number) {
+                    if (!isNaN(parseInt(article.article_number, 10))) {
+                        titlePrefix = `<strong>${articleWord} ${article.article_number}:</strong>`;
+                    } else {
+                        titlePrefix = `<strong>${article.article_number}:</strong>`;
+                    }
                 }
+                
+                // <<-- شروع اصلاح کلیدی: فراخوانی تابع تبدیل اعداد -->>
+                const persianTitle = toPersianNumerals(titlePrefix);
+                const persianText = toPersianNumerals(formattedText);
+                // <<-- پایان اصلاح کلیدی -->>
+                
+                articlesHTML += `<li class="article" data-number="${article.article_number}">${persianTitle} ${persianText}</li>`;
             });
+            articlesHTML += '</ul>';
+        }
+        
+        let subdivisionsHTML = '';
+        if (hasChildren) {
+            const subContainer = document.createElement('div');
+            subContainer.className = 'subdivisions-container hidden';
+            // فراخوانی بازگشتی با ارسال articleWord
+            renderDivisions(subContainer, division.subdivisions, articleWord);
+            subdivisionsHTML = subContainer.outerHTML;
+        }
+        
+        // تبدیل اعداد عنوان بخش به فارسی
+        li.innerHTML = `
+            <span class="division-title">${toPersianNumerals(division.title)}</span>
+            ${articlesHTML}
+            ${subdivisionsHTML}
+        `;
+        ul.appendChild(li);
+    });
+
+    container.appendChild(ul);
+    
+    container.querySelectorAll('.division-title').forEach(title => {
+        title.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const parentItem = e.target.parentElement;
+            parentItem.classList.toggle('expanded');
+            const childContainer = parentItem.querySelector('.article-list, .subdivisions-container');
+            if (childContainer) {
+                childContainer.classList.toggle('hidden');
+            }
         });
-    }
+    });
+}
 
     // ----- 7. قابلیت: جستجو -----
     searchInput.addEventListener('input', (e) => {
