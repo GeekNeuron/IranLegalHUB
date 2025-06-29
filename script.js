@@ -2,6 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('main-content');
     const tabs = document.querySelectorAll('.tab-link');
 
+    // -----  تعویض تم -----
+    const headerRight = document.querySelector('.header-right'); 
+    headerRight.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    });
+    
     // ----- منطق زبانه‌ها (Tabs) -----
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
