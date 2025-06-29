@@ -24,6 +24,16 @@ body {
     background-color: var(--bg-color-light);
     color: var(--text-color-light);
     transition: background-color 0.3s, color 0.3s;
+    
+    /* این سه خط جدید هستند */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; 
+}
+
+/* این استایل جدید را اضافه کنید */
+main#main-content {
+    flex-grow: 1; /* این خط باعث می‌شود محتوای اصلی، فضای خالی را پر کند */
 }
 
 body.dark-theme {
