@@ -56,18 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // اضافه کردن بخش انتخاب نما (ماده‌ها / آزمون)
             contentDiv.innerHTML = `
-                <p class="law-info">${law.info}</p>
-                <div class="content-selector">
-                    <button class="view-toggle-btn active" data-view="articles">ماده‌ها / اصول</button>
-                    <button class="view-toggle-btn" data-view="quiz">آزمون</button>
-                </div>
-                <div class="articles-container accordion"></div>
-                <div class="quiz-container" style="display: none;"></div>
+            <p class="law-info">${law.info}</p>
+            <div class="articles-container accordion"></div>
             `;
             mainContent.appendChild(contentDiv);
 
             renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files, key);
-            setupQuiz(contentDiv, key); // آماده‌سازی بخش آزمون برای هر تب
         }
         if (document.querySelector('.tab-content')) {
             document.querySelector('.tab-content').classList.add('active');
