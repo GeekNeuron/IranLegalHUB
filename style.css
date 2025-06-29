@@ -170,7 +170,7 @@ body.dark-theme .law-info {
 
 .file-group > span, .division-item > .division-title {
     display: block;
-    padding: 12px 35px 12px 12px;
+    padding: 12px;
     background-color: #fff;
     border: 1px solid var(--border-color-light);
     cursor: pointer;
@@ -183,22 +183,6 @@ body.dark-theme .law-info {
 body.dark-theme .file-group > span, body.dark-theme .division-item > .division-title {
     background-color: #2a2a2a;
     border-color: var(--border-color-dark);
-}
-
-li.has-children > span::before,
-li.has-children > .division-title::before {
-    content: '◀';
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.2s ease-in-out;
-    font-size: 0.8em;
-}
-
-li.has-children.expanded > span::before,
-li.has-children.expanded > .division-title::before {
-    transform: translateY(-50%) rotate(-90deg);
 }
 
 .hidden { display: none; }
@@ -236,10 +220,10 @@ body.dark-theme mark {
         flex-direction: column;
         gap: 10px;
         padding: 1rem;
-        position: static; /* در موبایل هدر را از حالت چسبان خارج می‌کنیم تا فضا اشغال نکند */
     }
     .tabs {
         position: static; /* نوار تب‌ها هم در موبایل عادی می‌شود */
+        top: 132px;
     }
     .header-right {
         order: 1; 
@@ -256,4 +240,9 @@ body.dark-theme mark {
         box-sizing: border-box;
     }
     .tab-content { padding: 1rem; }
+}
+
+/* اصلاح رنگ متن زبانه‌ها در تم تاریک */
+body.dark-theme .tab-link {
+    color: var(--text-color-dark);
 }
