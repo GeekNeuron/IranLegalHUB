@@ -350,3 +350,17 @@ body.dark-theme .tab-link {
         margin: 0 10px;
     }
 }
+
+/* ===== شروع کد اصلاحی برای حذف سایه کلیک ===== */
+
+/* این کد، سایه آبی پیش‌فرض مرورگر را از روی تمام عناصر تعاملی حذف می‌کند */
+button:focus,
+input:focus,
+a:focus,
+[data-path] > span:focus,
+.division-title:focus {
+    outline: none;
+    box-shadow: none; /* اطمینان از حذف هرگونه سایه دیگر هنگام فوکوس */
+}
+
+/* ===== پایان کد اصلاحی ===== */
