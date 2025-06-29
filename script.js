@@ -2,6 +2,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('main-content');
     const tabs = document.querySelectorAll('.tab-link');
 
+// این تابع هر رشته‌ای را می‌گیرد و اعداد انگلیسی آن را به فارسی تبدیل می‌کند
+function toPersianNumerals(str) {
+    const persian = {
+        0: '۰', 1: '۱', 2: '۲', 3: '۳', 4: '۴',
+        5: '۵', 6: '۶', 7: '۷', 8: '۸', 9: '۹'
+    };
+    // ورودی را به رشته تبدیل می‌کنیم تا اعداد هم شامل شوند
+    return String(str).replace(/[0-9]/g, (w) => {
+        return persian[w];
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    
     // -----  تعویض تم -----
     const headerRight = document.querySelector('.header-right'); 
     headerRight.addEventListener('click', () => {
@@ -103,31 +117,27 @@ function renderDivisions(container, divisions, articleWord) {
 
         let articlesHTML = '';
         if (division.articles) {
-            articlesHTML = '<ul class="article-list hidden">';
-            division.articles.forEach(article => {
-                // --- >> شروع بخش اصلاح شده << ---
+                articlesHTML = '<ul class="article-list hidden">';
+                division.articles.forEach(article => {
 
-                // 1. تمام حالت‌های ممکن خط جدید را با <br> جایگزین می‌کنیم
-                // این کد هم /n و هم \n واقعی را پوشش می‌دهد
-                const formattedText = article.text.replace(/(\r\n|\n|\r|\\n|\/n)/g, "<br>");
-
-                // 2. پیشوند "اصل" یا "ماده" را به درستی مدیریت می‌کنیم
-                let titlePrefix = '';
-                if (article.article_number) {
-                    if (!isNaN(parseInt(article.article_number, 10))) {
-                        // اگر شماره ماده یک عدد بود
-                        titlePrefix = `<strong>${articleWord} ${article.article_number}:</strong>`;
-                    } else {
-                        // اگر یک عنوان بود (مثل مقدمه)
-                        titlePrefix = `<strong>${article.article_number}:</strong>`;
+                    const brText = article.text.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>");
+                    
+                    let titlePrefix = '';
+                    if (article.article_number) {
+                        if (!isNaN(parseInt(article.article_number, 10))) {
+                            titlePrefix = `<strong>${articleWord} ${article.article_number}:</strong>`;
+                        } else {
+                            titlePrefix = `<strong>${article.article_number}:</strong>`;
+                        }
                     }
-                }
-                
-                articlesHTML += `<li class="article">${titlePrefix} ${formattedText}</li>`;
-                // --- >> پایان بخش اصلاح شده << ---
-            });
-            articlesHTML += '</ul>';
-        }
+
+                    const persianTitle = toPersianNumerals(titlePrefix);
+                    const persianText = toPersianNumerals(brText);
+                    
+                    articlesHTML += `<li class="article" data-number="${article.article_number}">${persianTitle} ${persianText}</li>`;
+                    
+                });
+                articlesHTML += '</ul>';
         
         let subdivisionsHTML = '';
         if (hasChildren) {
