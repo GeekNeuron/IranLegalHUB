@@ -409,3 +409,161 @@ input:focus-visible,
 }
 
 /* ===== پایان کد اصلاحی ===== */
+
+/* ===== شروع استایل‌های بخش ابزارها ===== */
+
+.tools-accordion {
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color-light);
+}
+
+.tools-accordion .tools-title {
+    display: block;
+    padding: 12px;
+    background-color: var(--hover-bg-light);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1em;
+    position: relative;
+    padding-right: 35px;
+}
+body.dark-theme .tools-accordion .tools-title {
+    background-color: var(--hover-bg-dark);
+}
+
+.tools-accordion .tools-title::before {
+    content: '◀';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease-in-out;
+    font-size: 0.8em;
+}
+
+.tools-accordion.expanded .tools-title::before {
+    transform: translateY(-50%) rotate(-90deg);
+}
+
+.tools-container {
+    padding: 20px;
+    background-color: var(--header-bg-light);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.6s ease-in-out, padding 0.6s ease-in-out;
+}
+.tools-accordion.expanded .tools-container {
+    max-height: 1000px; /* ارتفاع کافی برای نمایش تمام ابزارها */
+    padding: 20px;
+}
+body.dark-theme .tools-container {
+    background-color: var(--bg-color-dark);
+}
+
+.tool-item {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed var(--border-color-light);
+}
+.tool-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+body.dark-theme .tool-item {
+    border-bottom-color: var(--border-color-dark);
+}
+
+.tool-item h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--accent-color-light);
+}
+body.dark-theme .tool-item h4 {
+    color: var(--accent-color-dark);
+}
+
+.tool-description {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-bottom: 15px;
+}
+
+.tool-btn, .download-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: var(--accent-color-light);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'Vazirmatn', sans-serif;
+}
+body.dark-theme .tool-btn, body.dark-theme .download-link {
+    background-color: var(--accent-color-dark);
+    color: #121212;
+}
+
+.problem-textarea, .quiz-setup input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color-light);
+    background-color: var(--bg-color-light);
+    box-sizing: border-box;
+}
+body.dark-theme .problem-textarea, body.dark-theme .quiz-setup input {
+    background-color: #333;
+    border-color: var(--border-color-dark);
+    color: #fff;
+}
+
+.favorites-list {
+    padding: 0;
+    list-style: none;
+}
+.favorites-list li {
+    padding: 8px;
+    background: var(--bg-color-light);
+    border-radius: 4px;
+}
+body.dark-theme .favorites-list li {
+    background: #2c2c2c;
+}
+
+
+/* استایل دکمه ستاره (علاقه‌مندی) */
+.article {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.article-content {
+    flex-grow: 1;
+}
+.article-actions {
+    flex-shrink: 0;
+    padding-right: 15px;
+}
+.favorite-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+.favorite-btn:hover {
+    color: #f0c420; /* رنگ زرد هنگام هاور */
+}
+.favorite-btn.favorited .fa-star {
+    font-weight: 900; /* آیکون ستاره توپر */
+    color: #f0c420;
+}
+
+
+/* ===== پایان استایل‌های بخش ابزارها ===== */
