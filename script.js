@@ -40,76 +40,28 @@ document.addEventListener('DOMContentLoaded', () => {
             hideSearchResults();
         });
     });
-
-    // ----- منطق باز شدن آکاردئون ابزارها -----
-    mainContent.addEventListener('click', (e) => {
-        const toolsTitle = e.target.closest('.tools-title');
-        if (toolsTitle) {
-            const toolsContainer = toolsTitle.nextElementSibling;
-            toolsContainer.classList.toggle('hidden');
-            toolsTitle.parentElement.classList.toggle('expanded');
-        }
-    });
     
     // ----- 3. ایجاد اسکلت اولیه محتوا (اصلاح شده برای حذف آزمون) -----
-function createInitialSkeletons() {
-    for (const key in lawManifest) {
-        const law = lawManifest[key];
-        const contentDiv = document.createElement('div');
-        contentDiv.id = key;
-        contentDiv.className = 'tab-content';
-        
-        // <<-- شروع بخش اصلاح شده -->>
-        contentDiv.innerHTML = `
-            <p class="law-info">${law.info}</p>
+    function createInitialSkeletons() {
+        for (const key in lawManifest) {
+            const law = lawManifest[key];
+            const contentDiv = document.createElement('div');
+            contentDiv.id = key;
+            contentDiv.className = 'tab-content';
+            
+            contentDiv.innerHTML = `
+                <p class="law-info">${law.info}</p>
+                <div class="articles-container accordion"></div>
+                <div class="search-results-container" style="display: none;"></div>
+            `;
+            mainContent.appendChild(contentDiv);
 
-            <div class="tools-accordion">
-                <span class="tools-title">ابزارها و امکانات</span>
-                <div class="tools-container hidden">
-
-                    <div class="tool-item">
-                        <h4>دانلود کتاب</h4>
-                        <a href="#" class="download-link" download>دانلود نسخه PDF قانون</a>
-                    </div>
-
-                    <div class="tool-item">
-                        <h4>راهنمای هوشمند حقوقی</h4>
-                        <p class="tool-description">مشکل حقوقی خود را به طور خلاصه شرح دهید تا مواد/اصول مرتبط پیشنهاد شود.</p>
-                        <textarea class="problem-textarea" rows="4" placeholder="مثال: فردی به صورت ناخواسته در یک حادثه رانندگی باعث فوت دیگری شده است..."></textarea>
-                        <button class="tool-btn">دریافت راهنمایی</button>
-                    </div>
-
-                    <div class="tool-item">
-                        <h4>آزمون</h4>
-                        <p class="tool-description">از این مبحث آزمون دهید.</p>
-                        <div class="quiz-setup">
-                            <label for="question-count-${key}">تعداد سوالات:</label>
-                            <input type="number" id="question-count-${key}" value="20" min="5" max="50">
-                            <button class="tool-btn">شروع آزمون</button>
-                        </div>
-                    </div>
-
-                    <div class="tool-item">
-                        <h4>علاقه‌مندی‌ها</h4>
-                        <p class="tool-description">ماده‌ها و اصولی که به این لیست اضافه می‌کنید، در اینجا نمایش داده می‌شوند.</p>
-                        <ul class="favorites-list">
-                            <li>(این بخش فعلاً نمایشی است)</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="articles-container accordion"></div>
-            <div class="search-results-container" style="display: none;"></div>
-        `;
-        // <<-- پایان بخش اصلاح شده -->>
-        
-        mainContent.appendChild(contentDiv);
-        renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files, key);
+            renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files, key);
+        }
+        if (document.querySelector('.tab-content')) {
+            document.querySelector('.tab-content').classList.add('active');
+        }
     }
-    if (document.querySelector('.tab-content')) {
-        document.querySelector('.tab-content').classList.add('active');
-    }
-}
 
     // ----- 4. ساخت اسکلت آکاردئون -----
     function renderAccordionSkeleton(container, files, lawKey) {
@@ -187,22 +139,6 @@ function createInitialSkeletons() {
                         }
                     }
                     articlesHTML += `<li class="article" data-number="${article.article_number}">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(formattedText)}</li>`;
-
-                // <<-- اصلاح کلیدی: اضافه کردن دکمه ستاره -->>
-                articlesHTML += `
-                    <li class="article" data-number="${article.article_number}">
-                        <div class="article-content">
-                            ${toPersianNumerals(titlePrefix)} ${toPersianNumerals(formattedText)}
-                        </div>
-                        <div class="article-actions">
-                            <button class="favorite-btn" aria-label="افزودن به علاقه‌مندی‌ها">
-                                <i class="far fa-star"></i>
-                            </button>
-                        </div>
-                    </li>
-                `;
-                // <<-- پایان اصلاح کلیدی -->>
-                    
                 });
                 articlesHTML += '</ul>';
             }
