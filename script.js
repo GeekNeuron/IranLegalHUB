@@ -13,21 +13,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const headerRight = document.querySelector('.header-right');
 
-    // ----- متغیرهای جدید برای مدیریت داده‌ها و جستجو -----
-    let allLawsData = {}; // برای ذخیره داده‌های تمام قوانین پس از بارگذاری
-    let isDataLoaded = false; // فلگ برای اینکه بدانیم آیا داده‌ها یک‌بار بارگذاری شده‌اند یا نه
+    let allLawsData = {};
+    let allGuidesData = {};
+    let isDataLoaded = false;
     
-    // ----- 1. قابلیت: تغییر تم -----
+    // 1. قابلیت: تغییر تم
     if (headerRight) {
         headerRight.addEventListener('click', (e) => {
-            // جلوگیری از تغییر تم با کلیک روی بخش‌های دیگر هدر
             if (!e.target.closest('.search-container')) {
                 document.body.classList.toggle('dark-theme');
             }
         });
     }
 
-    // ----- 2. منطق زبانه‌ها (Tabs) -----
+    // 2. منطق زبانه‌ها (Tabs)
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
             tabs.forEach(t => t.classList.remove('active'));
@@ -35,13 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
             tab.classList.add('active');
             const targetTab = document.getElementById(tab.dataset.tab);
             if(targetTab) targetTab.classList.add('active');
-            // با تغییر تب، نتایج جستجو را پاک کن
             searchInput.value = '';
             hideSearchResults();
         });
     });
     
-    // ----- 3. ایجاد اسکلت اولیه محتوا (اصلاح شده برای حذف آزمون) -----
+    // 3. ایجاد اسکلت اولیه محتوا (با بخش ابزارها)
     function createInitialSkeletons() {
         for (const key in lawManifest) {
             const law = lawManifest[key];
@@ -51,85 +49,115 @@ document.addEventListener('DOMContentLoaded', () => {
             
             contentDiv.innerHTML = `
                 <p class="law-info">${law.info}</p>
-                <div class="articles-container accordion"></div>
+                <div class="main-accordion-container"></div>
                 <div class="search-results-container" style="display: none;"></div>
             `;
             mainContent.appendChild(contentDiv);
-
-            renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files, key);
+            
+            renderMainAccordion(contentDiv.querySelector('.main-accordion-container'), law, key);
         }
         if (document.querySelector('.tab-content')) {
             document.querySelector('.tab-content').classList.add('active');
         }
     }
 
-    // ----- 4. ساخت اسکلت آکاردئون -----
-    function renderAccordionSkeleton(container, files, lawKey) {
-        if (!files || files.length === 0) {
-            container.innerHTML = '<p>فایل‌های این قانون هنوز تعریف نشده‌اند.</p>';
-            return;
-        }
+    // 4. ساخت اسکلت آکاردئون اصلی (قوانین + ابزارها)
+    function renderMainAccordion(container, law, lawKey) {
         const mainUl = document.createElement('ul');
-        files.forEach(fileInfo => {
-            const fileLi = document.createElement('li');
-            fileLi.className = 'file-group has-children';
-            fileLi.dataset.path = fileInfo.path;
-            fileLi.dataset.lawKey = lawKey;
-            fileLi.innerHTML = `<span>${fileInfo.title}</span><div class="divisions-container hidden"></div>`;
-            mainUl.appendChild(fileLi);
-        });
+        
+        if (law.files && law.files.length > 0) {
+            law.files.forEach(fileInfo => {
+                const fileLi = document.createElement('li');
+                fileLi.className = 'file-group has-children';
+                fileLi.dataset.type = 'law-file';
+                fileLi.dataset.path = fileInfo.path;
+                fileLi.dataset.lawKey = lawKey;
+                fileLi.innerHTML = `<span>${fileInfo.title}</span><div class="content-container"></div>`;
+                mainUl.appendChild(fileLi);
+            });
+        }
+
+        const toolsHtml = `
+            <li class="tool-item has-children" data-tool="favorites"><span><i class="fas fa-star"></i> علاقه‌مندی‌ها</span><div class="content-container"></div></li>
+            <li class="tool-item has-children" data-tool="download"><span><i class="fas fa-download"></i> دانلود کتاب</span><div class="content-container"></div></li>
+            <li class="tool-item has-children" data-tool="quiz"><span><i class="fas fa-question-circle"></i> آزمون</span><div class="content-container"></div></li>
+        `;
+        mainUl.insertAdjacentHTML('beforeend', toolsHtml);
+
+        if(law.guide_path) {
+             const guideLi = document.createElement('li');
+             guideLi.className = 'tool-item has-children';
+             guideLi.dataset.type = 'guide-file';
+             guideLi.dataset.tool = 'guide';
+             guideLi.dataset.path = law.guide_path;
+             guideLi.dataset.lawKey = lawKey;
+             guideLi.innerHTML = `<span><i class="fas fa-book-open"></i> راهنمای حقوقی</span><div class="content-container"></div>`;
+             mainUl.appendChild(guideLi);
+        }
+
         container.appendChild(mainUl);
     }
     
-    // ----- 5. بارگذاری داده‌ها برای نمایش آکاردئون -----
+    // 5. مدیریت کلیک‌ها و بارگذاری آنی داده‌ها
     mainContent.addEventListener('click', async (e) => {
-        const fileGroupSpan = e.target.closest('.file-group > span');
-        if (fileGroupSpan) {
-            const parentLi = fileGroupSpan.parentElement;
-            const divisionsContainer = parentLi.querySelector('.divisions-container');
-            const isLoaded = parentLi.dataset.loaded === 'true';
+        const targetSpan = e.target.closest('li.has-children > span');
+        if (!targetSpan) return;
 
-            if (!isLoaded) {
-                try {
-                    divisionsContainer.innerHTML = '<p>در حال بارگذاری...</p>';
-                    const response = await fetch(parentLi.dataset.path);
-                    if (!response.ok) throw new Error(`فایل یافت نشد!`);
-                    const data = await response.json();
-                    
-                    const lawKey = parentLi.dataset.lawKey;
-                    const articleWord = lawManifest[lawKey].article_word;
-                    
-                    renderDivisions(divisionsContainer, data.divisions, articleWord);
-                    parentLi.dataset.loaded = 'true';
-                } catch (error) {
-                    divisionsContainer.innerHTML = `<p style="color: red;">خطا: ${error.message}</p>`;
-                }
+        const parentLi = targetSpan.parentElement;
+        const contentContainer = parentLi.querySelector('.content-container');
+        const isLoaded = parentLi.dataset.loaded === 'true';
+        const type = parentLi.dataset.type;
+        const toolType = parentLi.dataset.tool;
+
+        if (!isLoaded) {
+            if (!isDataLoaded) {
+                contentContainer.innerHTML = '<p class="tool-padding">لطفاً چند لحظه صبر کنید تا داده‌های اولیه بارگذاری شوند...</p>';
+                toggleAccordion(contentContainer, parentLi); // باز کردن برای نمایش پیام
+                return;
             }
-            parentLi.classList.toggle('expanded');
-            divisionsContainer.classList.toggle('hidden');
+            if (type === 'law-file') {
+                const lawKey = parentLi.dataset.lawKey;
+                const filePath = parentLi.dataset.path;
+                const articleWord = lawManifest[lawKey].article_word;
+                const fileData = allLawsData[lawKey]?.find(f => f.fileInfo.path === filePath);
+
+                if (fileData) {
+                    renderDivisions(contentContainer, fileData.data.divisions, articleWord);
+                    parentLi.dataset.loaded = 'true';
+                }
+            } else if(type === 'guide-file') {
+                 const lawKey = parentLi.dataset.lawKey;
+                 const guideData = allGuidesData[lawKey];
+                 if(guideData) {
+                    renderGuideContent(contentContainer, guideData.topics);
+                    parentLi.dataset.loaded = 'true';
+                 }
+            } else if (toolType) {
+                renderToolContent(contentContainer, toolType);
+                parentLi.dataset.loaded = 'true';
+            }
         }
+        
+        toggleAccordion(contentContainer, parentLi);
     });
     
-    // ----- 6. تابع رندر کردن ساختار تو در توی قانون -----
+    // 6. تابع رندر کردن ساختار تو در توی قانون
     function renderDivisions(container, divisions, articleWord) {
         container.innerHTML = '';
         const ul = document.createElement('ul');
         ul.className = 'top-level-division';
-
         divisions.forEach(division => {
             const li = document.createElement('li');
             li.className = `division-item`;
-            
             const hasChildren = division.subdivisions && division.subdivisions.length > 0;
             if (hasChildren) li.classList.add('has-children');
-
+            
             let articlesHTML = '';
             if (division.articles) {
-                articlesHTML = '<ul class="article-list hidden">';
+                articlesHTML = '<ul class="article-list">';
                 division.articles.forEach(article => {
-                    const rawText = article.text || (article.description || ''); 
+                    const rawText = article.text || (article.description || '');
                     const formattedText = rawText.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>");
-                    
                     let titlePrefix = '';
                     if (article.article_number) {
                         if (!isNaN(parseInt(article.article_number, 10))) {
@@ -138,7 +166,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             titlePrefix = `<strong>${article.article_number}:</strong>`;
                         }
                     }
-                    articlesHTML += `<li class="article" data-number="${article.article_number}">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(formattedText)}</li>`;
+                    articlesHTML += `
+                        <li class="article" data-number="${article.article_number}">
+                            <div class="article-content">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(formattedText)}</div>
+                            <div class="article-actions">
+                                <button class="action-btn favorite-btn" title="افزودن به علاقه‌مندی"><i class="far fa-star"></i></button>
+                                <button class="action-btn copy-btn" title="کپی کردن متن"><i class="far fa-copy"></i></button>
+                                <button class="action-btn share-btn" title="اشتراک‌گذاری"><i class="fas fa-share-alt"></i></button>
+                            </div>
+                        </li>`;
                 });
                 articlesHTML += '</ul>';
             }
@@ -146,48 +182,124 @@ document.addEventListener('DOMContentLoaded', () => {
             let subdivisionsHTML = '';
             if (hasChildren) {
                 const subContainer = document.createElement('div');
-                subContainer.className = 'subdivisions-container hidden';
+                subContainer.className = 'subdivisions-container';
                 renderDivisions(subContainer, division.subdivisions, articleWord);
                 subdivisionsHTML = subContainer.outerHTML;
             }
             
-            li.innerHTML = `<span class="division-title">${toPersianNumerals(division.title)}</span>${articlesHTML}${subdivisionsHTML}`;
+            li.innerHTML = `<span class="division-title">${toPersianNumerals(division.title)}</span><div class="accordion-content">${articlesHTML}${subdivisionsHTML}</div>`;
             ul.appendChild(li);
         });
-
         container.appendChild(ul);
-        
         container.querySelectorAll('.division-title').forEach(title => {
             title.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const parentItem = e.target.parentElement;
-                parentItem.classList.toggle('expanded');
-                const childContainer = parentItem.querySelector('.article-list, .subdivisions-container');
-                if (childContainer) childContainer.classList.toggle('hidden');
+                const content = title.nextElementSibling;
+                toggleAccordion(content, title.parentElement);
             });
         });
     }
 
-    // ----- 7. منطق جدید و کامل برای جستجو -----
-    async function loadAllDataForSearch() {
-        if (isDataLoaded) return;
-        const promises = [];
-        for (const lawKey in lawManifest) {
-            if (!allLawsData[lawKey]) allLawsData[lawKey] = [];
-            lawManifest[lawKey].files.forEach(fileInfo => {
-                promises.push(
-                    fetch(fileInfo.path)
-                        .then(res => res.json())
-                        .then(data => { allLawsData[lawKey].push({ lawKey, fileInfo, data }); })
-                        .catch(err => console.error(`خطا در بارگذاری فایل ${fileInfo.path}:`, err))
-                );
-            });
+    // 7. تابع رندر کردن محتوای ابزارها
+    function renderToolContent(container, toolType) {
+        let content = '';
+        switch(toolType) {
+            case 'download':
+                content = `<a href="#" class="download-link" download>دانلود نسخه PDF این قانون</a>`;
+                break;
+            case 'quiz':
+                content = `<p>این قابلیت به زودی اضافه خواهد شد.</p>`;
+                break;
+            case 'favorites':
+                content = `<p>ماده‌هایی که ستاره‌دار می‌کنید، در اینجا نمایش داده می‌شوند.</p>`;
+                break;
         }
-        await Promise.all(promises);
-        isDataLoaded = true;
-        console.log("تمام داده‌های جستجو در پس‌زمینه بارگذاری شد.");
+        container.innerHTML = `<div class="tool-padding">${content}</div>`;
+    }
+    
+    // 8. تابع رندر کردن راهنمای حقوقی
+    function renderGuideContent(container, topics) {
+         let guideHTML = '';
+         topics.forEach(topic => {
+             let articlesList = topic.relevant_articles.map(art => `<li><a href="#" class="guide-link" data-article="${art.article_number}">${art.law_name} - ${toPersianNumerals(art.article_word || 'ماده')} ${toPersianNumerals(art.article_number)}</a>: ${art.note}</li>`).join('');
+             let adviceList = topic.advice.map(adv => `<li>${adv}</li>`).join('');
+             guideHTML += `
+                 <div class="guide-topic">
+                     <h4>${topic.topic_title}</h4>
+                     <p>${topic.explanation}</p>
+                     <p><strong>موارد قانونی مرتبط:</strong></p>
+                     <ul class="guide-article-list">${articlesList}</ul>
+                     <p><strong>توصیه‌های کلی:</strong></p>
+                     <ul class="guide-advice-list">${adviceList}</ul>
+                 </div>
+             `;
+         });
+         container.innerHTML = `<div class="tool-padding">${guideHTML}</div>`;
     }
 
+    // 9. تابع انیمیشن نرم آکاردئون
+    function toggleAccordion(element, parentLi) {
+        if (!element) return;
+        const isExpanded = parentLi.classList.contains('expanded');
+        
+        element.style.display = 'block'; // برای محاسبه ارتفاع صحیح لازم است
+        if (isExpanded) {
+            element.style.height = element.scrollHeight + 'px';
+            requestAnimationFrame(() => {
+                element.style.height = '0px';
+            });
+            parentLi.classList.remove('expanded');
+        } else {
+            const scrollHeight = element.scrollHeight;
+            element.style.height = scrollHeight + 'px';
+            
+            element.addEventListener('transitionend', function handler() {
+                element.removeEventListener('transitionend', handler);
+                if (parentLi.classList.contains('expanded')) {
+                    element.style.height = 'auto';
+                }
+            }, { once: true });
+            parentLi.classList.add('expanded');
+        }
+    }
+    
+    // 10. منطق جستجوی آنی
+    async function loadAllData() {
+        if (isDataLoaded) return;
+        const lawPromises = Object.values(lawManifest).flatMap(law => 
+            law.files.map(fileInfo =>
+                fetch(fileInfo.path)
+                    .then(res => res.json())
+                    .then(data => ({ type: 'law', key: Object.keys(lawManifest).find(k => lawManifest[k] === law), fileInfo, data }))
+            )
+        );
+        const guidePromises = Object.values(lawManifest)
+            .filter(law => law.guide_path)
+            .map(law => 
+                fetch(law.guide_path)
+                    .then(res => res.json())
+                    .then(data => ({ type: 'guide', key: Object.keys(lawManifest).find(k => lawManifest[k] === law), data }))
+            );
+        const allPromises = [...lawPromises, ...guidePromises];
+        try {
+            const results = await Promise.all(allPromises);
+            results.forEach(result => {
+                if (result) {
+                    if (result.type === 'law') {
+                        if (!allLawsData[result.key]) allLawsData[result.key] = [];
+                        allLawsData[result.key].push(result);
+                    } else if (result.type === 'guide') {
+                        allGuidesData[result.key] = result.data;
+                    }
+                }
+            });
+            isDataLoaded = true;
+            console.log("تمام داده‌های قوانین و راهنماها در پس‌زمینه بارگذاری شد.");
+        } catch (error) {
+            console.error("خطای جدی در بارگذاری اولیه داده‌ها:", error);
+        }
+    }
+    
     function performSearch(term) {
         const results = [];
         term = term.toLowerCase();
@@ -230,24 +342,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const resultsContainer = tc.querySelector('.search-results-container');
             if(!resultsContainer) return;
             resultsContainer.innerHTML = '';
-
             const relevantResults = results.filter(r => r.lawInfo.title === lawManifest[tc.id].title);
 
             if (relevantResults.length > 0) {
                  const resultCount = document.createElement('p');
-                 resultCount.innerHTML = `تعداد نتایج یافت شده در این قانون: <strong>${toPersianNumerals(relevantResults.length)}</strong>`;
+                 resultCount.innerHTML = `تعداد نتایج یافت شده: <strong>${toPersianNumerals(relevantResults.length)}</strong>`;
                  resultsContainer.appendChild(resultCount);
+            } else if (term) {
+                 resultsContainer.innerHTML = '<p>هیچ نتیجه‌ای یافت نشد.</p>';
             }
 
             const regex = new RegExp(term, 'gi');
-
             relevantResults.forEach(res => {
                 const resDiv = document.createElement('div');
                 resDiv.className = 'search-result-item';
                 const rawText = res.article.text || (res.article.description || '');
                 const formattedText = rawText.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>");
                 const highlightedText = term ? formattedText.replace(regex, match => `<mark>${match}</mark>`) : formattedText;
-
                 let titlePrefix = '';
                 if (res.article.article_number) {
                     const articleWord = res.lawInfo.article_word;
@@ -257,11 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         titlePrefix = `<strong>${res.article.article_number}:</strong>`;
                     }
                 }
-                
-                resDiv.innerHTML = `
-                    <div class="result-path">${toPersianNumerals(res.path.join(' > '))}</div>
-                    <div class="article">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(highlightedText)}</div>
-                `;
+                resDiv.innerHTML = `<div class="result-path">${toPersianNumerals(res.path.join(' > '))}</div><div class="article">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(highlightedText)}</div>`;
                 resultsContainer.appendChild(resDiv);
             });
         });
@@ -278,32 +385,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.trim();
-        
-        document.querySelectorAll('.tab-content').forEach(tc => {
-             const resultsContainer = tc.querySelector('.search-results-container');
-             const articlesContainer = tc.querySelector('.articles-container');
-             if (searchTerm.length > 1) {
-                 articlesContainer.style.display = 'none';
-                 resultsContainer.style.display = 'block';
-             } else {
-                 hideSearchResults();
-             }
-        });
+        const activeTab = document.querySelector('.tab-content.active');
+        if(!activeTab) return;
 
-        if (searchTerm.length < 2) return;
-        
-        if (!isDataLoaded) {
-            document.querySelectorAll('.search-results-container').forEach(rc => {
-                rc.innerHTML = '<p>داده‌های جستجو در حال آماده‌سازی است، لطفاً چند لحظه بعد دوباره امتحان کنید...</p>';
-            });
-            return;
+        const resultsContainer = activeTab.querySelector('.search-results-container');
+        const articlesContainer = activeTab.querySelector('.articles-container');
+
+        if (searchTerm.length > 1) {
+            articlesContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            if (!isDataLoaded) {
+                resultsContainer.innerHTML = '<p>داده‌های جستجو در حال آماده‌سازی است، لطفاً چند لحظه بعد دوباره امتحان کنید...</p>';
+                return;
+            }
+            performSearch(searchTerm);
+        } else {
+            hideSearchResults();
         }
-        performSearch(searchTerm);
+    });
+
+    // 11. منطق دکمه‌های کپی، اشتراک و علاقه‌مندی
+    mainContent.addEventListener('click', function(e) {
+        const target = e.target.closest('.action-btn');
+        if (!target) return;
+
+        const articleLi = target.closest('.article');
+        const articleContent = articleLi.querySelector('.article-content').innerText;
+        const siteUrl = "https://yourwebsite.com"; // <<-- آدرس سایت خود را اینجا قرار دهید
+        const attribution = `\n\nمنبع: کانون حقوقی ایران - ${siteUrl}`;
+
+        if (target.classList.contains('copy-btn')) {
+            navigator.clipboard.writeText(articleContent + attribution).then(() => {
+                alert('متن با موفقیت کپی شد!');
+            }).catch(err => console.error('خطا در کپی: ', err));
+        }
+
+        if (target.classList.contains('share-btn')) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'ماده‌ای از کانون حقوقی ایران',
+                    text: articleContent + attribution,
+                }).catch(err => console.error('خطا در اشتراک‌گذاری: ', err));
+            } else {
+                alert('مرورگر شما از قابلیت اشتراک‌گذاری پشتیبانی نمی‌کند.');
+            }
+        }
+
+        if (target.classList.contains('favorite-btn')) {
+            target.classList.toggle('favorited');
+            const icon = target.querySelector('i');
+            icon.classList.toggle('far'); // far fa-star -> ستاره توخالی
+            icon.classList.toggle('fas'); // fas fa-star -> ستاره توپر
+        }
     });
 
     // ----- اجرای توابع اولیه -----
     createInitialSkeletons();
-    loadAllDataForSearch(); 
+    loadAllData(); 
 });
 
 // ===== پایان کد کامل و نهایی script.js =====
