@@ -13,17 +13,18 @@
 </head>
 <body>
 
-<header id="main-header">
-    <div class="header-right">
-        <img src="assets/icons/ilh_white.png" alt="icon" class="header-icon light-theme-icon">
-        <img src="assets/icons/ilh_dark.png" alt="icon" class="header-icon dark-theme-icon">
-      <h1 id="header-title">کانون حقوقی ایران</h1>
-    </div>
+<div class="sticky-top-container">
+    <header id="main-header">
+        <div class="header-right">
+            <img src="assets/icons/ilh_dark.png" alt="icon" class="header-icon light-theme-icon">
+            <img src="assets/icons/ilh_white.png" alt="icon" class="header-icon dark-theme-icon">
+        <h1 id="header-title">کانون حقوقی ایران</h1>
+        </div>
 
         <div class="search-container">
-        <input type="text" id="search-input" placeholder="جستجو...">
-    </div>
-</header>
+            <input type="text" id="search-input" placeholder="جستجو در قوانین...">
+        </div>
+    </header>
 
     <nav class="tabs">
         <button class="tab-link active" data-tab="tab-constitution">قانون اساسی</button>
@@ -33,9 +34,10 @@
         <button class="tab-link" data-tab="tab-civil-procedure-code">قانون آیین دادرسی مدنی</button>
         <button class="tab-link" data-tab="tab-criminal-procedure-code">قانون آیین دادرسی کیفری</button>
     </nav>
+</div>
 
-    <main id="main-content">
-        </main>
+<main id="main-content">
+    </main>
 
 <footer class="site-footer">
     <div class="footer-container">
@@ -47,13 +49,13 @@
         </div>
 
         <div class="footer-column">
-            <h4>ارتباط با ما</h4>
-            <div class="social-icons">
-                <a href="#" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
-                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-            </div>
+            <h4>نظرات و پیشنهادات</h4>
+            <p>نظرات شما به بهبود این مجموعه کمک می‌کند.</p>
+            <form id="feedback-form" class="feedback-form">
+                <textarea name="message" rows="4" placeholder="انتقاد، پیشنهاد یا نظر خود را اینجا بنویسید..." required></textarea>
+                <button type="submit" class="tool-btn">ارسال</button>
+                <div class="form-status"></div>
+            </form>
         </div>
     </div>
     <div class="footer-bottom">
@@ -61,7 +63,7 @@
     </div>
 </footer>
     
-    <script src="data.js"></script>
-    <script src="script.js"></script>
+<script src="data.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
