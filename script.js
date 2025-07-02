@@ -56,68 +56,28 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             mainContent.appendChild(contentDiv);
 
-            renderMainAccordion(contentDiv.querySelector('.articles-container'), law, key);
+            renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files, key);
         }
         if (document.querySelector('.tab-content')) {
             document.querySelector('.tab-content').classList.add('active');
         }
     }
 
-    // ----- 4. ساخت اسکلت آکاردئون (تابع جایگزین شده) -----
-    function renderMainAccordion(container, law, lawKey) {
+    // ----- 4. ساخت اسکلت آکاردئون -----
+    function renderAccordionSkeleton(container, files, lawKey) {
+        if (!files || files.length === 0) {
+            container.innerHTML = '<p>فایل‌های این قانون هنوز تعریف نشده‌اند.</p>';
+            return;
+        }
         const mainUl = document.createElement('ul');
-        
-        // رندر کردن فایل‌های قانون
-        if (law.files && law.files.length > 0) {
-            law.files.forEach(fileInfo => {
-                const fileLi = document.createElement('li');
-                fileLi.className = 'file-group has-children';
-                fileLi.dataset.type = 'law-file';
-                fileLi.dataset.path = fileInfo.path;
-                fileLi.dataset.lawKey = lawKey;
-                fileLi.innerHTML = `<span>${fileInfo.title}</span><div class="content-container"></div>`;
-                mainUl.appendChild(fileLi);
-            });
-        }
-    
-        // ایجاد نگهدارنده اصلی برای منوی ابزارها
-        const toolsAccordionLi = document.createElement('li');
-        toolsAccordionLi.className = 'tools-accordion-main has-children';
-        
-        // ساخت HTML داخلی برای نگهدارنده ابزارها
-        toolsAccordionLi.innerHTML = `
-            <span><i class="fas fa-tools"></i> ابزارها و امکانات</span>
-            <div class="content-container">
-                <ul class="tools-submenu">
-                    <li class="tool-item has-children" data-tool="download">
-                        <span><i class="fas fa-download"></i> دانلود کتاب</span>
-                        <div class="content-container"></div>
-                    </li>
-                    <li class="tool-item has-children" data-tool="quiz">
-                        <span><i class="fas fa-question-circle"></i> آزمون</span>
-                        <div class="content-container"></div>
-                    </li>
-                    <li class="tool-item has-children" data-tool="favorites">
-                        <span><i class="fas fa-star"></i> علاقه‌مندی‌ها</span>
-                        <div class="content-container"></div>
-                    </li>
-                </ul>
-            </div>
-        `;
-        mainUl.appendChild(toolsAccordionLi);
-    
-        // افزودن راهنمای حقوقی به عنوان آخرین آیتم در زیرمنوی ابزارها
-        if(law.guide_path) {
-             const guideLi = document.createElement('li');
-             guideLi.className = 'tool-item has-children';
-             guideLi.dataset.type = 'guide-file';
-             guideLi.dataset.tool = 'guide';
-             guideLi.dataset.path = law.guide_path;
-             guideLi.dataset.lawKey = lawKey;
-             guideLi.innerHTML = `<span><i class="fas fa-book-open"></i> راهنمای حقوقی</span><div class="content-container"></div>`;
-             toolsAccordionLi.querySelector('.tools-submenu').appendChild(guideLi);
-        }
-    
+        files.forEach(fileInfo => {
+            const fileLi = document.createElement('li');
+            fileLi.className = 'file-group has-children';
+            fileLi.dataset.path = fileInfo.path;
+            fileLi.dataset.lawKey = lawKey;
+            fileLi.innerHTML = `<span>${fileInfo.title}</span><div class="divisions-container hidden"></div>`;
+            mainUl.appendChild(fileLi);
+        });
         container.appendChild(mainUl);
     }
     
@@ -287,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rawText = res.article.text || (res.article.description || '');
                 const formattedText = rawText.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>");
                 const highlightedText = term ? formattedText.replace(regex, match => `<mark>${match}</mark>`) : formattedText;
+
                 let titlePrefix = '';
                 if (res.article.article_number) {
                     const articleWord = res.lawInfo.article_word;
@@ -344,4 +305,5 @@ document.addEventListener('DOMContentLoaded', () => {
     createInitialSkeletons();
     loadAllDataForSearch(); 
 });
+
 // ===== پایان کد کامل و نهایی script.js =====
