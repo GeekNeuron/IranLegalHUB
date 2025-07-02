@@ -51,12 +51,14 @@ header#main-header {
     align-items: center;
     min-height: 60px;
     transition: background-color 0.3s, border-color 0.3s;
-    
-    /* این کد هدر را در بالا ثابت نگه می‌دارد */
+    }
+
+.sticky-top-container {
     position: sticky;
     top: 0;
-    z-index: 1001; /* بالاتر از نوار تب‌ها */
+    z-index: 1001;
 }
+
 body.dark-theme header#main-header {
     background-color: var(--header-bg-dark);
     border-bottom-color: var(--border-color-dark);
@@ -114,11 +116,6 @@ body.dark-theme #search-input {
     background-color: var(--header-bg-light);
     padding: 0 10px;
     border-bottom: 1px solid var(--border-color-light);
-
-    /* این کد نوار تب‌ها را زیر هدر ثابت نگه می‌دارد */
-    position: sticky;
-    top: 77px; /* به اندازه ارتفاع هدر */
-    z-index: 1000;
 }
 .tabs::-webkit-scrollbar { height: 5px; }
 .tabs::-webkit-scrollbar-track { background: #f1f1f1; }
