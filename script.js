@@ -80,6 +80,69 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         container.appendChild(mainUl);
     }
+
+// ===== این تابع را در script.js خود به طور کامل جایگزین کنید =====
+
+function renderMainAccordion(container, law, lawKey) {
+    const mainUl = document.createElement('ul');
+    
+    // رندر کردن فایل‌های قانون (بدون تغییر)
+    if (law.files && law.files.length > 0) {
+        law.files.forEach(fileInfo => {
+            const fileLi = document.createElement('li');
+            fileLi.className = 'file-group has-children';
+            fileLi.dataset.type = 'law-file';
+            fileLi.dataset.path = fileInfo.path;
+            fileLi.dataset.lawKey = lawKey;
+            fileLi.innerHTML = `<span>${fileInfo.title}</span><div class="content-container"></div>`;
+            mainUl.appendChild(fileLi);
+        });
+    }
+
+    // >> شروع اصلاح: ساخت ساختار تو در تو برای ابزارها <<
+    
+    // 1. ایجاد نگهدارنده اصلی برای منوی ابزارها
+    const toolsAccordionLi = document.createElement('li');
+    toolsAccordionLi.className = 'tools-accordion-main has-children';
+    
+    // 2. ساخت HTML داخلی برای نگهدارنده ابزارها
+    toolsAccordionLi.innerHTML = `
+        <span><i class="fas fa-tools"></i> ابزارها و امکانات</span>
+        <div class="content-container">
+            <ul class="tools-submenu">
+                <li class="tool-item has-children" data-tool="download">
+                    <span><i class="fas fa-download"></i> دانلود کتاب</span>
+                    <div class="content-container"></div>
+                </li>
+                <li class="tool-item has-children" data-tool="quiz">
+                    <span><i class="fas fa-question-circle"></i> آزمون</span>
+                    <div class="content-container"></div>
+                </li>
+                <li class="tool-item has-children" data-tool="favorites">
+                    <span><i class="fas fa-star"></i> علاقه‌مندی‌ها</span>
+                    <div class="content-container"></div>
+                </li>
+            </ul>
+        </div>
+    `;
+    mainUl.appendChild(toolsAccordionLi);
+
+    // 3. افزودن راهنمای حقوقی به عنوان آخرین آیتم در زیرمنوی ابزارها
+    if(law.guide_path) {
+         const guideLi = document.createElement('li');
+         guideLi.className = 'tool-item has-children';
+         guideLi.dataset.type = 'guide-file';
+         guideLi.dataset.tool = 'guide';
+         guideLi.dataset.path = law.guide_path;
+         guideLi.dataset.lawKey = lawKey;
+         guideLi.innerHTML = `<span><i class="fas fa-book-open"></i> راهنمای حقوقی</span><div class="content-container"></div>`;
+         // اضافه کردن به زیرمنوی ابزارها
+         toolsAccordionLi.querySelector('.tools-submenu').appendChild(guideLi);
+    }
+    // >> پایان اصلاح <<
+
+    container.appendChild(mainUl);
+}
     
     // ----- 5. بارگذاری داده‌ها برای نمایش آکاردئون -----
     mainContent.addEventListener('click', async (e) => {
