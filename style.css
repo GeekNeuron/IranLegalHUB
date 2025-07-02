@@ -407,37 +407,32 @@ input:focus-visible,
 
 /* ===== پایان کد اصلاحی ===== */
 
-/* ===== شروع استایل‌های بخش ابزارها ===== */
+/* ===== شروع استایل‌های بخش ابزارهای تو در تو ===== */
 
-/* استایل کلی برای آیتم‌های اصلی در آکاردئون */
-.main-accordion-container > ul > li > span {
-    display: block;
-    padding: 12px;
-    background-color: #e9ecef;
-    border: 1px solid var(--border-color-light);
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 1.2em;
-    border-radius: 8px;
-    position: relative;
-    padding-right: 35px; /* فضا برای آیکون مثلثی */
-    margin-top: 10px;
+/* استایل منوی اصلی "ابزارها و امکانات" */
+.tools-accordion-main > span {
+    background-color: #d1e7dd !important; /* یک رنگ سبز ملایم برای تمایز */
+    color: #0f5132;
+    font-size: 1.2em !important;
 }
-body.dark-theme .main-accordion-container > ul > li > span {
-    background-color: var(--hover-bg-dark);
-    border-color: var(--border-color-dark);
+body.dark-theme .tools-accordion-main > span {
+    background-color: #032d21 !important;
+    color: #7ee2b8;
 }
 
-/* استایل آیتم‌های ابزارها برای تمایز */
+/* زیرمنوی داخل ابزارها */
+.tools-submenu {
+    padding-right: 15px !important; /* ایجاد تورفتگی برای زیرمنوها */
+}
+
+/* استایل هر آیتم ابزار (دانلود، آزمون و...) */
 .tool-item > span {
-    font-size: 1.1em !important; /* کمی کوچک‌تر از عناوین اصلی قانون */
-    background-color: #f8f9fa !important; /* رنگ کمی متفاوت */
+    font-size: 1.1em !important;
+    background-color: var(--header-bg-light) !important;
 }
 body.dark-theme .tool-item > span {
     background-color: #2a2a2a !important;
 }
-
-/* استایل آیکون‌های کنار عنوان ابزارها */
 .tool-item i {
     margin-left: 10px;
     color: var(--accent-color-light);
@@ -447,18 +442,7 @@ body.dark-theme .tool-item i {
     color: var(--accent-color-dark);
 }
 
-/* کانتینر محتوای باز شونده ابزارها */
-.content-container {
-    height: 0;
-    overflow: hidden;
-    transition: height 0.4s ease-in-out;
-    padding-right: 20px;
-    border-right: 2px solid var(--accent-color-light);
-}
-body.dark-theme .content-container {
-    border-right-color: var(--accent-color-dark);
-}
-
+/* محتوای داخلی هر ابزار */
 .tool-padding {
     padding: 20px;
     background: #fff;
