@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             mainContent.appendChild(contentDiv);
 
-            renderAccordionSkeleton(contentDiv.querySelector('.articles-container'), law.files, key);
+            renderMainAccordion(contentDiv.querySelector('.articles-container'), law, key);
         }
         if (document.querySelector('.tab-content')) {
             document.querySelector('.tab-content').classList.add('active');
