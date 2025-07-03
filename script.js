@@ -64,110 +64,114 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ----- 4. ساخت اسکلت آکاردئون -----
-    function renderAccordionSkeleton(container, files, lawKey) {
-        if (!files || files.length === 0) {
-            container.innerHTML = '<p>فایل‌های این قانون هنوز تعریف نشده‌اند.</p>';
-            return;
-        }
-        const mainUl = document.createElement('ul');
-        files.forEach(fileInfo => {
+function renderMainAccordion(container, law, lawKey) {
+    const mainUl = document.createElement('ul');
+    
+    // رندر کردن فایل‌های قانون (این بخش بدون تغییر است)
+    if (law.files && law.files.length > 0) {
+        law.files.forEach(fileInfo => {
             const fileLi = document.createElement('li');
             fileLi.className = 'file-group has-children';
+            fileLi.dataset.type = 'law-file';
             fileLi.dataset.path = fileInfo.path;
             fileLi.dataset.lawKey = lawKey;
-            fileLi.innerHTML = `<span>${fileInfo.title}</span><div class="divisions-container hidden"></div>`;
+            fileLi.innerHTML = `<span>${fileInfo.title}</span><div class="content-container"></div>`;
             mainUl.appendChild(fileLi);
         });
-        container.appendChild(mainUl);
     }
+
+    // >> شروع اصلاح: ساخت ساختار تو در تو برای ابزارها <<
     
-    // ----- 5. بارگذاری داده‌ها برای نمایش آکاردئون -----
-    mainContent.addEventListener('click', async (e) => {
-        const fileGroupSpan = e.target.closest('.file-group > span');
-        if (fileGroupSpan) {
-            const parentLi = fileGroupSpan.parentElement;
-            const divisionsContainer = parentLi.querySelector('.divisions-container');
-            const isLoaded = parentLi.dataset.loaded === 'true';
-
-            if (!isLoaded) {
-                try {
-                    divisionsContainer.innerHTML = '<p>در حال بارگذاری...</p>';
-                    const response = await fetch(parentLi.dataset.path);
-                    if (!response.ok) throw new Error(`فایل یافت نشد!`);
-                    const data = await response.json();
-                    
-                    const lawKey = parentLi.dataset.lawKey;
-                    const articleWord = lawManifest[lawKey].article_word;
-                    
-                    renderDivisions(divisionsContainer, data.divisions, articleWord);
-                    parentLi.dataset.loaded = 'true';
-                } catch (error) {
-                    divisionsContainer.innerHTML = `<p style="color: red;">خطا: ${error.message}</p>`;
-                }
-            }
-            parentLi.classList.toggle('expanded');
-            divisionsContainer.classList.toggle('hidden');
-        }
-    });
+    // 1. ایجاد نگهدارنده اصلی برای منوی ابزارها
+    const toolsAccordionLi = document.createElement('li');
+    toolsAccordionLi.className = 'tools-accordion-main has-children';
     
-    // ----- 6. تابع رندر کردن ساختار تو در توی قانون -----
-    function renderDivisions(container, divisions, articleWord) {
-        container.innerHTML = '';
-        const ul = document.createElement('ul');
-        ul.className = 'top-level-division';
+    // 2. ساخت HTML داخلی برای نگهدارنده ابزارها
+    toolsAccordionLi.innerHTML = `
+        <span><i class="fas fa-tools"></i> ابزارها و امکانات</span>
+        <div class="content-container">
+            <ul class="tools-submenu">
+                <li class="tool-item has-children" data-tool="download">
+                    <span><i class="fas fa-download"></i> دانلود کتاب</span>
+                    <div class="content-container"></div>
+                </li>
+                <li class="tool-item has-children" data-tool="quiz">
+                    <span><i class="fas fa-question-circle"></i> آزمون</span>
+                    <div class="content-container"></div>
+                </li>
+                <li class="tool-item has-children" data-tool="favorites">
+                    <span><i class="fas fa-star"></i> علاقه‌مندی‌ها</span>
+                    <div class="content-container"></div>
+                </li>
+            </ul>
+        </div>
+    `;
+    mainUl.appendChild(toolsAccordionLi);
 
-        divisions.forEach(division => {
-            const li = document.createElement('li');
-            li.className = `division-item`;
-            
-            const hasChildren = division.subdivisions && division.subdivisions.length > 0;
-            if (hasChildren) li.classList.add('has-children');
+    // 3. افزودن راهنمای حقوقی به عنوان آخرین آیتم در زیرمنوی ابزارها
+    if(law.guide_path) {
+         const guideLi = document.createElement('li');
+         guideLi.className = 'tool-item has-children';
+         guideLi.dataset.type = 'guide-file';
+         guideLi.dataset.tool = 'guide';
+         guideLi.dataset.path = law.guide_path;
+         guideLi.dataset.lawKey = lawKey;
+         guideLi.innerHTML = `<span><i class="fas fa-book-open"></i> راهنمای حقوقی</span><div class="content-container"></div>`;
+         toolsAccordionLi.querySelector('.tools-submenu').appendChild(guideLi);
+    }
+    // >> پایان اصلاح <<
 
-            let articlesHTML = '';
-            if (division.articles) {
-                articlesHTML = '<ul class="article-list hidden">';
-                division.articles.forEach(article => {
-                    const rawText = article.text || (article.description || ''); 
-                    const formattedText = rawText.replace(/(\r\n|\n|\r|\/n|\\n)/g, "<br>");
-                    
-                    let titlePrefix = '';
-                    if (article.article_number) {
-                        if (!isNaN(parseInt(article.article_number, 10))) {
-                            titlePrefix = `<strong>${articleWord} ${article.article_number}:</strong>`;
-                        } else {
-                            titlePrefix = `<strong>${article.article_number}:</strong>`;
-                        }
-                    }
-                    articlesHTML += `<li class="article" data-number="${article.article_number}">${toPersianNumerals(titlePrefix)} ${toPersianNumerals(formattedText)}</li>`;
-                });
-                articlesHTML += '</ul>';
-            }
-            
-            let subdivisionsHTML = '';
-            if (hasChildren) {
-                const subContainer = document.createElement('div');
-                subContainer.className = 'subdivisions-container hidden';
-                renderDivisions(subContainer, division.subdivisions, articleWord);
-                subdivisionsHTML = subContainer.outerHTML;
-            }
-            
-            li.innerHTML = `<span class="division-title">${toPersianNumerals(division.title)}</span>${articlesHTML}${subdivisionsHTML}`;
-            ul.appendChild(li);
+    container.appendChild(mainUl);
+}
+
+// تابع برای رندر کردن محتوای داخلی هر ابزار
+function renderToolContent(container, toolType) {
+    let content = '';
+    switch(toolType) {
+        case 'download':
+            content = `<a href="#" class="download-link" download>دانلود نسخه PDF این قانون</a>`;
+            break;
+        case 'quiz':
+            content = `<div class="quiz-setup">
+                        <label for="question-count-${container.closest('.tab-content').id}">تعداد سوالات:</label>
+                        <input type="number" value="20" min="5" max="50">
+                        <button class="tool-btn">شروع آزمون</button>
+                    </div>`;
+            break;
+        case 'favorites':
+            content = `<ul class="favorites-list"><li>ماده‌هایی که ستاره‌دار می‌کنید، در اینجا نمایش داده می‌شوند.</li></ul>`;
+            break;
+    }
+    container.innerHTML = `<div class="tool-padding">${content}</div>`;
+}
+
+    // تابع برای انیمیشن نرم و هوشمند آکاردئون
+function toggleAccordion(element, parentLi) {
+    if (!element) return;
+    const isExpanded = parentLi.classList.contains('expanded');
+    
+    if (isExpanded) {
+        // بستن منو
+        element.style.height = element.scrollHeight + 'px';
+        requestAnimationFrame(() => {
+            element.style.height = '0px';
         });
-
-        container.appendChild(ul);
+        parentLi.classList.remove('expanded');
+    } else {
+        // باز کردن منو
+        const scrollHeight = element.scrollHeight;
+        element.style.height = scrollHeight + 'px';
         
-        container.querySelectorAll('.division-title').forEach(title => {
-            title.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const parentItem = e.target.parentElement;
-                parentItem.classList.toggle('expanded');
-                const childContainer = parentItem.querySelector('.article-list, .subdivisions-container');
-                if (childContainer) childContainer.classList.toggle('hidden');
-            });
-        });
+        element.addEventListener('transitionend', function handler() {
+            element.removeEventListener('transitionend', handler);
+            if (parentLi.classList.contains('expanded')) {
+                element.style.height = 'auto';
+            }
+        }, { once: true });
+        parentLi.classList.add('expanded');
     }
-
+}
+    
     // ----- 7. منطق جدید و کامل برای جستجو -----
     async function loadAllDataForSearch() {
         if (isDataLoaded) return;
