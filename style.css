@@ -407,7 +407,7 @@ input:focus-visible,
 
 /* ===== پایان کد اصلاحی ===== */
 
-/* ===== شروع استایل‌های بخش ابزارها ===== */
+/* ===== شروع استایل‌های بخش ابزارهای تو در تو ===== */
 
 /* استایل کلی برای آیتم‌های اصلی در آکاردئون */
 .main-accordion-container > ul > li > span {
@@ -420,7 +420,7 @@ input:focus-visible,
     font-size: 1.2em;
     border-radius: 8px;
     position: relative;
-    padding-right: 35px; /* فضا برای آیکون مثلثی */
+    padding-right: 35px;
     margin-top: 10px;
 }
 body.dark-theme .main-accordion-container > ul > li > span {
@@ -428,16 +428,35 @@ body.dark-theme .main-accordion-container > ul > li > span {
     border-color: var(--border-color-dark);
 }
 
-/* استایل آیتم‌های ابزارها برای تمایز */
+/* استایل منوی اصلی "ابزارها و امکانات" */
+.tools-accordion-main > span {
+    background-color: #d1e7dd !important; 
+    color: #0f5132;
+}
+body.dark-theme .tools-accordion-main > span {
+    background-color: #032d21 !important;
+    color: #7ee2b8;
+}
+
+/* زیرمنوی داخل ابزارها */
+.tools-submenu {
+    padding-right: 15px !important; 
+    border-right: 2px solid var(--accent-color-light);
+    margin-right: 5px;
+}
+body.dark-theme .tools-submenu {
+    border-right-color: var(--accent-color-dark);
+}
+
+/* استایل هر آیتم ابزار (دانلود، آزمون و...) */
 .tool-item > span {
-    font-size: 1.1em !important; /* کمی کوچک‌تر از عناوین اصلی قانون */
-    background-color: #f8f9fa !important; /* رنگ کمی متفاوت */
+    font-size: 1.1em !important;
+    background-color: #f8f9fa !important;
+    margin-top: 5px !important;
 }
 body.dark-theme .tool-item > span {
     background-color: #2a2a2a !important;
 }
-
-/* استایل آیکون‌های کنار عنوان ابزارها */
 .tool-item i {
     margin-left: 10px;
     color: var(--accent-color-light);
@@ -452,11 +471,6 @@ body.dark-theme .tool-item i {
     height: 0;
     overflow: hidden;
     transition: height 0.4s ease-in-out;
-    padding-right: 20px;
-    border-right: 2px solid var(--accent-color-light);
-}
-body.dark-theme .content-container {
-    border-right-color: var(--accent-color-dark);
 }
 
 .tool-padding {
@@ -470,5 +484,11 @@ body.dark-theme .tool-padding {
     background: #222;
     border-color: var(--border-color-dark);
 }
+
+.quiz-setup { display: flex; align-items: center; gap: 10px; }
+.quiz-setup input { flex-grow: 1; }
+.download-link { text-decoration: none; font-weight: bold; color: var(--accent-color-light); }
+body.dark-theme .download-link { color: var(--accent-color-dark); }
+
 
 /* ===== پایان استایل‌های بخش ابزارها ===== */
