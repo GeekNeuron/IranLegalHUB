@@ -1,4 +1,4 @@
-// ===== شروع کد کامل و نهایی script.js (اصلاح شده) =====
+// ===== شروع کد نهایی script.js (بدون بخش ابزارها) =====
 
 // 1. تابع کمکی تبدیل اعداد به فارسی
 function toPersianNumerals(str) {
@@ -7,10 +7,9 @@ function toPersianNumerals(str) {
     return String(str).replace(/[0-9]/g, (w) => persian[w]);
 }
 
-// 2. تابع فرمت‌دهی متن (برای حل مشکل چسبیدن خطوط در جیسون)
+// 2. تابع فرمت‌دهی متن (تبدیل /n به <br>)
 function formatText(text) {
     if (!text) return '';
-    // تبدیل /n و \n به تگ <br> برای نمایش صحیح پاراگراف‌ها
     return text.replace(/(\r\n|\n|\r|\/n|\\n)/g, '<br>');
 }
 
@@ -51,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ----- 3. ایجاد اسکلت اولیه محتوا -----
     function createInitialSkeletons() {
-        // بررسی وجود فایل data.js
         if (typeof lawManifest === 'undefined') {
             console.error('ارور: فایل data.js لود نشده است.');
             return;
@@ -77,11 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ----- 4. ساخت لیست فایل‌ها و ابزارها -----
+    // ----- 4. ساخت لیست فایل‌ها (بخش ابزارها حذف شد) -----
     function renderMainAccordion(container, law, lawKey) {
         const mainUl = document.createElement('ul');
         
-        // الف) لیست فایل‌های قانون
+        // فقط لیست فایل‌های قانون نمایش داده می‌شود
         if (law.files && law.files.length > 0) {
             law.files.forEach(fileInfo => {
                 const fileLi = document.createElement('li');
@@ -96,49 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 mainUl.appendChild(fileLi);
             });
         }
-
-        // ب) منوی ابزارها
-        const toolsAccordionLi = document.createElement('li');
-        toolsAccordionLi.className = 'tools-accordion-main has-children';
-        toolsAccordionLi.innerHTML = `
-            <span><i class="fas fa-tools"></i> ابزارها و امکانات</span>
-            <div class="content-container">
-                <ul class="tools-submenu">
-                    <li class="tool-item has-children" data-tool="download">
-                        <span><i class="fas fa-download"></i> دانلود کتاب</span>
-                        <div class="content-container"></div>
-                    </li>
-                    <li class="tool-item has-children" data-tool="quiz">
-                        <span><i class="fas fa-question-circle"></i> آزمون</span>
-                        <div class="content-container"></div>
-                    </li>
-                    <li class="tool-item has-children" data-tool="favorites">
-                        <span><i class="fas fa-star"></i> علاقه‌مندی‌ها</span>
-                        <div class="content-container"></div>
-                    </li>
-                </ul>
-            </div>
-        `;
-        mainUl.appendChild(toolsAccordionLi);
-
-        // ج) راهنمای حقوقی
-        if(law.guide_path) {
-             const guideLi = document.createElement('li');
-             guideLi.className = 'tool-item has-children';
-             guideLi.dataset.type = 'guide-file';
-             guideLi.dataset.tool = 'guide';
-             guideLi.dataset.path = law.guide_path;
-             guideLi.innerHTML = `<span><i class="fas fa-book-open"></i> راهنمای حقوقی</span><div class="content-container"></div>`;
-             toolsAccordionLi.querySelector('.tools-submenu').appendChild(guideLi);
-        }
-
+        // کدهای مربوط به ابزارها و راهنما از اینجا حذف شدند
         container.appendChild(mainUl);
     }
 
-    // ----- 5. هندل کردن کلیک‌ها (Event Delegation) [بخش حیاتی اضافه شده] -----
+    // ----- 5. هندل کردن کلیک‌ها -----
     mainContent.addEventListener('click', async (e) => {
-        // 1. کلیک روی تیتر فایل‌ها یا ابزارها
-        const header = e.target.closest('.file-group > span, .tool-item > span, .tools-accordion-main > span');
+        // کلیک روی تیتر فایل‌ها
+        const header = e.target.closest('.file-group > span');
         
         if (header) {
             const parentLi = header.parentElement;
@@ -158,15 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (parentLi.dataset.type === 'law-file') {
                         // لود فایل قانون
                         await fetchAndRenderLawFile(parentLi.dataset.path, contentContainer, parentLi.dataset.lawKey);
-                    } else if (parentLi.dataset.type === 'guide-file') {
-                        // لود فایل راهنما
-                        await fetchAndRenderGuideFile(parentLi.dataset.path, contentContainer);
-                    } else if (parentLi.dataset.tool) {
-                        // لود ابزار
-                        renderToolContent(contentContainer, parentLi.dataset.tool, parentLi);
-                    } else if (parentLi.classList.contains('tools-accordion-main')) {
-                        // فقط پاک کردن لودینگ برای منوی اصلی ابزارها
-                        contentContainer.innerHTML = contentContainer.innerHTML.replace('<div class="tool-padding"><i class="fas fa-spinner fa-spin"></i> در حال بارگذاری...</div>', '');
                     }
                 } catch (error) {
                     console.error(error);
@@ -176,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleAccordion(contentContainer, parentLi);
         }
         
-        // 2. کلیک روی زیرمجموعه‌ها (فصل‌ها)
+        // کلیک روی زیرمجموعه‌ها (فصل‌ها)
         const divisionHeader = e.target.closest('.division-title');
         if (divisionHeader) {
             const parentLi = divisionHeader.parentElement;
@@ -187,9 +141,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ----- 6. توابع رندر کردن محتوا (اضافه شده) -----
+    // ----- 6. توابع رندر کردن محتوا -----
 
-    // الف) رندر فایل قانون (Recursive)
+    // رندر فایل قانون (Recursive)
     async function fetchAndRenderLawFile(path, container, lawKey) {
         const response = await fetch(path);
         if (!response.ok) throw new Error('Network error');
@@ -198,13 +152,17 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = ''; 
         const lawInfo = lawManifest[lawKey];
 
-        if (data.divisions) {
+        // چک کردن ساختار اصلاح شده (division داخل آبجکت اصلی یا داخل آرایه divisions)
+        // با توجه به اصلاحاتی که روی فایل‌های JSON انجام دادی:
+        const divisionsList = data.divisions ? data.divisions : (Array.isArray(data) ? data : []);
+
+        if (divisionsList.length > 0) {
             const ul = document.createElement('ul');
             ul.className = 'divisions-list';
-            renderDivisionsRecursive(data.divisions, ul, lawInfo);
+            renderDivisionsRecursive(divisionsList, ul, lawInfo);
             container.appendChild(ul);
         } else {
-            container.innerHTML = '<div class="tool-padding">ساختار فایل نامعتبر است.</div>';
+            container.innerHTML = '<div class="tool-padding">ساختار فایل نامعتبر است یا خالی است.</div>';
         }
     }
 
@@ -249,81 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ب) رندر فایل راهنما
-    async function fetchAndRenderGuideFile(path, container) {
-        const response = await fetch(path);
-        if (!response.ok) throw new Error('Network error');
-        const data = await response.json();
-        
-        container.innerHTML = '';
-        if (data.topics) {
-            const ul = document.createElement('ul');
-            ul.style.listStyle = 'none';
-            ul.style.padding = '0';
-            
-            data.topics.forEach(topic => {
-                const li = document.createElement('li');
-                li.className = 'division-item'; 
-                li.style.marginTop = '10px';
-
-                const topicHtml = `
-                    <span class="division-title" style="background-color: #e3f2fd; color: #0d47a1;">
-                        <i class="fas fa-info-circle"></i> ${toPersianNumerals(topic.topic_title)}
-                    </span>
-                    <div class="divisions-container" style="background: #fff; border: 1px solid #dee2e6; border-top: none; padding: 15px; border-radius: 0 0 8px 8px;">
-                        <p style="text-align: justify; margin-bottom: 15px;">${toPersianNumerals(formatText(topic.explanation))}</p>
-                        ${topic.relevant_articles ? `
-                            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                                <h5 style="margin:0 0 10px 0;">مستندات قانونی:</h5>
-                                <ul style="padding-right: 20px;">
-                                    ${topic.relevant_articles.map(art => `<li><strong>${art.law_name} - ماده ${toPersianNumerals(art.article_number)}:</strong> ${toPersianNumerals(art.note)}</li>`).join('')}
-                                </ul>
-                            </div>` : ''}
-                        ${topic.advice ? `
-                            <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; border-right: 4px solid #4caf50;">
-                                <h5 style="margin:0 0 10px 0; color: #2e7d32;">نکات کاربردی:</h5>
-                                <ul style="padding-right: 20px;">
-                                    ${topic.advice.map(adv => `<li>${toPersianNumerals(adv)}</li>`).join('')}
-                                </ul>
-                            </div>` : ''}
-                    </div>
-                `;
-                li.innerHTML = topicHtml;
-                ul.appendChild(li);
-            });
-            container.appendChild(ul);
-        }
-    }
-
-    // ج) رندر محتوای ابزارها
-    function renderToolContent(container, toolType, parentLi) {
-        let content = '';
-        switch(toolType) {
-            case 'download':
-                content = `<div style="text-align: center;">
-                            <p>نسخه PDF کامل این قانون آماده دانلود است.</p>
-                            <a href="#" class="download-link" style="display: inline-block; padding: 10px 20px; background: var(--accent-color-light); color: #fff; border-radius: 5px; text-decoration: none;">
-                                <i class="fas fa-file-pdf"></i> دانلود فایل PDF
-                            </a>
-                           </div>`;
-                break;
-            case 'quiz':
-                content = `<div class="quiz-setup">
-                                <label>تعداد سوالات:</label>
-                                <input type="number" value="20" min="5" max="50" style="width: 60px; padding: 5px;">
-                                <button class="tool-btn" style="padding: 5px 15px; background: var(--accent-color-light); color: #fff; border: none; border-radius: 4px; cursor: pointer;">شروع آزمون</button>
-                           </div>`;
-                break;
-            case 'favorites':
-                content = `<div style="text-align: center; color: #888;">
-                                <i class="far fa-star" style="font-size: 2em; margin-bottom: 10px; display: block;"></i>
-                                هنوز هیچ ماده‌ای را به لیست علاقه‌مندی‌ها اضافه نکرده‌اید.
-                           </div>`;
-                break;
-        }
-        container.innerHTML = `<div class="tool-padding">${content}</div>`;
-    }
-
     // ----- 7. انیمیشن آکاردئون -----
     function toggleAccordion(element, parentLi) {
         if (!element) return;
@@ -353,7 +236,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 promises.push(
                     fetch(fileInfo.path)
                         .then(res => res.json())
-                        .then(data => { allLawsData[lawKey].push({ lawKey, fileInfo, data }); })
+                        .then(data => { 
+                            // اصلاح برای پشتیبانی از فرمت جدید فایل‌های JSON
+                            const cleanData = data.divisions ? data : { divisions: Array.isArray(data) ? data : [] };
+                            allLawsData[lawKey].push({ lawKey, fileInfo, data: cleanData }); 
+                        })
                         .catch(err => console.error(`خطا در ایندکس کردن فایل ${fileInfo.path}:`, err))
                 );
             });
@@ -387,6 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (division.subdivisions) searchInDivisions(division.subdivisions, currentPath);
                     });
                 }
+                
+                // جستجو در صورتی که دیتای فایل صحیح باشد
                 if (fileData.data && fileData.data.divisions) {
                     searchInDivisions(fileData.data.divisions, [fileData.fileInfo.title]);
                 }
@@ -472,8 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ----- اجرای نهایی -----
     createInitialSkeletons();
     loadAllDataForSearch();
 });
-// ===== پایان کد کامل و نهایی script.js =====
+// ===== پایان کد نهایی script.js =====
