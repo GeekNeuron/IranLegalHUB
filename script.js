@@ -1,4 +1,4 @@
-// ===== شروع کد نهایی script.js (بدون بخش ابزارها) =====
+// ===== شروع کد نهایی script.js (بدون ابزارها + با انیمیشن نرم) =====
 
 // 1. تابع کمکی تبدیل اعداد به فارسی
 function toPersianNumerals(str) {
@@ -75,11 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ----- 4. ساخت لیست فایل‌ها (بخش ابزارها حذف شد) -----
+    // ----- 4. ساخت لیست فایل‌ها (ابزارها حذف شدند) -----
     function renderMainAccordion(container, law, lawKey) {
         const mainUl = document.createElement('ul');
         
-        // فقط لیست فایل‌های قانون نمایش داده می‌شود
+        // فقط لیست فایل‌های قانون
         if (law.files && law.files.length > 0) {
             law.files.forEach(fileInfo => {
                 const fileLi = document.createElement('li');
@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 mainUl.appendChild(fileLi);
             });
         }
-        // کدهای مربوط به ابزارها و راهنما از اینجا حذف شدند
         container.appendChild(mainUl);
     }
 
@@ -107,19 +106,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const parentLi = header.parentElement;
             const contentContainer = parentLi.querySelector('.content-container');
             
-            // اگر باز است، ببند
+            // اگر باز است، انیمیشن بستن اجرا شود
             if (parentLi.classList.contains('expanded')) {
                 toggleAccordion(contentContainer, parentLi);
                 return;
             }
 
-            // اگر محتوا خالی است، لود کن
+            // لود کردن محتوا اگر خالی باشد
             if (contentContainer && contentContainer.children.length === 0) {
                 contentContainer.innerHTML = '<div class="tool-padding"><i class="fas fa-spinner fa-spin"></i> در حال بارگذاری...</div>';
                 
                 try {
                     if (parentLi.dataset.type === 'law-file') {
-                        // لود فایل قانون
                         await fetchAndRenderLawFile(parentLi.dataset.path, contentContainer, parentLi.dataset.lawKey);
                     }
                 } catch (error) {
@@ -142,8 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ----- 6. توابع رندر کردن محتوا -----
-
-    // رندر فایل قانون (Recursive)
     async function fetchAndRenderLawFile(path, container, lawKey) {
         const response = await fetch(path);
         if (!response.ok) throw new Error('Network error');
@@ -152,8 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = ''; 
         const lawInfo = lawManifest[lawKey];
 
-        // چک کردن ساختار اصلاح شده (division داخل آبجکت اصلی یا داخل آرایه divisions)
-        // با توجه به اصلاحاتی که روی فایل‌های JSON انجام دادی:
+        // پشتیبانی از هر دو فرمت آرایه و آبجکت
         const divisionsList = data.divisions ? data.divisions : (Array.isArray(data) ? data : []);
 
         if (divisionsList.length > 0) {
@@ -207,18 +202,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ----- 7. انیمیشن آکاردئون -----
+    // ----- 7. انیمیشن آکاردئون (نسخه اصلاح شده و نرم) -----
     function toggleAccordion(element, parentLi) {
         if (!element) return;
         
-        if (parentLi.classList.contains('expanded')) {
+        const isExpanded = parentLi.classList.contains('expanded');
+
+        if (isExpanded) {
+            // انیمیشن بستن
             element.style.height = element.scrollHeight + 'px';
-            element.offsetHeight; // Force reflow
-            element.style.height = '0px';
+            
+            // استفاده از requestAnimationFrame برای اطمینان از اعمال استایل قبل از تغییر به صفر
+            requestAnimationFrame(() => {
+                element.style.height = '0px';
+            });
+            
             parentLi.classList.remove('expanded');
         } else {
+            // انیمیشن باز کردن
             parentLi.classList.add('expanded');
             element.style.height = element.scrollHeight + 'px';
+            
+            // وقتی انیمیشن تمام شد، ارتفاع را auto کن تا اگر محتوا تغییر کرد اسکرول نخورد
             element.addEventListener('transitionend', function handler() {
                 element.style.height = 'auto';
                 element.removeEventListener('transitionend', handler);
@@ -237,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     fetch(fileInfo.path)
                         .then(res => res.json())
                         .then(data => { 
-                            // اصلاح برای پشتیبانی از فرمت جدید فایل‌های JSON
                             const cleanData = data.divisions ? data : { divisions: Array.isArray(data) ? data : [] };
                             allLawsData[lawKey].push({ lawKey, fileInfo, data: cleanData }); 
                         })
@@ -275,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
                 
-                // جستجو در صورتی که دیتای فایل صحیح باشد
                 if (fileData.data && fileData.data.divisions) {
                     searchInDivisions(fileData.data.divisions, [fileData.fileInfo.title]);
                 }
@@ -364,4 +367,4 @@ document.addEventListener('DOMContentLoaded', () => {
     createInitialSkeletons();
     loadAllDataForSearch();
 });
-// ===== پایان کد نهایی script.js =====
+// ===== پایان کد کامل و نهایی script.js =====
