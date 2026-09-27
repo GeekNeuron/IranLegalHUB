@@ -24,11 +24,19 @@ body {
     background-color: var(--bg-color-light);
     color: var(--text-color-light);
     transition: background-color 0.3s, color 0.3s;
-    
-    /* این سه خط جدید هستند */
+    min-height: 100vh;
+}
+
+/* ===== چیدمان کلی: سایدبار + محتوای اصلی ===== */
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+.main-wrapper {
+    flex: 1 1 auto;
+    min-width: 0; /* جلوگیری از سرریز افقی به‌خاطر محتوای طولانی */
     display: flex;
     flex-direction: column;
-    min-height: 100vh; 
 }
 
 /* این استایل جدید را اضافه کنید */
@@ -47,6 +55,8 @@ header#main-header {
     padding: 0.5rem 1.5rem;
     border-bottom: 1px solid var(--border-color-light);
     display: flex;
+    flex-wrap: wrap;
+    row-gap: 10px;
     justify-content: space-between;
     align-items: center;
     min-height: 60px;
@@ -57,6 +67,11 @@ header#main-header {
     position: sticky;
     top: 0;
     z-index: 1001;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: box-shadow 0.3s ease;
+}
+body.dark-theme .sticky-top-container {
+    box-shadow: 0 2px 14px rgba(0,0,0,0.4);
 }
 
 body.dark-theme header#main-header {
@@ -67,9 +82,51 @@ body.dark-theme header#main-header {
 .header-right {
     display: flex;
     align-items: center;
-    gap: 15px;
-    cursor: pointer;
+    gap: 12px;
 }
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-color-light);
+    cursor: pointer;
+    transition: background-color 0.25s ease, transform 0.15s ease;
+    flex-shrink: 0;
+}
+.icon-btn svg { width: 22px; height: 22px; transition: transform 0.25s ease; }
+.icon-btn:hover { background-color: var(--hover-bg-light); transform: translateY(-1px); }
+.icon-btn:hover svg { transform: scale(1.08); }
+.icon-btn:active { transform: scale(0.92); }
+body.dark-theme .icon-btn { color: var(--text-color-dark); }
+body.dark-theme .icon-btn:hover { background-color: var(--hover-bg-dark); }
+
+/* ===== آیکون‌های SVG داخلی (جایگزین Font Awesome) ===== */
+.icon-inline {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    margin-left: 8px;
+}
+.icon-inline svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.icon-chevron { transition: transform 0.3s; }
+li.expanded > span > .icon-chevron,
+li.expanded > .division-title > .icon-chevron { transform: rotate(180deg); }
+
+.icon-spin svg { animation: icon-spin 0.9s linear infinite; }
+@keyframes icon-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 .header-icon {
     width: 40px;
@@ -99,7 +156,16 @@ body.dark-theme #header-title {
     background-color: var(--bg-color-light);
     color: var(--text-color-light);
     font-family: 'Vazirmatn', sans-serif;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    transition: background-color 0.3s, color 0.3s, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+#search-input:focus {
+    outline: none;
+    border-color: var(--accent-color-light);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+body.dark-theme #search-input:focus {
+    border-color: var(--accent-color-dark);
+    box-shadow: 0 0 0 3px rgba(100, 181, 246, 0.18);
 }
 body.dark-theme #search-input {
     background-color: #2c2c2c;
@@ -107,57 +173,216 @@ body.dark-theme #search-input {
     border-color: var(--border-color-dark);
 }
 
-/* Tabs Navigation -->> اصلاح شده برای حالت Sticky <<-- */
-.tabs {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    background-color: var(--header-bg-light);
-    padding: 0 10px;
-    border-bottom: 1px solid var(--border-color-light);
-}
-.tabs::-webkit-scrollbar { height: 5px; }
-.tabs::-webkit-scrollbar-track { background: #f1f1f1; }
-.tabs::-webkit-scrollbar-thumb { background: #aaa; border-radius: 5px; }
-body.dark-theme .tabs { border-bottom-color: var(--border-color-dark); background-color: var(--header-bg-dark); }
-body.dark-theme .tabs::-webkit-scrollbar-track { background: #2c2c2c; }
-body.dark-theme .tabs::-webkit-scrollbar-thumb { background: #555; }
-
-.tab-link {
-    padding: 12px 18px;
-    cursor: pointer;
-    border: none;
-    background-color: transparent;
-    font-size: 1em;
-    font-family: 'Vazirmatn', sans-serif;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s;
+/* ===== سایدبار ===== */
+.sidebar {
+    width: 280px;
     flex-shrink: 0;
+    background-color: var(--header-bg-light);
+    border-left: 1px solid var(--border-color-light);
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+body.dark-theme .sidebar {
+    background-color: var(--header-bg-dark);
+    border-left-color: var(--border-color-dark);
 }
 
-.tab-link:hover {
-    background-color: var(--hover-bg-light);
+.sidebar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color-light);
+    min-height: 60px;
+    box-sizing: border-box;
 }
-body.dark-theme .tab-link:hover {
-    background-color: var(--hover-bg-dark);
-}
+body.dark-theme .sidebar-top { border-bottom-color: var(--border-color-dark); }
 
-/* >> اصلاح برای ثابت ماندن رنگ تب فعال << */
-.tab-link.active {
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-weight: 700;
-    border-bottom-color: var(--accent-color-light);
-    background-color: var(--hover-bg-light); /* رنگ پس‌زمینه برای تب فعال */
+    font-size: 1.05em;
 }
-body.dark-theme .tab-link.active {
-    border-bottom-color: var(--accent-color-dark);
-    background-color: var(--hover-bg-dark); /* رنگ پس‌زمینه برای تب فعال در تم تاریک */
+.sidebar-brand .header-icon { width: 30px; height: 30px; }
+
+.sidebar-close-btn { display: none; }
+
+.sidebar-nav {
+    padding: 10px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    margin-bottom: 4px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1em;
+    color: inherit;
+    cursor: pointer;
+    text-align: right;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.sidebar-item:hover {
+    background-color: var(--hover-bg-light);
+    transform: translateX(-2px);
+}
+body.dark-theme .sidebar-item:hover { background-color: var(--hover-bg-dark); }
+.sidebar-item:active { transform: scale(0.98); }
+
+.sidebar-item-icon { flex-shrink: 0; font-size: 1.1em; }
+.sidebar-item-label { flex: 1 1 auto; }
+
+/* آیتم انتخاب‌شده (فعال) در سایدبار */
+.sidebar-item.tab-link.active {
+    background-color: var(--accent-color-light);
+    color: #fff;
+    font-weight: 700;
+}
+body.dark-theme .sidebar-item.tab-link.active {
+    background-color: var(--accent-color-dark);
+    color: #121212;
+}
+
+.sidebar-group { margin-bottom: 2px; }
+.sidebar-chevron {
+    flex-shrink: 0;
+    display: inline-flex;
+    transition: transform 0.3s ease;
+}
+.sidebar-chevron svg { width: 16px; height: 16px; }
+.sidebar-group.expanded > .sidebar-group-toggle .sidebar-chevron {
+    transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.4s ease-in-out;
+    padding-right: 12px;
+}
+
+.sidebar-sublink,
+.sidebar-submenu .sidebar-item {
+    padding: 10px 12px;
+    font-size: 0.93em;
+    border-radius: 8px;
+}
+
+/* ===== تنظیمات داخل سایدبار ===== */
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    gap: 10px;
+}
+.settings-label { font-size: 0.93em; }
+
+.ilh-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+.ilh-switch input { opacity: 0; width: 0; height: 0; }
+.ilh-switch-track {
+    position: absolute;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 24px;
+    transition: background-color 0.25s ease;
+    cursor: pointer;
+}
+.ilh-switch-thumb {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.ilh-switch input:checked + .ilh-switch-track { background-color: var(--accent-color-light); }
+.ilh-switch input:checked + .ilh-switch-track .ilh-switch-thumb { transform: translateX(-20px); }
+body.dark-theme .ilh-switch input:checked + .ilh-switch-track { background-color: var(--accent-color-dark); }
+
+.font-size-controls { display: flex; gap: 4px; }
+.font-size-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color-light);
+    background: transparent;
+    color: inherit;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.8em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.font-size-btn:hover { background-color: var(--hover-bg-light); transform: translateY(-1px); }
+body.dark-theme .font-size-btn { border-color: var(--border-color-dark); }
+body.dark-theme .font-size-btn:hover { background-color: var(--hover-bg-dark); }
+
+/* دکمه‌های باز/بسته کردن سایدبار در هدر */
+.sidebar-open-btn { display: none; }
+
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* ===== حالت موبایل/تبلت: سایدبار به‌صورت کشویی ===== */
+@media (max-width: 992px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        z-index: 1999;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+    }
+    body.sidebar-open .sidebar { transform: translateX(0); }
+    body.sidebar-open .sidebar-backdrop { display: block; opacity: 1; }
+    .sidebar-close-btn { display: inline-flex; }
+    .sidebar-open-btn { display: inline-flex; }
+}
+@media (min-width: 993px) {
+    .sidebar-backdrop { display: none !important; }
 }
 
 /* Main Content & Accordion */
 #main-content { padding: 20px; }
 .tab-content { display: none; }
-.tab-content.active { display: block; }
+.tab-content.active { display: block; animation: fadeSlideIn 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
+}
 
 .law-info {
     padding: 15px;
@@ -183,13 +408,22 @@ body.dark-theme .law-info {
     cursor: pointer;
     font-weight: 700;
     font-size: 1.1em;
-    transition: background-color 0.3s;
+    transition: background-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     position: relative;
     border-radius: 8px;
+}
+.file-group > span:hover, .division-item > .division-title:hover {
+    transform: translateX(-2px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    border-color: var(--accent-color-light);
 }
 body.dark-theme .file-group > span, body.dark-theme .division-item > .division-title {
     background-color: #2a2a2a;
     border-color: var(--border-color-dark);
+}
+body.dark-theme .file-group > span:hover, body.dark-theme .division-item > .division-title:hover {
+    border-color: var(--accent-color-dark);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
 }
 
 .article {
@@ -200,11 +434,29 @@ body.dark-theme .file-group > span, body.dark-theme .division-item > .division-t
     border-radius: 8px;
     line-height: 2;
     text-align: justify;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+    animation: fadeSlideIn 0.35s ease both;
+}
+.article:hover {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border-color: var(--accent-color-light);
 }
 body.dark-theme .article {
     background-color: #222;
     border-color: #444;
 }
+body.dark-theme .article:hover {
+    border-color: var(--accent-color-dark);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+/* پلکانی کردن ورود مواد قانونی برای حس نرم‌تر */
+.article-list .article:nth-child(1) { animation-delay: 0.02s; }
+.article-list .article:nth-child(2) { animation-delay: 0.05s; }
+.article-list .article:nth-child(3) { animation-delay: 0.08s; }
+.article-list .article:nth-child(4) { animation-delay: 0.11s; }
+.article-list .article:nth-child(5) { animation-delay: 0.14s; }
+.article-list .article:nth-child(n+6) { animation-delay: 0.16s; }
 
 .article strong { color: #0056b3; margin-left: 8px; }
 body.dark-theme .article strong { color: #bb86fc; }
@@ -218,6 +470,114 @@ body.dark-theme mark {
     background-color: var(--highlight-bg-dark);
     color: inherit;
 }
+
+.search-results-container { animation: fadeIn 0.3s ease; }
+.search-result-item {
+    animation: fadeSlideIn 0.35s ease both;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+.search-result-item:hover {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
+    transform: translateY(-2px);
+}
+
+/* ===== شروع استایل‌های دکمه‌های کپی/اشتراک‌گذاری ===== */
+.article-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+.article-label strong { color: #0056b3; }
+body.dark-theme .article-label strong { color: #bb86fc; }
+.article-body { }
+
+.article-actions, .file-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.art-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #8a8f98;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.art-action-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.art-action-btn:hover {
+    background-color: var(--hover-bg-light);
+    color: var(--accent-color-light);
+    transform: scale(1.08);
+}
+.art-action-btn:active { transform: scale(0.9); }
+body.dark-theme .art-action-btn { color: #9aa0a6; }
+body.dark-theme .art-action-btn:hover {
+    background-color: var(--hover-bg-dark);
+    color: var(--accent-color-dark);
+}
+
+.file-group > span {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.file-group-title { display: inline-flex; align-items: center; }
+.file-actions .art-action-btn { color: inherit; opacity: 0.75; }
+.file-actions .art-action-btn:hover { opacity: 1; }
+
+.result-path-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+/* پیام کوتاه (Toast) */
+.ilh-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #212529;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 0.9em;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 2000;
+}
+.ilh-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+body.dark-theme .ilh-toast {
+    background: #e0e0e0;
+    color: #121212;
+}
+/* ===== پایان استایل‌های دکمه‌های کپی/اشتراک‌گذاری ===== */
 
 /* ===== شروع کد انیمیشن آکاردئون ===== */
 
@@ -252,27 +612,17 @@ body.dark-theme .article-list {
 /* Responsive (Mobile) */
 @media (max-width: 768px) {
     header#main-header {
-        flex-direction: column;
-        gap: 10px;
-        padding: 1rem;
+        padding: 0.5rem 1rem;
     }
-    .tabs {
-        top: 132px;
-    }
-.header-right {
-    order: 1; 
-    width: 100%;
-    justify-content: flex-start;
-}
     .search-container {
-        order: 2; 
         width: 100%;
-        margin: 0;
+        max-width: 220px;
     }
     #search-input {
         width: 100%;
         box-sizing: border-box;
     }
+    #header-title { font-size: 1.15rem; }
     .tab-content { padding: 1rem; }
 }
 
@@ -345,11 +695,17 @@ body.dark-theme .tab-link {
     color: #a0a0a0;
     font-size: 1.5rem; /* اندازه آیکون‌ها */
     margin-left: 15px;
-    transition: color 0.3s;
+    transition: color 0.3s ease, transform 0.25s ease;
+}
+.social-icons a svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    vertical-align: middle;
 }
 
 .social-icons a:hover {
     color: var(--accent-color-dark);
+    transform: translateY(-3px) scale(1.1);
 }
 
 .footer-bottom {
@@ -473,12 +829,17 @@ body.dark-theme .tool-item i {
     transition: height 0.4s ease-in-out;
 }
 
+.divisions-list {
+    animation: fadeIn 0.4s ease;
+}
+
 .tool-padding {
     padding: 20px;
     background: #fff;
     border: 1px solid var(--border-color-light);
     border-top: none;
     border-radius: 0 0 8px 8px;
+    animation: fadeIn 0.3s ease;
 }
 body.dark-theme .tool-padding {
     background: #222;
@@ -492,3 +853,273 @@ body.dark-theme .download-link { color: var(--accent-color-dark); }
 
 
 /* ===== پایان استایل‌های بخش ابزارها ===== */
+
+/* ===== شروع استایل‌های دیالوگ «درباره» ===== */
+dialog#about-dialog {
+    width: min(600px, 92vw);
+    max-height: 85vh;
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    color: var(--text-color-light);
+    background-color: #ffffff;
+    animation: popIn 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+body.dark-theme dialog#about-dialog {
+    background-color: var(--header-bg-dark);
+    color: var(--text-color-dark);
+}
+dialog#about-dialog::backdrop {
+    background: rgba(0,0,0,0.5);
+    animation: fadeIn 0.25s ease;
+}
+.about-law-list span {
+    transition: transform 0.15s ease, background-color 0.2s ease;
+}
+.about-law-list span:hover {
+    transform: translateY(-1px);
+    background-color: var(--accent-color-light);
+    color: #fff;
+}
+body.dark-theme .about-law-list span:hover {
+    background-color: var(--accent-color-dark);
+    color: #121212;
+}
+.about-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color-light);
+    position: sticky;
+    top: 0;
+    background: inherit;
+}
+body.dark-theme .about-dialog-header { border-bottom-color: var(--border-color-dark); }
+.about-dialog-header h2 { margin: 0; font-size: 1.2em; }
+.about-dialog-body { padding: 20px; overflow-y: auto; line-height: 1.9; }
+.about-dialog-body h3 { margin-top: 25px; margin-bottom: 10px; font-size: 1.05em; }
+.about-count { font-weight: 700; color: var(--accent-color-light); }
+body.dark-theme .about-count { color: var(--accent-color-dark); }
+.about-law-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.about-law-list span {
+    background: var(--hover-bg-light);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85em;
+}
+body.dark-theme .about-law-list span { background: var(--hover-bg-dark); }
+.about-sources-list { padding-right: 20px; margin: 0; }
+.about-sources-list li { margin-bottom: 8px; }
+.about-disclaimer {
+    margin-top: 20px;
+    padding: 12px 15px;
+    background: var(--hover-bg-light);
+    border-right: 4px solid var(--accent-color-light);
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+body.dark-theme .about-disclaimer {
+    background: var(--hover-bg-dark);
+    border-right-color: var(--accent-color-dark);
+}
+/* ===== پایان استایل‌های دیالوگ «درباره» ===== */
+
+/* ===== شروع استایل‌های فلش‌کارت ===== */
+.flashcard-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+#flashcard-law-select {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color-light);
+    background-color: #fff;
+    color: var(--text-color-light);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1em;
+    flex-grow: 1;
+    max-width: 320px;
+}
+body.dark-theme #flashcard-law-select {
+    background-color: #2c2c2c;
+    color: var(--text-color-dark);
+    border-color: var(--border-color-dark);
+}
+
+.fc-btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--accent-color-light);
+    color: #fff;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.25s ease;
+}
+.fc-btn:hover { opacity: 0.92; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+.fc-btn:active { transform: scale(0.97) translateY(0); box-shadow: none; }
+body.dark-theme .fc-btn { background-color: var(--accent-color-dark); color: #121212; }
+
+.fc-btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--accent-color-light);
+    color: var(--accent-color-light);
+}
+body.dark-theme .fc-btn-outline { border-color: var(--accent-color-dark); color: var(--accent-color-dark); }
+
+.fc-btn-primary { background-color: #198754; }
+body.dark-theme .fc-btn-primary { background-color: #2fbf78; color: #0c1f14; }
+
+#flashcard-stage {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0 25px 0;
+    perspective: 1500px;
+}
+
+.flashcard {
+    width: 100%;
+    max-width: 560px;
+    height: 260px;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+}
+.flashcard:hover {
+    transform: translateY(-3px);
+}
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+.flashcard.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+}
+.flashcard-face {
+    position: absolute;
+    inset: 0;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+    font-size: 1.2em;
+    line-height: 1.9;
+    overflow-y: auto;
+}
+.flashcard-front {
+    background: linear-gradient(135deg, var(--accent-color-light), #5aa9ff);
+    color: #fff;
+    font-size: 1.5em;
+    font-weight: 700;
+}
+body.dark-theme .flashcard-front {
+    background: linear-gradient(135deg, #2c3e50, var(--accent-color-dark));
+    color: #0c1620;
+}
+.flashcard-back {
+    background: #fff;
+    color: var(--text-color-light);
+    transform: rotateY(180deg);
+    text-align: justify;
+    border: 1px solid var(--border-color-light);
+}
+body.dark-theme .flashcard-back {
+    background: #222;
+    color: var(--text-color-dark);
+    border-color: var(--border-color-dark);
+}
+
+.flashcard-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.flashcard-box-view {
+    margin-top: 30px;
+    border-top: 2px solid var(--border-color-light);
+    padding-top: 20px;
+}
+body.dark-theme .flashcard-box-view { border-top-color: var(--border-color-dark); }
+.flashcard-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.flashcard-box-item {
+    background: #fff;
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    animation: fadeSlideIn 0.3s ease both;
+    transition: box-shadow 0.25s ease;
+}
+.flashcard-box-item:hover {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+.flashcard-box-item-body {
+    animation: fadeIn 0.25s ease;
+}
+body.dark-theme .flashcard-box-item {
+    background: #222;
+    border-color: var(--border-color-dark);
+}
+.flashcard-box-item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 700;
+}
+.flashcard-box-item-body {
+    margin-top: 10px;
+    line-height: 1.8;
+    display: none;
+    text-align: justify;
+}
+.flashcard-box-item.open .flashcard-box-item-body { display: block; }
+.flashcard-box-remove {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-family: 'Vazirmatn', sans-serif;
+}
+.flashcard-box-empty {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+}
+
+@media (max-width: 768px) {
+    .flashcard { height: 220px; }
+    .flashcard-front { font-size: 1.2em; }
+    .flashcard-toolbar { flex-direction: column; align-items: stretch; }
+    #flashcard-law-select { max-width: 100%; }
+}
+/* ===== پایان استایل‌های فلش‌کارت ===== */

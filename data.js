@@ -127,7 +127,7 @@ const lawManifest = {
     },
     'tab-direct-taxes-law': {
         title: 'قانون مالیات‌های مستقیم',
-        info: 'قانون مالیات‌های مستقیم مصوب ۱۳۶۶/۱۲/۳ با اصلاحات تا ۱۴۰۳ (بزرگ‌ترین قانون مجموعه، ۲۲۱ از ۲۸۲ ماده پیاده شده؛ چند ماده پراکنده کم‌اهمیت‌تر که عمدتاً منسوخ شده‌اند هنوز باقی مانده).',
+        info: 'قانون مالیات‌های مستقیم مصوب ۱۳۶۶/۱۲/۳ با اصلاحات تا ۱۴۰۳ (بزرگ‌ترین قانون مجموعه). تکمیل شد — ۲۲۵ ماده/بند موجود در متن فعلی؛ بقیه شماره‌ها طی اصلاحات تاریخی نسخ شده و در قانون فعلی وجود ندارند.',
         article_word: 'ماده',
         files: [
             { title: 'تمام مواد', path: 'laws/direct_taxes_law/direct_taxes_law.json' }
@@ -167,6 +167,51 @@ const lawManifest = {
         article_word: 'ماده',
         files: [
             { title: 'تمام مواد', path: 'laws/general_courts_law/general_courts_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-consumer-rights-law': {
+        title: 'قانون حمایت از حقوق مصرف‌کنندگان',
+        info: 'قانون حمایت از حقوق مصرف‌کنندگان مصوب ۱۳۸۸/۰۷/۱۵ مجلس شورای اسلامی. تکمیل شد.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/five_statutes/consumer_rights_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-insurance-law': {
+        title: 'قانون بیمه',
+        info: 'قانون بیمه مصوب ۱۳۱۶/۰۲/۰۷ مجلس شورای ملی، شامل مقررات معاملات بیمه، فسخ و بطلان و مسئولیت بیمه‌گر. تکمیل شد.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/five_statutes/insurance_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-vat-law': {
+        title: 'قانون مالیات بر ارزش افزوده',
+        info: 'قانون مالیات بر ارزش افزوده مصوب ۱۴۰۰/۰۳/۰۲ مجلس شورای اسلامی. تکمیل شد.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/five_statutes/vat_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-administrative-violations-law': {
+        title: 'قانون رسیدگی به تخلفات اداری',
+        info: 'قانون رسیدگی به تخلفات اداری مصوب ۱۳۷۲/۰۹/۰۷ مجلس شورای اسلامی. تکمیل شد.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/five_statutes/administrative_violations_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-trade-unions-law': {
+        title: 'قانون نظام صنفی کشور',
+        info: 'قانون نظام صنفی کشور مصوب ۱۳۸۲/۱۲/۲۴ با الحاقات و اصلاحات تا ۱۴۰۳/۰۵/۰۲. تکمیل شد.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/five_statutes/trade_unions_law.json' }
         ],
         quiz: []
     }
