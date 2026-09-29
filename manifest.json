@@ -1,0 +1,27 @@
+{
+    "name": "کانون حقوقی ایران",
+    "short_name": "کانون حقوقی",
+    "description": "مرجع رایگان متن قوانین اصلی ایران — قابل استفاده آفلاین",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "dir": "rtl",
+    "lang": "fa",
+    "background_color": "#f8f9fa",
+    "theme_color": "#0d6efd",
+    "icons": [
+        {
+            "src": "assets/icons/ilh_light.png",
+            "sizes": "798x798",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "assets/icons/ilh_light.png",
+            "sizes": "798x798",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

@@ -5,12 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>کانون حقوقی ایران</title>
     <link rel="icon" type="image/png" href="assets/icons/ilh_light.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0d6efd">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('ilh-theme');
+                if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.body.classList.add('dark-theme');
+                }
+            } catch (e) {}
+        })();
+    </script>
 
     <div class="app-shell">
 
@@ -29,42 +41,67 @@
             </div>
 
             <nav class="sidebar-nav">
-                <button class="sidebar-item tab-link" data-tab="tab-flashcards" type="button">
-                    <span class="sidebar-item-icon">🃏</span>
-                    <span class="sidebar-item-label">فلش‌کارت</span>
+                <button class="sidebar-item tab-link active" type="button" data-tab="tab-dashboard">
+                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.6"/><rect x="14" y="3" width="7" height="5" rx="1.6"/><rect x="14" y="12" width="7" height="9" rx="1.6"/><rect x="3" y="16" width="7" height="5" rx="1.6"/></svg></span>
+                    <span class="sidebar-item-label">داشبورد</span>
                 </button>
 
-                <div class="sidebar-group expanded" id="sidebar-group-laws">
+                <div class="sidebar-group expanded" id="sidebar-group-study">
                     <button class="sidebar-item sidebar-group-toggle" type="button" aria-expanded="true">
-                        <span class="sidebar-item-icon">📚</span>
+                        <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></span>
+                        <span class="sidebar-item-label">ابزارهای مطالعه</span>
+                        <span class="sidebar-chevron"><svg class="sb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+                    </button>
+                    <div class="sidebar-submenu">
+                        <button class="sidebar-item tab-link" type="button" data-tab="tab-flashcards">
+                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="14" height="14" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2"/><path d="M7 13h6M7 16.5h4"/></svg></span>
+                    <span class="sidebar-item-label">فلش‌کارت</span>
+                </button>
+                        <button class="sidebar-item tab-link" type="button" data-tab="tab-quiz">
+                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 12.5l2.2 2.2 4.3-4.6"/></svg></span>
+                    <span class="sidebar-item-label">آزمون</span>
+                </button>
+                        <button class="sidebar-item tab-link" type="button" data-tab="tab-bookmarks">
+                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z"/></svg></span>
+                    <span class="sidebar-item-label">نشان‌شده‌ها</span>
+                    <span class="sidebar-badge" id="bookmarks-count-badge" style="display:none;">۰</span>
+                </button>
+                        <button class="sidebar-item tab-link" type="button" data-tab="tab-notes">
+                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12H4z"/><path d="M16 4v4h4"/><path d="M8 12h8M8 16h5"/></svg></span>
+                    <span class="sidebar-item-label">یادداشت‌های من</span>
+                    <span class="sidebar-badge" id="notes-count-badge" style="display:none;">۰</span>
+                </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-group" id="sidebar-group-laws">
+                    <button class="sidebar-item sidebar-group-toggle" type="button" aria-expanded="false">
+                        <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M7 21h10"/><path d="M5 7h14"/><path d="M5 7l-3 7a3.5 3.5 0 0 0 6 0z"/><path d="M19 7l-3 7a3.5 3.5 0 0 0 6 0z"/></svg></span>
                         <span class="sidebar-item-label">قوانین</span>
-                        <span class="sidebar-chevron">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </span>
+                        <span class="sidebar-chevron"><svg class="sb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
                     </button>
                     <div class="sidebar-submenu" id="sidebar-laws-list">
-                        <!-- لیست قوانین به‌صورت پویا از data.js توسط script.js ساخته می‌شود -->
+                        <div id="sidebar-recent-section"></div>
+                        <div id="sidebar-full-laws-list"></div>
                     </div>
                 </div>
 
                 <div class="sidebar-group" id="sidebar-group-settings">
                     <button class="sidebar-item sidebar-group-toggle" type="button" aria-expanded="false">
-                        <span class="sidebar-item-icon">⚙️</span>
+                        <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span>
                         <span class="sidebar-item-label">تنظیمات</span>
-                        <span class="sidebar-chevron">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </span>
+                        <span class="sidebar-chevron"><svg class="sb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
                     </button>
                     <div class="sidebar-submenu">
                         <div class="settings-row">
-                            <span class="settings-label">حالت تاریک</span>
+                            <span class="settings-label"><svg class="sb-icon sb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg> حالت تاریک</span>
                             <label class="ilh-switch">
                                 <input type="checkbox" id="theme-switch">
                                 <span class="ilh-switch-track"><span class="ilh-switch-thumb"></span></span>
                             </label>
                         </div>
                         <div class="settings-row">
-                            <span class="settings-label">اندازه متن</span>
+                            <span class="settings-label"><svg class="sb-icon sb-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l5-14 5 14M5 14h6"/><path d="M15 19l3-8 3 8M16 16.5h4"/></svg> اندازه متن</span>
                             <div class="font-size-controls">
                                 <button type="button" class="font-size-btn" id="font-size-dec" aria-label="کوچک‌تر">A-</button>
                                 <button type="button" class="font-size-btn" id="font-size-reset" aria-label="اندازه پیش‌فرض">A</button>
@@ -75,7 +112,7 @@
                 </div>
 
                 <button id="sidebar-about-btn" class="sidebar-item" type="button">
-                    <span class="sidebar-item-icon">ℹ️</span>
+                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.8" r=".7" fill="currentColor"/></svg></span>
                     <span class="sidebar-item-label">درباره ما</span>
                 </button>
             </nav>
@@ -94,6 +131,9 @@
 
                     <div class="header-left">
                         <div class="search-container">
+                            <select id="search-scope-select" title="محدوده جستجو">
+                                <option value="all">جستجو در همه قوانین</option>
+                            </select>
                             <input type="text" id="search-input" placeholder="جستجو...">
                         </div>
                     </div>
@@ -111,8 +151,6 @@
                     <p>
                         کانون حقوقی ایران مرجعی رایگان برای دسترسی به متن قوانین اصلی کشور است، برای دانشجویان، وکلا، پژوهشگران حقوق و هر شهروندی که بخواهد قانون را از منبع خودش بخواند.
                     </p>
-                    <p id="about-law-count" class="about-count"></p>
-                    <div id="about-law-list" class="about-law-list"></div>
                     <h3>منابع مورد استفاده</h3>
                     <ul class="about-sources-list">
                         <li>پایگاه خبری حقوقی <strong>اختبار</strong> (ekhtebar.ir) — متن به‌روزشده قوانین با آخرین اصلاحات</li>
@@ -126,7 +164,26 @@
             </dialog>
 
             <main id="main-content">
-                <div id="tab-flashcards" class="tab-content">
+                <div id="tab-dashboard" class="tab-content active">
+                    <section class="dash-hero">
+                        <h2>به کانون حقوقی ایران خوش آمدید</h2>
+                        <p>مرجعی رایگان برای دسترسی به متن قوانین اصلی کشور؛ برای دانشجویان، وکلا، پژوهشگران حقوق و هر شهروندی که بخواهد قانون را از منبع خودش بخواند.</p>
+                    </section>
+                    <div class="dash-stats">
+                        <div class="dash-stat"><span class="dash-stat-num" id="dash-stat-laws">۰</span><span class="dash-stat-label">قانون</span></div>
+                        <div class="dash-stat"><span class="dash-stat-num" id="dash-stat-articles">…</span><span class="dash-stat-label">ماده و اصل</span></div>
+                        <button type="button" class="dash-stat dash-stat-btn tab-link" data-tab="tab-bookmarks"><span class="dash-stat-num" id="dash-stat-bookmarks">۰</span><span class="dash-stat-label">نشان‌شده</span></button>
+                        <button type="button" class="dash-stat dash-stat-btn tab-link" data-tab="tab-notes"><span class="dash-stat-num" id="dash-stat-notes">۰</span><span class="dash-stat-label">یادداشت</span></button>
+                    </div>
+                    <div class="dash-quick">
+                        <button type="button" class="dash-quick-btn tab-link" data-tab="tab-flashcards"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="14" height="14" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2"/><path d="M7 13h6M7 16.5h4"/></svg><span>مرور با فلش‌کارت</span></button>
+                        <button type="button" class="dash-quick-btn tab-link" data-tab="tab-quiz"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 12.5l2.2 2.2 4.3-4.6"/></svg><span>آزمون چهارگزینه‌ای</span></button>
+                    </div>
+                    <h3 class="dash-heading">قوانین این مجموعه</h3>
+                    <p id="dash-law-count" class="dash-law-count"></p>
+                    <div id="dash-law-list" class="dash-law-list"></div>
+                </div>
+<div id="tab-flashcards" class="tab-content">
                     <p class="law-info">
                         این بخش فقط برای مرور و به‌خاطرسپاری موادِ قانون است، نه آزمون — هیچ پاسخ درست یا غلطی سنجیده نمی‌شود. یک کارت می‌آید، روی آن بزنید تا بچرخد و شرح ماده را پشت آن ببینید. اگر آن را بلد بودید بزنید «بلدم» تا برود توی جعبه‌ی بلدها؛ هروقت خواستید از دکمه‌ی «مرور جعبه» آن‌ها را دوباره ببینید.
                     </p>
@@ -162,6 +219,51 @@
                         </div>
                         <div id="flashcard-box-list"></div>
                     </div>
+                </div>
+
+                <div id="tab-quiz" class="tab-content">
+                    <p class="law-info">
+                        از هر قانون که سؤال آماده داشته باشیم، اینجا می‌توانید به‌صورت چهارگزینه‌ای خودتان را بسنجید. اگر قانونی در فهرست نبود یعنی هنوز سؤالی برایش آماده نشده.
+                    </p>
+                    <div class="flashcard-toolbar">
+                        <select id="quiz-law-select"></select>
+                        <span id="quiz-score" class="quiz-score">امتیاز: ۰ از ۰</span>
+                    </div>
+                    <div id="quiz-stage">
+                        <p id="quiz-empty-msg" style="display:none;">برای این قانون هنوز سؤالی آماده نشده — به‌زودی اضافه می‌شود.</p>
+                        <div id="quiz-question-box" style="display:none;">
+                            <h3 id="quiz-question-text"></h3>
+                            <div id="quiz-options-list" class="quiz-options-list"></div>
+                            <div class="flashcard-actions">
+                                <button id="quiz-check-btn" type="button" class="fc-btn fc-btn-primary">بررسی پاسخ</button>
+                                <button id="quiz-next-btn" type="button" class="fc-btn" style="display:none;">سؤال بعدی</button>
+                            </div>
+                        </div>
+                        <div id="quiz-result-box" style="display:none;">
+                            <h3>نتیجه</h3>
+                            <p id="quiz-result-text"></p>
+                            <button id="quiz-restart-btn" type="button" class="fc-btn">شروع دوباره</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-bookmarks" class="tab-content">
+                    <p class="law-info">
+                        موادی که با آیکون ⭐ نشان‌ کرده‌اید اینجا جمع می‌شوند تا سریع‌تر بهشان دسترسی داشته باشید.
+                    </p>
+                    <div id="bookmarks-list"></div>
+                </div>
+
+                <div id="tab-notes" class="tab-content">
+                    <p class="law-info">
+                        یادداشت‌های شخصی که روی مواد قانونی نوشته‌اید، فقط روی همین مرورگر ذخیره می‌شوند.
+                    </p>
+                    <div id="notes-list"></div>
+                </div>
+
+                <div id="tab-global-search" class="tab-content">
+                    <p class="law-info">نتایج جستجو در همه‌ی قوانین، گروه‌بندی‌شده بر اساس هر قانون.</p>
+                    <div id="global-search-results"></div>
                 </div>
             </main>
 
