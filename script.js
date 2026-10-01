@@ -245,32 +245,55 @@ async function printLawFile(fileLi) {
     const contentContainer = fileLi.querySelector('.content-container');
     if (!contentContainer) return;
 
+    showToast('🖨 در حال آماده‌سازی برای چاپ...');
+
     if (contentContainer.children.length === 0) {
-        contentContainer.innerHTML = `<div class="tool-padding">${ICONS.spinner} در حال آماده‌سازی برای چاپ...</div>`;
+        contentContainer.innerHTML = `<div class="tool-padding">${ICONS.spinner} در حال دریافت متن کامل...</div>`;
         try {
             await fetchAndRenderLawFile(fileLi.dataset.path, contentContainer, fileLi.dataset.lawKey);
         } catch (err) {
-            contentContainer.innerHTML = '<div class="tool-padding error">خطا در دریافت اطلاعات.</div>';
+            contentContainer.innerHTML = '<div class="tool-padding error">خطا در دریافت اطلاعات. دوباره تلاش کنید.</div>';
+            showToast('چاپ ناموفق بود — اتصال اینترنت را بررسی کنید');
             return;
         }
     }
 
-    fileLi.classList.add('expanded');
-    contentContainer.style.height = 'auto';
-    contentContainer.querySelectorAll('.division-item').forEach(li => {
-        li.classList.add('expanded');
-        const sub = li.querySelector(':scope > .divisions-container, :scope > .article-list');
-        if (sub) sub.style.height = 'auto';
-    });
-
-    contentContainer.querySelectorAll('.article').forEach(a => a.classList.add('open'));
+    // توجه: دیگر نیازی به باز کردن دستی آکاردئون‌ها نیست — استایل چاپ (CSS) خودش،
+    // صرف‌نظر از اینکه روی صفحه چه‌چیزی باز/بسته است، همه‌ی مواد را کامل نشان می‌دهد.
     const tabContentEl = fileLi.closest('.tab-content');
+    const lawKey = fileLi.dataset.lawKey;
+    const lawInfo = lawManifest[lawKey];
+    const fileTitleEl = fileLi.querySelector('.file-group-title');
+    const fileTitle = fileTitleEl ? fileTitleEl.textContent.trim() : '';
+
+    let titleEl = fileLi.querySelector('#print-only-title');
+    if (!titleEl) {
+        titleEl = document.createElement('div');
+        titleEl.id = 'print-only-title';
+        fileLi.insertBefore(titleEl, fileLi.firstChild);
+    }
+    let today = '';
+    try { today = new Intl.DateTimeFormat('fa-IR-u-ca-persian', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date()); } catch (e) { today = new Date().toLocaleDateString('fa-IR'); }
+    titleEl.innerHTML = `<h1>${lawInfo ? lawInfo.title : ''}</h1><p>${fileTitle}</p><p class="print-meta">تاریخ چاپ: ${today} — کانون حقوقی ایران</p><hr>`;
+
+    fileLi.classList.add('print-target');
     if (tabContentEl) tabContentEl.classList.add('printing');
-    showToast('🖨 در حال باز کردن پنجره‌ی چاپ...');
-    setTimeout(() => {
-        window.print();
+
+    let cleaned = false;
+    const cleanup = () => {
+        if (cleaned) return;
+        cleaned = true;
+        fileLi.classList.remove('print-target');
         if (tabContentEl) tabContentEl.classList.remove('printing');
-    }, 300);
+        if (titleEl) titleEl.remove();
+        window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        window.print();
+        setTimeout(cleanup, 3000); // یدکی برای مرورگرهایی که afterprint را فعال نمی‌کنند
+    }));
 }
 function renderBookmarksPage() {
     const container = document.getElementById('bookmarks-list');
@@ -1372,6 +1395,69 @@ document.addEventListener('DOMContentLoaded', () => {
         else { questionBox.style.display = 'none'; emptyMsg.style.display = 'block'; }
     }
     function initQuizTab() { /* المان‌های آزمون در بارگذاری اولیه ساخته شده‌اند */ }
+
+    // ----- ۱۲. جایگزینی ظاهر <select> با یک منوی کشویی هم‌رنگ با رابط کاربری پروژه -----
+    // نسخه‌ی native (برای مقدار/رویداد change) پنهان می‌ماند؛ کل منطق موجود دست‌نخورده کار می‌کند.
+    function enhanceSelect(selectEl) {
+        if (!selectEl || selectEl.dataset.enhanced) return;
+        selectEl.dataset.enhanced = '1';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'ilh-select';
+        selectEl.parentNode.insertBefore(wrapper, selectEl);
+        wrapper.appendChild(selectEl);
+        selectEl.classList.add('ilh-select-native');
+        selectEl.setAttribute('tabindex', '-1');
+        selectEl.setAttribute('aria-hidden', 'true');
+
+        const trigger = document.createElement('button');
+        trigger.type = 'button';
+        trigger.className = 'ilh-select-trigger';
+        trigger.innerHTML = `<span class="ilh-select-trigger-label"></span><span class="ilh-select-trigger-chev">${ICONS.chevron}</span>`;
+        wrapper.appendChild(trigger);
+
+        const panel = document.createElement('div');
+        panel.className = 'ilh-select-panel';
+        panel.setAttribute('role', 'listbox');
+        wrapper.appendChild(panel);
+
+        function renderOptions() {
+            panel.innerHTML = '';
+            [...selectEl.options].forEach(opt => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'ilh-select-option' + (opt.value === selectEl.value ? ' selected' : '');
+                item.textContent = opt.textContent;
+                item.addEventListener('click', () => {
+                    if (selectEl.value !== opt.value) {
+                        selectEl.value = opt.value;
+                        selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    closePanel();
+                });
+                panel.appendChild(item);
+            });
+            const current = selectEl.options[selectEl.selectedIndex];
+            trigger.querySelector('.ilh-select-trigger-label').textContent = current ? current.textContent : '';
+        }
+
+        function openPanel() { wrapper.classList.add('open'); renderOptions(); }
+        function closePanel() { wrapper.classList.remove('open'); }
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            wrapper.classList.contains('open') ? closePanel() : openPanel();
+        });
+        document.addEventListener('click', (e) => { if (!wrapper.contains(e.target)) closePanel(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+
+        renderOptions();
+        // اگر گزینه‌های select بعداً به‌صورت پویا جایگزین شوند (مثلاً پر شدن لیست قوانین)،
+        // این دیدبان خودکار دکمه و پنل را به‌روز می‌کند — نیازی به تغییر کد دیگر نیست.
+        new MutationObserver(renderOptions).observe(selectEl, { childList: true });
+    }
+    enhanceSelect(document.getElementById('search-scope-select'));
+    enhanceSelect(document.getElementById('quiz-law-select'));
 
     // ----- داشبورد (صفحه‌ی اصلی) -----
     function refreshDashboard() {

@@ -21,13 +21,14 @@ const lawManifest = {
     },
     'tab-islamic-penal-code': {
         title: 'قانون مجازات اسلامی',
-        info: 'قانون مجازات اسلامی در سال ۱۳۹۲ تصویب شد و شامل ۷۲۸ ماده در چهار کتاب کلیات، حدود، قصاص و دیات است.',
+        info: 'قانون مجازات اسلامی مصوب ۱۳۹۲ (کتاب‌های اول تا چهارم) به‌همراه کتاب پنجم: تعزیرات و مجازات‌های بازدارنده مصوب ۱۳۷۵ با اصلاحات بعدی.',
         article_word: 'ماده',
         files: [
             { title: 'کتاب اول: کلیات', path: 'laws/islamic_penal_code/islamic_penal_code_book_1.json' },
             { title: 'کتاب دوم: حدود', path: 'laws/islamic_penal_code/islamic_penal_code_book_2.json' },
             { title: 'کتاب سوم: قصاص', path: 'laws/islamic_penal_code/islamic_penal_code_book_3.json' },
-            { title: 'کتاب چهارم: دیات', path: 'laws/islamic_penal_code/islamic_penal_code_book_4.json' }
+            { title: 'کتاب چهارم: دیات', path: 'laws/islamic_penal_code/islamic_penal_code_book_4.json' },
+            { title: 'کتاب پنجم: تعزیرات و مجازات‌های بازدارنده', path: 'laws/batch2/islamic_penal_code_book_5_tazirat.json' }
         ],
         quiz: [
             { question: 'کتاب اول قانون مجازات اسلامی چه نام دارد؟', options: ['کلیات', 'حدود', 'قصاص', 'دیات'], correctAnswer: 'کلیات' },
@@ -86,15 +87,6 @@ const lawManifest = {
         article_word: 'ماده',
         files: [
             { title: 'تمام مواد', path: 'laws/check_issuance_law/check_issuance_law.json' }
-        ],
-        quiz: []
-    },
-    'tab-tazirat': {
-        title: 'قانون مجازات اسلامی - کتاب پنجم (تعزیرات)',
-        info: 'کتاب پنجم قانون مجازات اسلامی (تعزیرات) مصوب ۱۳۷۵. این فایل هنوز خالی است و باید تکمیل شود.',
-        article_word: 'ماده',
-        files: [
-            { title: 'تمام مواد', path: 'laws/islamic_penal_code/islamic_penal_code_book_5_tazirat.json' }
         ],
         quiz: []
     },
@@ -212,6 +204,87 @@ const lawManifest = {
         article_word: 'ماده',
         files: [
             { title: 'تمام مواد', path: 'laws/five_statutes/trade_unions_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-civil-judgment-enforcement-law': {
+        title: 'قانون اجرای احکام مدنی',
+        info: 'قانون اجرای احکام مدنی مصوب ۱۳۵۶ مجلس شورای ملی با اصلاحات بعدی، شامل ترتیب اجرای احکام، توقیف و فروش اموال و تأدیه طلب.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch2/civil_judgment_enforcement_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-financial-judgment-enforcement-law': {
+        title: 'قانون نحوه اجرای محکومیت‌های مالی',
+        info: 'قانون نحوه اجرای محکومیت‌های مالی مصوب ۱۳۹۴ مجمع تشخیص مصلحت نظام.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch2/financial_judgment_enforcement_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-dispute-resolution-councils-law': {
+        title: 'قانون شوراهای حل اختلاف',
+        info: 'قانون شوراهای حل اختلاف مصوب ۱۴۰۲ مجلس شورای اسلامی.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch2/dispute_resolution_councils_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-traffic-violations-law': {
+        title: 'قانون رسیدگی به تخلفات رانندگی',
+        info: 'قانون رسیدگی به تخلفات رانندگی مصوب ۱۳۸۹ مجلس شورای اسلامی با اصلاحات و الحاقات بعدی.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch2/traffic_violations_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-apartment-ownership-law': {
+        title: 'قانون تملک آپارتمان‌ها',
+        info: 'قانون تملک آپارتمان‌ها مصوب ۱۳۴۳ با آخرین اصلاحات.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch2/apartment_ownership_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-anti-narcotics-law': {
+        title: 'قانون مبارزه با مواد مخدر',
+        info: 'قانون اصلاح قانون مبارزه با مواد مخدر و الحاق موادی به آن، مصوب ۱۳۷۶ با آخرین اصلاحات تا ۱۳۹۶.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch2/anti_narcotics_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-anti-money-laundering-law': {
+        title: 'قانون مبارزه با پولشویی',
+        info: 'قانون مبارزه با پولشویی مصوب ۱۳۸۶ با آخرین اصلاحات تا ۱۳۹۷.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch2/anti_money_laundering_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-family-youth-population-law': {
+        title: 'قانون حمایت از خانواده و جوانی جمعیت',
+        info: 'قانون حمایت از خانواده و جوانی جمعیت مصوب ۱۴۰۰ مجلس شورای اسلامی.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch2/family_youth_population_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-bar-association-independence-law': {
+        title: 'لایحه قانونی استقلال کانون وکلای دادگستری',
+        info: 'لایحه قانونی استقلال کانون وکلای دادگستری مصوب ۱۳۳۳ کمیسیون مشترک مجلسین با اصلاحات بعدی.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch2/bar_association_independence_law.json' }
         ],
         quiz: []
     }

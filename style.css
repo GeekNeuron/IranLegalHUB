@@ -1152,8 +1152,6 @@ body.dark-theme .flashcard-box-item {
 }
 
 @media (max-width: 768px) {
-    .flashcard { height: 220px; }
-    .flashcard-front { font-size: 1.2em; }
     .flashcard-toolbar { flex-direction: column; align-items: stretch; }
     #flashcard-law-select { max-width: 100%; }
 }
@@ -1314,20 +1312,7 @@ body.dark-theme .article-note-box textarea {
 body.dark-theme .sidebar-recent-divider { border-top-color: var(--border-color-dark); }
 /* ===== پایان بخش «بازدیدهای اخیر» ===== */
 
-/* ===== استایل چاپ (Print) ===== */
-@media print {
-    .sidebar, .sidebar-backdrop, .sticky-top-container, .site-footer,
-    .art-action-btn, .file-actions, .sidebar-item, #print-only-title { 
-        display: none !important; 
-    }
-    body, .app-shell, .main-wrapper, #main-content { all: unset; display: block; }
-    #main-content { padding: 0; }
-    .tab-content { display: none !important; }
-    .tab-content.printing { display: block !important; }
-    .article { border: none; box-shadow: none; page-break-inside: avoid; }
-    .file-group > span { background: none; border: none; }
-}
-/* ===== پایان استایل چاپ ===== */
+
 
 /* =====================================================================
    نسخه‌ی ۳: داشبورد، مواد تاشو، سایدبار ثابت، تم یکپارچه، فلش‌کارت واکنش‌گرا
@@ -1578,11 +1563,11 @@ body.dark-theme .dash-quick-btn .sb-icon { color: var(--accent-color-dark); }
 .result-path { font-size: 0.8em; color: var(--muted); }
 
 /* ---- فلش‌کارت: متن هیچ‌وقت از کادر بیرون نمی‌زند ---- */
-.flashcard { max-width: 640px; height: clamp(280px, 52vh, 460px); }
+.flashcard { max-width: 640px; height: clamp(230px, 40vh, 380px); }
 .flashcard-face {
-    padding: 22px 24px;
+    padding: 16px 22px;
     font-size: 20px;
-    line-height: 1.9;
+    line-height: 1.85;
     overflow-y: auto;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -1591,7 +1576,7 @@ body.dark-theme .dash-quick-btn .sb-icon { color: var(--accent-color-dark); }
 .flashcard-face > span { margin: auto; max-width: 100%; }
 .flashcard-front { font-size: 28px; }
 @media (max-width: 768px) {
-    .flashcard { height: clamp(260px, 55vh, 440px); }
+    .flashcard { height: clamp(210px, 42vh, 340px); }
     .flashcard-front { font-size: 24px; }
 }
 
@@ -1617,10 +1602,146 @@ body.dark-theme .about-dialog-body, body.dark-theme .about-dialog-header { color
 body.dark-theme mark { background-color: var(--highlight-bg-dark); color: inherit; }
 body.dark-theme .art-action-btn.bookmarked { color: #ffd54f; }
 
-/* ---- چاپ: مواد باز نمایش داده شوند ---- */
+/* ---- عنوان مخصوص چاپ: فقط روی کاغذ دیده می‌شود ---- */
+#print-only-title { display: none; }
+#print-only-title h1 { font-size: 1.4em; margin: 0 0 4px; }
+#print-only-title p { margin: 0 0 4px; color: #444; }
+#print-only-title .print-meta { font-size: 0.85em; color: #777; }
+#print-only-title hr { border: none; border-top: 1px solid #ccc; margin: 10px 0 16px; }
+
+/* ---- چاپ: کامل و مستقل از وضعیت باز/بسته‌ی آکاردئون‌ها روی صفحه ----
+   هرچه با کلاس‌های JS (expanded/open) کنترل می‌شود، اینجا با !important
+   به‌صورت کامل باز اجبار می‌شود؛ یعنی حتی اگر منو هیچ‌وقت روی صفحه باز
+   نشده باشد، در خروجی چاپ/PDF همه‌چیز کامل نمایش داده می‌شود. */
 @media print {
-    .article-collapse { grid-template-rows: 1fr !important; }
-    .article-body { opacity: 1 !important; transform: none !important; }
-    .article-preview, .article-chev { display: none !important; }
+    body * { visibility: hidden; }
+    .tab-content.printing, .tab-content.printing * { visibility: visible; }
+    .sidebar, .sidebar-backdrop, .sticky-top-container, .site-footer,
+    .art-action-btn, .file-actions, .sidebar-item {
+        display: none !important;
+    }
+    body, .app-shell, .main-wrapper, #main-content { all: unset; display: block; }
+    #main-content { padding: 0; position: static; }
+    .tab-content { display: none !important; }
+    .tab-content.printing {
+        display: block !important;
+        position: absolute; inset: 0; width: 100%; padding: 0; margin: 0;
+    }
+    .tab-content.printing .file-group:not(.print-target) { display: none !important; }
+    .file-group.print-target > span { display: none !important; }
+    .file-group.print-target .content-container,
+    .file-group.print-target .divisions-container,
+    .file-group.print-target .article-list {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    .file-group.print-target .article-collapse { grid-template-rows: 1fr !important; }
+    .file-group.print-target .article-body { opacity: 1 !important; transform: none !important; }
+    .file-group.print-target .article-preview,
+    .file-group.print-target .article-chev { display: none !important; }
+    #print-only-title { display: block !important; }
+    .article { border: none; box-shadow: none; page-break-inside: avoid; }
     .dash-hero, .dash-stats, .dash-quick { display: none !important; }
+}
+
+/* ===== منوی کشویی سفارشی (جایگزین ظاهر پیش‌فرض select) ===== */
+.ilh-select {
+    position: relative;
+    display: inline-block;
+}
+.ilh-select-native {
+    position: absolute !important;
+    inset: 0;
+    width: 1px; height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+.ilh-select-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: inherit;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+}
+.ilh-select-trigger:hover { border-color: var(--accent-color-light); }
+body.dark-theme .ilh-select-trigger:hover { border-color: var(--accent-color-dark); }
+.ilh-select.open .ilh-select-trigger {
+    border-color: var(--accent-color-light);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+body.dark-theme .ilh-select.open .ilh-select-trigger { border-color: var(--accent-color-dark); }
+.ilh-select-trigger-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+.ilh-select-trigger-chev {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 14px; height: 14px;
+    transition: transform 0.25s ease;
+}
+.ilh-select-trigger-chev .icon-inline, .ilh-select-trigger-chev svg { width: 14px; height: 14px; }
+.ilh-select.open .ilh-select-trigger-chev { transform: rotate(180deg); }
+
+.ilh-select-panel {
+    position: absolute;
+    z-index: 50;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 100%;
+    max-width: min(420px, 90vw);
+    max-height: 320px;
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+    padding: 6px;
+    display: none;
+    animation: popIn 0.18s ease;
+}
+.ilh-select.open .ilh-select-panel { display: block; }
+.ilh-select-option {
+    display: block;
+    width: 100%;
+    text-align: right;
+    padding: 9px 12px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.92em;
+    border-radius: 7px;
+    cursor: pointer;
+    white-space: normal;
+    line-height: 1.6;
+    transition: background-color 0.15s ease;
+}
+.ilh-select-option:hover { background-color: var(--hover-bg-light); }
+body.dark-theme .ilh-select-option:hover { background-color: var(--hover-bg-dark); }
+.ilh-select-option.selected {
+    background-color: var(--accent-soft);
+    color: var(--accent-color-light);
+    font-weight: 700;
+}
+body.dark-theme .ilh-select-option.selected { color: var(--accent-color-dark); }
+
+#search-scope-select.ilh-select-native { position: absolute !important; }
+.search-container .ilh-select { flex-shrink: 0; min-width: 150px; }
+.search-container .ilh-select-trigger { padding: 0.6rem 0.7rem; font-size: 0.85em; }
+@media (max-width: 480px) {
+    .search-container .ilh-select { min-width: 110px; }
 }
