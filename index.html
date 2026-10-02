@@ -46,8 +46,8 @@
                     <span class="sidebar-item-label">داشبورد</span>
                 </button>
 
-                <div class="sidebar-group expanded" id="sidebar-group-study">
-                    <button class="sidebar-item sidebar-group-toggle" type="button" aria-expanded="true">
+                <div class="sidebar-group" id="sidebar-group-study">
+                    <button class="sidebar-item sidebar-group-toggle" type="button" aria-expanded="false">
                         <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg></span>
                         <span class="sidebar-item-label">ابزارهای مطالعه</span>
                         <span class="sidebar-chevron"><svg class="sb-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
@@ -131,9 +131,6 @@
 
                     <div class="header-left">
                         <div class="search-container">
-                            <select id="search-scope-select" title="محدوده جستجو">
-                                <option value="all">جستجو در همه قوانین</option>
-                            </select>
                             <input type="text" id="search-input" placeholder="جستجو...">
                         </div>
                     </div>
@@ -194,6 +191,7 @@
                         <button id="flashcard-box-btn" type="button" class="fc-btn fc-btn-outline">📦 مرور جعبه (<span id="flashcard-box-count">۰</span>)</button>
                     </div>
 
+                    <div class="flashcard-meta"><span id="flashcard-remaining"></span></div>
                     <div id="flashcard-stage">
                         <div id="flashcard" class="flashcard">
                             <div class="flashcard-inner">

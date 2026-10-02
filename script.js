@@ -258,6 +258,8 @@ async function printLawFile(fileLi) {
         }
     }
 
+    try { await Promise.all([document.fonts.load('400 16px Vazirmatn'), document.fonts.load('700 16px Vazirmatn')]); await document.fonts.ready; } catch (e) { /* بی‌اهمیت */ }
+
     // توجه: دیگر نیازی به باز کردن دستی آکاردئون‌ها نیست — استایل چاپ (CSS) خودش،
     // صرف‌نظر از اینکه روی صفحه چه‌چیزی باز/بسته است، همه‌ی مواد را کامل نشان می‌دهد.
     const tabContentEl = fileLi.closest('.tab-content');
@@ -360,23 +362,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         listEl.innerHTML = html;
         renderRecentLawsSection();
-        // چون این گروه به‌صورت پیش‌فرض باز است، ارتفاعش را برابر با محتوایش می‌کنیم (بدون انیمیشن)
-        const lawsGroup = document.getElementById('sidebar-group-laws');
-        const lawsSubmenu = document.getElementById('sidebar-laws-list');
-        if (lawsGroup && lawsGroup.classList.contains('expanded') && lawsSubmenu) {
-            lawsSubmenu.style.height = 'auto';
-        }
     }
     renderSidebarLawsList();
     updateBookmarksBadge();
     updateNotesBadge();
 
-    // گروه «ابزارهای مطالعه» هم به‌صورت پیش‌فرض باز است
-    const studyGroup = document.getElementById('sidebar-group-study');
-    if (studyGroup && studyGroup.classList.contains('expanded')) {
-        const studySubmenu = studyGroup.querySelector('.sidebar-submenu');
-        if (studySubmenu) studySubmenu.style.height = 'auto';
-    }
 
     // ----- 1. قابلیت‌های سایدبار: باز/بسته‌شدن روی موبایل، گروه‌های تاشو، تنظیمات -----
     const sidebar = document.getElementById('sidebar');
@@ -739,30 +729,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleAccordion(element, parentLi) {
         if (!element) return;
-        
         const isExpanded = parentLi.classList.contains('expanded');
-
+        if (element._accEnd) { element.removeEventListener('transitionend', element._accEnd); element._accEnd = null; }
         if (isExpanded) {
-            // انیمیشن بستن
             element.style.height = element.scrollHeight + 'px';
-            
-            // استفاده از requestAnimationFrame برای اطمینان از اعمال استایل قبل از تغییر به صفر
-            requestAnimationFrame(() => {
-                element.style.height = '0px';
-            });
-            
+            void element.offsetHeight; // reflow
+            element.style.height = '0px';
             parentLi.classList.remove('expanded');
         } else {
-            // انیمیشن باز کردن
             parentLi.classList.add('expanded');
             element.style.height = element.scrollHeight + 'px';
-            
-            // وقتی انیمیشن تمام شد، ارتفاع را auto کن تا اگر محتوا تغییر کرد اسکرول نخورد
-            element.addEventListener('transitionend', function handler(ev) {
-                if (ev.target !== element || ev.propertyName !== 'height') return;
+            const done = (ev) => {
+                if (ev && (ev.target !== element || ev.propertyName !== 'height')) return;
+                // ارتفاع آزاد: هر مقدار محتوا (حتی فصل‌های تو در تو) کامل دیده می‌شود
                 element.style.height = 'auto';
-                element.removeEventListener('transitionend', handler);
-            });
+                element.removeEventListener('transitionend', done);
+                element._accEnd = null;
+            };
+            element._accEnd = done;
+            element.addEventListener('transitionend', done);
+            setTimeout(() => { if (parentLi.classList.contains('expanded') && element._accEnd === done) done(); }, 700);
         }
     }
 
@@ -1020,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function runSearch() {
         const term = searchInput.value.trim();
-        const scope = searchScopeSelect ? searchScopeSelect.value : 'all';
+        const scope = 'all';
 
         if (term.length <= 1) { hideSearchResults(); return; }
 
@@ -1166,20 +1152,35 @@ document.addEventListener('DOMContentLoaded', () => {
         fitFlashcardsFn = fitFlashcards;
         window.addEventListener('resize', () => requestAnimationFrame(fitFlashcards));
 
+        let drawToken = 0;
+        function updateRemaining() {
+            const el = document.getElementById('flashcard-remaining');
+            if (el) el.textContent = pool.length ? `کارت‌های باقی‌مانده: ${toPersianNumerals(pool.length)}` : '';
+        }
         function drawNextCard() {
             refreshPool();
-            card.classList.remove('flipped');
-            if (pool.length === 0) {
-                showEmptyState('کارتی برای این قانون باقی نمانده — همه را بلدید یا هنوز داده‌ها بارگذاری نشده!');
-                return;
+            updateRemaining();
+            const token = ++drawToken;
+            const apply = () => {
+                if (token !== drawToken) return;
+                if (pool.length === 0) {
+                    showEmptyState('کارتی برای این قانون باقی نمانده — همه را بلدید یا هنوز داده‌ها بارگذاری نشده!');
+                    return;
+                }
+                const idx = Math.floor(Math.random() * pool.length);
+                currentCard = pool[idx];
+                const label = toPersianNumerals(currentCard.articleNumber);
+                frontText.innerHTML = `${currentCard.articleWord} ${label}<br><span class="fc-law-name">${currentCard.lawTitle}</span>`;
+                backText.innerHTML = toPersianNumerals(formatText(currentCard.text));
+                requestAnimationFrame(fitFlashcards);
+            };
+            // اگر کارت پشتش دیده می‌شود، اول کامل برمی‌گردد، بعد متن عوض می‌شود (جلوگیری از پرش شرح ماده بعدی)
+            if (card.classList.contains('flipped')) {
+                card.classList.remove('flipped');
+                setTimeout(apply, 380);
+            } else {
+                apply();
             }
-            const idx = Math.floor(Math.random() * pool.length);
-            currentCard = pool[idx];
-            const isNum = !isNaN(parseInt(currentCard.articleNumber));
-            const label = isNum ? toPersianNumerals(currentCard.articleNumber) : toPersianNumerals(currentCard.articleNumber);
-            frontText.innerHTML = `${currentCard.articleWord} ${label}<br><span style="font-size:0.6em; opacity:0.85;">${currentCard.lawTitle}</span>`;
-            backText.innerHTML = toPersianNumerals(formatText(currentCard.text));
-            requestAnimationFrame(fitFlashcards);
         }
 
         card.addEventListener('click', () => {
@@ -1297,7 +1298,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let selectedIndex = null;
 
         function populateLawSelect() {
-            const keysWithQuiz = Object.keys(lawManifest).filter(k => lawManifest[k].quiz && lawManifest[k].quiz.length > 0);
+            const keysWithQuiz = Object.keys(lawManifest);
             lawSelect.innerHTML = '';
             if (keysWithQuiz.length === 0) {
                 lawSelect.innerHTML = '<option value="">فعلاً سؤالی آماده نشده</option>';
@@ -1313,6 +1314,41 @@ document.addEventListener('DOMContentLoaded', () => {
             currentLawKey = keysWithQuiz[0];
         }
 
+
+        // ساخت خودکار سؤال از متن واقعی مواد (همیشه درست؛ چون از خود فایل قانون ساخته می‌شود)
+        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+        function snippet(s, n) { s = s.replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n).replace(/\s+\S*$/, '') + '…' : s; }
+        function buildGeneratedQuestions(lawKey, count) {
+            const lawInfo = lawManifest[lawKey];
+            const items = [];
+            (allLawsData[lawKey] || []).forEach(fd => {
+                (function walk(divs) {
+                    (divs || []).forEach(d => {
+                        (d.articles || []).forEach(a => {
+                            const txt = (a.text || a.description || '').trim();
+                            if (a.article_number && txt.length >= 80) items.push({ label: `${lawInfo.article_word || 'ماده'} ${toPersianNumerals(a.article_number)}`, text: txt });
+                        });
+                        walk(d.subdivisions);
+                    });
+                })(fd.data && fd.data.divisions);
+            });
+            if (items.length < 4) return [];
+            const seen = new Set(), pool = items.filter(i => !seen.has(i.label) && seen.add(i.label));
+            const qs = [];
+            shuffle(pool.slice()).slice(0, count).forEach((it, n) => {
+                const others = shuffle(pool.filter(o => o.label !== it.label)).slice(0, 3);
+                if (n % 2 === 0) {
+                    const opts = shuffle([it.label, ...others.map(o => o.label)]);
+                    qs.push({ question: `متن زیر مربوط به کدام ماده است؟\n«${snippet(it.text, 200)}»`, options: opts, correctAnswer: it.label });
+                } else {
+                    const mk = o => snippet(o.text, 110);
+                    const opts = shuffle([mk(it), ...others.map(mk)]);
+                    qs.push({ question: `کدام گزینه آغاز «${it.label} ${lawInfo.title}» است؟`, options: opts, correctAnswer: mk(it) });
+                }
+            });
+            return qs;
+        }
+
         function updateScoreLabel() {
             scoreEl.textContent = `امتیاز: ${toPersianNumerals(correctCount)} از ${toPersianNumerals(qIndex + (answered ? 1 : 0))}`;
         }
@@ -1321,13 +1357,14 @@ document.addEventListener('DOMContentLoaded', () => {
             answered = false;
             selectedIndex = null;
             const q = questions[qIndex];
-            questionText.textContent = `${toPersianNumerals(qIndex + 1)}. ${q.question}`;
+            questionText.textContent = `${toPersianNumerals(qIndex + 1)}. ${q.question}`; questionText.style.whiteSpace = 'pre-line';
             const opts = q.options || [];
             optionsList.innerHTML = '';
             opts.forEach((optText, i) => {
                 const optEl = document.createElement('label');
                 optEl.className = 'quiz-option';
-                optEl.innerHTML = `<input type="radio" name="quiz-opt"> ${optText}`;
+                optEl.innerHTML = `<input type="radio" name="quiz-opt"><span class="quiz-radio-dot"></span><span class="quiz-opt-text"></span>`;
+                optEl.querySelector('.quiz-opt-text').textContent = optText;
                 optEl.addEventListener('click', () => {
                     if (answered) return;
                     optionsList.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
@@ -1344,7 +1381,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function startQuiz(lawKey) {
             currentLawKey = lawKey;
-            questions = (lawKey && lawManifest[lawKey] && lawManifest[lawKey].quiz) ? lawManifest[lawKey].quiz : [];
+            const manual = (lawKey && lawManifest[lawKey] && lawManifest[lawKey].quiz) ? lawManifest[lawKey].quiz : [];
+            questions = manual.concat(lawKey && isDataLoaded ? buildGeneratedQuestions(lawKey, 10) : []);
+            if (lawKey && !isDataLoaded && manual.length === 0) {
+                const t0 = setInterval(() => { if (isDataLoaded) { clearInterval(t0); if (currentLawKey === lawKey) startQuiz(lawKey); } }, 400);
+            }
             qIndex = 0;
             correctCount = 0;
             resultBox.style.display = 'none';
@@ -1456,7 +1497,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // این دیدبان خودکار دکمه و پنل را به‌روز می‌کند — نیازی به تغییر کد دیگر نیست.
         new MutationObserver(renderOptions).observe(selectEl, { childList: true });
     }
-    enhanceSelect(document.getElementById('search-scope-select'));
+    enhanceSelect(document.getElementById('flashcard-law-select'));
     enhanceSelect(document.getElementById('quiz-law-select'));
 
     // ----- داشبورد (صفحه‌ی اصلی) -----

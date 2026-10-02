@@ -1,5 +1,5 @@
 // Service Worker کانون حقوقی ایران — پشتیبانی آفلاین ساده
-const CACHE_NAME = 'ilh-cache-v2';
+const CACHE_NAME = 'ilh-cache-v3';
 const APP_SHELL = [
     './',
     './index.html',
@@ -8,7 +8,8 @@ const APP_SHELL = [
     './data.js',
     './manifest.json',
     './assets/icons/ilh_light.png',
-    './assets/icons/ilh_dark.png'
+    './assets/icons/ilh_dark.png',
+    './assets/fonts/Vazirmatn.woff2'
 ];
 
 self.addEventListener('install', (event) => {

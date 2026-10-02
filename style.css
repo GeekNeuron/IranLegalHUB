@@ -1745,3 +1745,145 @@ body.dark-theme .ilh-select-option.selected { color: var(--accent-color-dark); }
 @media (max-width: 480px) {
     .search-container .ilh-select { min-width: 110px; }
 }
+
+/* ===== فونت وزیرمتن (محلی، برای نمایش و چاپ/PDF) ===== */
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('assets/fonts/Vazirmatn.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ===== جستجو بدون منوی انتخاب قانون ===== */
+.search-container { width: 100%; max-width: 320px; }
+#search-input { width: 100%; box-sizing: border-box; }
+
+/* ===== داشبورد: دکمه‌ها هم‌اندازه با کادرهای آمار ===== */
+.dash-stats, .dash-quick {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+.dash-stat, .dash-quick-btn {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 84px;
+    border-radius: 12px;
+    padding: 14px 10px;
+}
+.dash-quick-btn {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    font-size: 0.92em;
+    line-height: 1.5;
+}
+.dash-quick { margin-bottom: 6px; }
+@media (min-width: 769px) {
+    .dash-stats, .dash-quick { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .dash-quick-btn { grid-column: span 2; }
+}
+
+/* ===== فصل‌ها: ارتفاع آزاد، بدون برجسته‌شدن و بریده‌شدن ===== */
+.divisions-container, .subdivisions-container, .article-list {
+    height: 0;
+    max-height: none !important;
+    transition: height 0.4s ease;
+}
+.file-group > span:hover, .division-item > .division-title:hover,
+body.dark-theme .file-group > span:hover, body.dark-theme .division-item > .division-title:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+.division-title:active, .file-group > span:active { transform: none !important; }
+.division-item.expanded > .division-title,
+body.dark-theme .division-item.expanded > .division-title {
+    background: #fff;
+    border-color: var(--border-color-light);
+}
+body.dark-theme .division-item.expanded > .division-title { background: #2a2a2a; border-color: var(--border-color-dark); }
+.division-item.expanded > .division-title { background: var(--surface); border-color: var(--line); }
+
+/* ===== فلش‌کارت: طراحی جدید ===== */
+.flashcard-meta { text-align: center; color: var(--muted); font-size: 0.85em; min-height: 1.4em; margin-top: 4px; }
+#flashcard-stage { margin: 6px 0 16px; }
+.flashcard { max-width: 620px; }
+.flashcard-face {
+    border-radius: 22px;
+    box-shadow: 0 10px 30px rgba(13, 110, 253, 0.18), 0 2px 6px rgba(0,0,0,0.08);
+    flex-direction: column;
+    padding: 18px 22px 34px;
+}
+.flashcard-front {
+    background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.22) 0, transparent 45%),
+        radial-gradient(circle at 90% 95%, rgba(255,255,255,0.14) 0, transparent 40%),
+        linear-gradient(135deg, var(--accent-color-light), #5aa9ff);
+}
+body.dark-theme .flashcard-front {
+    background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.12) 0, transparent 45%),
+        linear-gradient(135deg, #2c3e50, var(--accent-color-dark));
+}
+.fc-law-name { display: inline-block; margin-top: 8px; font-size: 0.55em; font-weight: 400; opacity: 0.92; padding: 3px 12px; border-radius: 20px; background: rgba(255,255,255,0.18); line-height: 1.7; }
+body.dark-theme .fc-law-name { background: rgba(0,0,0,0.18); }
+.flashcard-back { border-top: 5px solid var(--accent-color-light); }
+body.dark-theme .flashcard-back { border-top-color: var(--accent-color-dark); }
+.flashcard-face::after {
+    position: absolute; bottom: 9px; left: 0; right: 0;
+    text-align: center; font-size: 11.5px; font-weight: 400; opacity: 0.7;
+    pointer-events: none;
+}
+.flashcard-front::after { content: 'برای دیدن شرح ماده بزنید'; }
+.flashcard-back::after { content: 'برای برگشت بزنید'; }
+.flashcard:hover { transform: none; }
+.flashcard:active { transform: scale(0.99); }
+.flashcard-inner { transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1); }
+.flashcard-actions .fc-btn { min-width: 130px; border-radius: 12px; padding: 11px 20px; }
+
+/* ===== اجزای فرم هم‌رنگ با رابط پروژه ===== */
+.quiz-option { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.quiz-option input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+.quiz-radio-dot {
+    flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--border-color-light); background: var(--surface);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; position: relative;
+}
+body.dark-theme .quiz-radio-dot { border-color: var(--border-color-dark); }
+.quiz-option.selected .quiz-radio-dot { border-color: var(--accent-color-light); box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 10px var(--accent-color-light); }
+body.dark-theme .quiz-option.selected .quiz-radio-dot { border-color: var(--accent-color-dark); box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 10px var(--accent-color-dark); }
+.quiz-option.correct .quiz-radio-dot { border-color: #198754; box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 10px #198754; }
+.quiz-option.incorrect .quiz-radio-dot { border-color: #dc3545; box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 10px #dc3545; }
+.quiz-opt-text { flex: 1; line-height: 1.9; }
+textarea {
+    font-family: inherit; background: var(--surface); color: inherit;
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; resize: vertical;
+}
+textarea:focus { outline: none; border-color: var(--accent-color-light); box-shadow: 0 0 0 3px var(--accent-soft); }
+body.dark-theme textarea:focus { border-color: var(--accent-color-dark); }
+* { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.flashcard-toolbar .ilh-select { flex: 1 1 200px; min-width: 0; }
+.flashcard-toolbar .ilh-select-trigger { width: 100%; }
+.quiz-question-text, #quiz-question-text { white-space: pre-line; }
+
+/* ===== چاپ/PDF: همه‌چیز با فونت وزیرمتن، سفید و خوانا ===== */
+@media print {
+    html, body, .tab-content.printing, .tab-content.printing *, #print-only-title, #print-only-title * {
+        font-family: 'Vazirmatn', 'Tahoma', sans-serif !important;
+        color: #000 !important;
+        background: #fff !important;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    #print-only-title .print-meta { color: #555 !important; }
+    .tab-content.printing .article-label { font-weight: 700; }
+    .tab-content.printing .division-title { font-weight: 700; border: none !important; border-bottom: 1px solid #999 !important; border-radius: 0 !important; padding: 8px 0 !important; margin-top: 12px; }
+    .tab-content.printing .division-title .icon-chevron, .tab-content.printing .division-title svg { display: none !important; }
+    .tab-content.printing .article-body { line-height: 2.1; text-align: justify; }
+    .tab-content.printing .article { border-bottom: 1px dashed #bbb !important; padding: 6px 0 !important; }
+    .tab-content.printing .divisions-container, .tab-content.printing .article-list { border: none !important; padding-right: 0 !important; }
+    @page { margin: 16mm 14mm; }
+}

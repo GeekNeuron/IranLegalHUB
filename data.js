@@ -287,5 +287,68 @@ const lawManifest = {
             { title: 'تمام مواد', path: 'laws/batch2/bar_association_independence_law.json' }
         ],
         quiz: []
+    },
+    'tab-civil-liability-law': {
+        title: 'قانون مسئولیت مدنی',
+        info: 'قانون مسئولیت مدنی مصوب ۱۳۳۹، مبنای جبران خسارت (تقصیر، تخفیف خسارت، مسئولیت کارفرما و دولت).',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch3/civil_liability_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-third-party-insurance-law': {
+        title: 'قانون بیمه اجباری خسارات واردشده به شخص ثالث',
+        info: 'قانون بیمه اجباری خسارات واردشده به شخص ثالث در اثر حوادث ناشی از وسایل نقلیه مصوب ۱۳۹۵؛ جایگزین قانون ۱۳۸۷ شده است.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch3/third_party_insurance_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-authors-rights-law': {
+        title: 'قانون حمایت از حقوق مؤلفان، مصنفان و هنرمندان',
+        info: 'قانون حمایت از حقوق مؤلفان، مصنفان و هنرمندان مصوب ۱۳۴۸ (حق مؤلف و حقوق آثار ادبی و هنری).',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch3/authors_rights_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-judges-conduct-law': {
+        title: 'قانون نظارت بر رفتار قضات',
+        info: 'قانون نظارت بر رفتار قضات مصوب ۱۳۹۰: تخلفات انتظامی قضات، دادسرا و دادگاه عالی انتظامی و رسیدگی به صلاحیت قضات.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch3/judges_conduct_supervision_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-software-rights-law': {
+        title: 'قانون حمایت از حقوق پدیدآورندگان نرم‌افزارهای رایانه‌ای',
+        info: 'قانون حمایت از حقوق پدیدآورندگان نرم‌افزارهای رایانه‌ای مصوب ۱۳۷۹ (حقوق مادی و معنوی نرم‌افزار).',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch3/software_rights_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-government-revenue-law': {
+        title: 'قانون وصول برخی از درآمدهای دولت و مصرف آن در موارد معین',
+        info: 'قانون وصول برخی از درآمدهای دولت و مصرف آن در موارد معین مصوب ۱۳۷۳؛ شامل هزینه‌های دادرسی و ثبتی و درآمد دستگاه‌ها.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch3/government_revenue_law.json' }
+        ],
+        quiz: []
+    },
+    'tab-criminal-courts-law': {
+        title: 'قانون تشکیل دادگاه‌های کیفری ۱ و ۲ (منسوخ)',
+        info: 'این قانون مصوب ۱۳۶۸ منسوخ شده و فقط برای مطالعه‌ی تاریخی نگه داشته شده است؛ برای رسیدگی کنونی به قانون آیین دادرسی کیفری مراجعه کنید.',
+        article_word: 'ماده',
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch3/criminal_courts_1_2_law.json' }
+        ],
+        quiz: []
     }
 };
