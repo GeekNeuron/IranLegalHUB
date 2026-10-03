@@ -462,6 +462,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             contentDiv.innerHTML = `
                 <p class="law-info">${law.info}</p>
+                ${law.warning ? `<p class="law-warning">⚠️ ${law.warning}</p>` : ''}
+                ${(law.related || []).filter(r => lawManifest[r.key]).length ? `<div class="law-related"><span>قوانین مرتبط:</span>${law.related.filter(r => lawManifest[r.key]).map(r => `<button type="button" class="related-chip tab-link" data-tab="${r.key}">${r.label}</button>`).join('')}</div>` : ''}
                 <div class="articles-container accordion main-accordion-container"></div>
                 <div class="search-results-container" style="display: none;"></div>
             `;

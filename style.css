@@ -1887,3 +1887,12 @@ body.dark-theme textarea:focus { border-color: var(--accent-color-dark); }
     .tab-content.printing .divisions-container, .tab-content.printing .article-list { border: none !important; padding-right: 0 !important; }
     @page { margin: 16mm 14mm; }
 }
+
+/* ===== هشدار و قوانین مرتبط ===== */
+.law-warning { padding: 12px 15px; margin: -8px 0 16px; border-radius: 8px; line-height: 1.8; background: #fff3cd; color: #664d03; border-right: 5px solid #ffc107; }
+body.dark-theme .law-warning { background: #3a3012; color: #ffda6a; border-right-color: #b38600; }
+.law-related { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -8px 0 18px; font-size: 0.9em; color: var(--muted); }
+.related-chip { font-family: inherit; font-size: 0.95em; padding: 6px 12px; border-radius: 20px; cursor: pointer; background: var(--surface); color: var(--accent-color-light); border: 1px solid var(--line); transition: background 0.2s ease, border-color 0.2s ease; }
+.related-chip:hover { background: var(--accent-soft); border-color: var(--accent-color-light); }
+body.dark-theme .related-chip { color: var(--accent-color-dark); }
+@media print { .law-related, .law-warning { display: none !important; } }
