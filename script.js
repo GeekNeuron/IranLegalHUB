@@ -438,6 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetId === 'tab-bookmarks') renderBookmarksPage();
         if (targetId === 'tab-notes') renderNotesPage();
         if (targetId === 'tab-quiz') initQuizTab();
+        if (targetId === 'tab-progress') renderProgressPage();
         if (targetId === 'tab-dashboard') refreshDashboard();
         if (targetId === 'tab-flashcards' && fitFlashcardsFn) requestAnimationFrame(fitFlashcardsFn);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1111,6 +1112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (div.articles) {
                                 div.articles.forEach(art => {
                                     if (!art.article_number || !(art.text || art.description)) return;
+                                    if (isRepealedText(art.text || art.description)) return; // مواد منسوخ در فلش‌کارت نمی‌آیند
                                     allCards.push({
                                         id: `${lawKey}::${fileData.fileInfo.path}::${art.article_number}`,
                                         lawKey,
@@ -1278,6 +1280,403 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ----- ۱۰. بخش آزمون -----
+
+    // =====================================================================
+    // ===== آمار پیشرفت، آزمون هوشمند، مرور شبانه و PWA =====
+    // =====================================================================
+    function isRepealedText(t) { return /^\s*[\(\[]\s*(منسوخ|منقضی)/.test(t || ''); }
+    const STATS_KEY = 'ilh-stats-v1';
+    function loadStats() {
+        try {
+            const s = JSON.parse(localStorage.getItem(STATS_KEY) || 'null');
+            if (s && s.items && s.daily) { s.laws = s.laws || {}; return s; }
+        } catch (e) { /* خراب بود: از نو */ }
+        return { items: {}, daily: {}, laws: {}, nights: 0, nightCards: 0 };
+    }
+    function saveStats(s) { try { localStorage.setItem(STATS_KEY, JSON.stringify(s)); } catch (e) { /* بی‌اهمیت */ } }
+    function hashStr(str) { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+    function qId(q) { return hashStr(q.question + '|' + q.correctAnswer); }
+    function dayKey(d) { d = d || new Date(); const p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+    function getQuizCount() { const n = parseInt(localStorage.getItem('ilh-quiz-count'), 10); return [10, 20, 30].includes(n) ? n : 10; }
+
+    function recordAnswer(q, lawKey, ok) {
+        const s = loadStats();
+        const id = qId(q);
+        const it = s.items[id] || { w: 0, c: 0, streak: 0 };
+        it.last = Date.now();
+        if (lawKey && lawKey !== '__all__') it.law = lawKey;
+        if (ok) { it.c++; it.streak++; if (it.q && it.streak >= 2) delete it.q; }
+        else { it.w++; it.streak = 0; it.q = { question: q.question, options: q.options, correctAnswer: q.correctAnswer }; }
+        s.items[id] = it;
+        const d = dayKey();
+        const day = s.daily[d] || { a: 0, c: 0, n: 0 };
+        day.a++; if (ok) day.c++;
+        s.daily[d] = day;
+        if (lawKey && lawKey !== '__all__') {
+            const lw = s.laws[lawKey] || { a: 0, c: 0 };
+            lw.a++; if (ok) lw.c++;
+            s.laws[lawKey] = lw;
+        }
+        const ids = Object.keys(s.items);
+        if (ids.length > 1500) {
+            ids.filter(i => !s.items[i].q).sort((a, b) => (s.items[a].last || 0) - (s.items[b].last || 0))
+                .slice(0, ids.length - 1200).forEach(i => delete s.items[i]);
+        }
+        saveStats(s);
+    }
+    function recordNightReview(n) {
+        if (!n) return;
+        const s = loadStats();
+        const d = dayKey();
+        const day = s.daily[d] || { a: 0, c: 0, n: 0 };
+        day.n = (day.n || 0) + n;
+        s.daily[d] = day;
+        s.nights = (s.nights || 0) + 1;
+        s.nightCards = (s.nightCards || 0) + n;
+        saveStats(s);
+    }
+    function getWrongBank(lawKey) {
+        const s = loadStats();
+        return Object.entries(s.items)
+            .filter(([, it]) => it.q && (!lawKey || lawKey === '__all__' || it.law === lawKey))
+            .map(([, it]) => Object.assign({ _law: it.law }, it.q));
+    }
+    function questionWeight(stats, q) {
+        const it = stats.items[qId(q)];
+        if (!it) return 2;                                   // هنوز ندیده
+        let w = 1 + it.w * 0.6;
+        if (it.streak === 0) w += 2;                         // آخرین بار غلط بوده
+        w -= Math.min(it.streak, 3) * 0.35;                  // پشت‌سرهم درست = کمتر بیاید
+        w += Math.min(2, (Date.now() - (it.last || 0)) / 86400000 * 0.1); // مدتی ندیده = کمی بیشتر
+        return Math.max(0.15, w);
+    }
+    function weightedSample(list, n, weightFn) {
+        const pool = list.map(x => ({ x, w: weightFn(x) }));
+        const out = [];
+        while (out.length < n && pool.length) {
+            const total = pool.reduce((a, p) => a + p.w, 0);
+            let r = Math.random() * total, i = 0;
+            for (; i < pool.length - 1; i++) { r -= pool[i].w; if (r <= 0) break; }
+            out.push(pool.splice(i, 1)[0].x);
+        }
+        return out;
+    }
+    function goTab(id) { const el = document.querySelector('.tab-link[data-tab="' + id + '"]'); if (el) el.click(); }
+
+    // ----- صفحه‌ی آمار پیشرفت -----
+    const WD = ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش'];
+    function computeStreak(daily) {
+        const active = k => daily[k] && ((daily[k].a || 0) > 0 || (daily[k].n || 0) > 0);
+        const d = new Date();
+        if (!active(dayKey(d))) d.setDate(d.getDate() - 1);
+        let n = 0;
+        while (active(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
+        return n;
+    }
+    function renderProgressPage() {
+        const root = document.getElementById('progress-root');
+        if (!root) return;
+        const s = loadStats();
+        const days = Object.values(s.daily);
+        const totalA = days.reduce((a, d) => a + (d.a || 0), 0);
+        const totalC = days.reduce((a, d) => a + (d.c || 0), 0);
+        const acc = totalA ? Math.round(totalC / totalA * 100) : 0;
+        const items = Object.values(s.items);
+        const mastered = items.filter(i => i.streak >= 2).length;
+        const wrongActive = items.filter(i => i.q).length;
+        let known = 0;
+        try { known = Object.keys(JSON.parse(localStorage.getItem('ilh_flashcard_known_box_v1') || '{}')).length; } catch (e) { /* */ }
+        const streak = computeStreak(s.daily);
+        const P = toPersianNumerals;
+
+        // نمودار ۷ روز اخیر
+        const week = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(); d.setDate(d.getDate() - i);
+            const rec = s.daily[dayKey(d)] || { a: 0, c: 0, n: 0 };
+            week.push({ label: WD[d.getDay()], a: rec.a || 0, c: rec.c || 0, n: rec.n || 0, today: i === 0 });
+        }
+        const maxA = Math.max(5, ...week.map(w => w.a));
+        const bars = week.map(w => {
+            const h = Math.round(w.a / maxA * 100), hc = w.a ? Math.round(w.c / w.a * h) : 0;
+            return `<div class="pg-bar${w.today ? ' today' : ''}" title="${P(w.a)} پاسخ، ${P(w.c)} درست${w.n ? '، ' + P(w.n) + ' کارت شبانه' : ''}">
+                <span class="pg-bar-num">${w.a ? P(w.a) : ''}</span>
+                <div class="pg-bar-col"><div class="pg-bar-wrong" style="height:${h}%"><div class="pg-bar-right" style="height:${h ? Math.round(hc / h * 100) : 0}%"></div></div></div>
+                <span class="pg-bar-day">${w.label}</span>${w.n ? '<span class="pg-bar-moon">🌙</span>' : ''}</div>`;
+        }).join('');
+
+        // ضعیف‌ترین قوانین
+        const weak = Object.entries(s.laws)
+            .filter(([k, v]) => v.a >= 3 && lawManifest[k])
+            .map(([k, v]) => ({ k, a: v.a, pct: Math.round(v.c / v.a * 100) }))
+            .sort((x, y) => x.pct - y.pct).slice(0, 5);
+        const weakHtml = weak.length ? weak.map(w => `
+            <div class="pg-law">
+                <div class="pg-law-head"><span>${lawManifest[w.k].title}</span><b>${P(w.pct)}٪</b></div>
+                <div class="progress-track"><div class="progress-fill ${w.pct < 50 ? 'low' : ''}" style="width:${w.pct}%"></div></div>
+                <button type="button" class="pg-link" data-practice="${w.k}">تمرین هوشمند این قانون ←</button>
+            </div>`).join('') : '<p class="pg-empty">هنوز برای هیچ قانونی حداقل ۳ پاسخ ثبت نشده. چند آزمون بده تا نقاط ضعف نشان داده شود.</p>';
+
+        root.innerHTML = `
+            <div class="pg-grid">
+                <div class="pg-card"><b>${P(totalA)}</b><span>پاسخ ثبت‌شده</span></div>
+                <div class="pg-card"><b>${P(acc)}٪</b><span>درصد پاسخ درست</span></div>
+                <div class="pg-card"><b>${P(streak)}</b><span>روز پیاپی فعالیت 🔥</span></div>
+                <div class="pg-card"><b>${P(mastered)}</b><span>سؤال مسلط‌شده</span></div>
+                <div class="pg-card"><b>${P(known)}</b><span>کارت «بلدم»</span></div>
+                <div class="pg-card"><b>${P(s.nightCards || 0)}</b><span>کارت مرور شبانه 🌙</span></div>
+            </div>
+            <h3 class="pg-title">۷ روز اخیر</h3>
+            <div class="pg-chart">${bars}</div>
+            <div class="pg-legend"><span><i class="lg-right"></i> درست</span><span><i class="lg-wrong"></i> اشتباه</span></div>
+            <h3 class="pg-title">قوانینی که بیشتر نیاز به تمرین دارند</h3>
+            ${weakHtml}
+            <div class="pg-actions">
+                <button type="button" class="fc-btn fc-btn-primary" id="pg-smart">🧠 آزمون هوشمند</button>
+                <button type="button" class="fc-btn" id="pg-wrong">🔁 مرور اشتباه‌ها (${P(wrongActive)})</button>
+                <button type="button" class="fc-btn" id="pg-night">🌙 مرور شبانه</button>
+                <button type="button" class="fc-btn fc-btn-outline" id="pg-reset">پاک‌کردن آمار</button>
+            </div>`;
+        root.querySelectorAll('[data-practice]').forEach(b => b.addEventListener('click', () => { goTab('tab-quiz'); window.ilhQuiz && window.ilhQuiz.practice(b.dataset.practice, 'smart'); }));
+        const go = (mode) => { goTab('tab-quiz'); window.ilhQuiz && window.ilhQuiz.setMode(mode, '__all__'); };
+        document.getElementById('pg-smart').addEventListener('click', () => go('smart'));
+        document.getElementById('pg-wrong').addEventListener('click', () => go('wrong'));
+        document.getElementById('pg-night').addEventListener('click', () => openNight());
+        document.getElementById('pg-reset').addEventListener('click', () => {
+            if (confirm('همه‌ی آمار پیشرفت و فهرست اشتباه‌ها پاک شود؟ (نشان‌شده‌ها و یادداشت‌ها دست‌نخورده می‌ماند)')) {
+                localStorage.removeItem(STATS_KEY); renderProgressPage(); showToast('آمار پاک شد');
+            }
+        });
+    }
+
+    // ----- مرور شبانه -----
+    let nightEl = null;
+    function openNight(preset) {
+        if (!nightEl) buildNightOverlay();
+        nightEl.hidden = false;
+        document.body.classList.add('night-open');
+        showNightStart();
+        if (preset === 'bookmarks' && getBookmarks().length) startNight('bookmarks');
+    }
+    function buildNightOverlay() {
+        nightEl = document.createElement('div');
+        nightEl.id = 'night-review';
+        nightEl.className = 'night-review';
+        nightEl.hidden = true;
+        nightEl.setAttribute('role', 'dialog');
+        nightEl.setAttribute('aria-modal', 'true');
+        nightEl.setAttribute('aria-label', 'مرور شبانه');
+        nightEl.innerHTML = `
+            <div class="nr-top">
+                <button type="button" class="nr-close" aria-label="بستن">✕</button>
+                <span class="nr-counter" id="nr-counter"></span>
+            </div>
+            <div class="nr-stage" id="nr-stage"></div>`;
+        document.body.appendChild(nightEl);
+        nightEl.querySelector('.nr-close').addEventListener('click', closeNight);
+        document.addEventListener('keydown', (e) => {
+            if (nightEl.hidden) return;
+            if (e.key === 'Escape') closeNight();
+            if ((e.key === ' ' || e.key === 'Enter') && nr.phase === 'card' && !nr.revealed) { e.preventDefault(); revealNight(); }
+        });
+    }
+    const nr = { queue: [], total: 0, done: 0, reviewed: 0, revealed: false, phase: 'start', timer: null, timerMin: parseInt(localStorage.getItem('ilh-night-timer'), 10) || 0, wake: null };
+    function stageEl() { return document.getElementById('nr-stage'); }
+    function showNightStart() {
+        nr.phase = 'start';
+        document.getElementById('nr-counter').textContent = '';
+        const nb = getBookmarks().length;
+        stageEl().innerHTML = `
+            <div class="nr-start">
+                <div class="nr-moon">🌙</div>
+                <h2>مرور شبانه</h2>
+                <p>صفحه‌ی تیره و کم‌نور با متن درشت. روی کارت بزن تا شرح ماده را ببینی؛ «بلدم» کارت را کنار می‌گذارد و «دوباره» آخر صف برش می‌گرداند.</p>
+                <button type="button" class="nr-btn primary" id="nr-src-bm" ${nb ? '' : 'disabled'}>⭐ نشان‌شده‌ها (${toPersianNumerals(nb)})</button>
+                <button type="button" class="nr-btn" id="nr-src-rand">🎲 ۱۵ ماده‌ی تصادفی</button>
+                <div class="nr-timer-row"><span>خاموشی خودکار:</span>
+                    <div class="chip-group nr-chips" id="nr-timer-chips">
+                        <button type="button" class="chip" data-min="0">ندارد</button>
+                        <button type="button" class="chip" data-min="10">۱۰ دقیقه</button>
+                        <button type="button" class="chip" data-min="20">۲۰ دقیقه</button>
+                    </div>
+                </div>
+                ${nb ? '' : '<small>هنوز ماده‌ای نشان نکرده‌ای؛ با ⭐ روی هر ماده می‌توانی مجموعه‌ی خودت را بسازی.</small>'}
+            </div>`;
+        const chips = stageEl().querySelectorAll('#nr-timer-chips .chip');
+        const mark = () => chips.forEach(c => c.classList.toggle('active', parseInt(c.dataset.min, 10) === nr.timerMin));
+        chips.forEach(c => c.addEventListener('click', () => { nr.timerMin = parseInt(c.dataset.min, 10); try { localStorage.setItem('ilh-night-timer', nr.timerMin); } catch (e) { /* */ } mark(); }));
+        mark();
+        document.getElementById('nr-src-bm').addEventListener('click', () => startNight('bookmarks'));
+        document.getElementById('nr-src-rand').addEventListener('click', () => startNight('random'));
+    }
+    function randomArticles(n) {
+        const all = [];
+        if (isDataLoaded) {
+            for (const k in allLawsData) {
+                const w = (lawManifest[k] && lawManifest[k].article_word) || 'ماده';
+                (allLawsData[k] || []).forEach(f => {
+                    (function walk(divs) {
+                        (divs || []).forEach(d => {
+                            (d.articles || []).forEach(a => {
+                                const txt = (a.text || a.description || '').trim();
+                                if (a.article_number && txt.length >= 60 && !isRepealedText(txt)) all.push({ id: k + '#' + a.article_number, label: `${w} ${toPersianNumerals(a.article_number)}`, lawTitle: lawManifest[k].title, text: txt });
+                            });
+                            walk(d.subdivisions);
+                        });
+                    })(f.data && f.data.divisions);
+                });
+            }
+        }
+        return shuffleArr(all).slice(0, n);
+    }
+    function shuffleArr(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+    async function startNight(source) {
+        let q = [];
+        if (source === 'bookmarks') q = shuffleArr(getBookmarks().map(b => ({ id: b.id, label: b.label, lawTitle: b.lawTitle, text: b.text })));
+        else q = randomArticles(15);
+        if (!q.length) { showToast('هنوز داده‌ای برای مرور آماده نیست؛ چند ثانیه بعد دوباره بزن'); return; }
+        nr.queue = q; nr.total = q.length; nr.done = 0; nr.reviewed = 0;
+        try { if ('wakeLock' in navigator) nr.wake = await navigator.wakeLock.request('screen'); } catch (e) { nr.wake = null; }
+        clearTimeout(nr.timer);
+        if (nr.timerMin) nr.timer = setTimeout(sleepNight, nr.timerMin * 60000);
+        showNightCard();
+    }
+    function showNightCard() {
+        if (!nr.queue.length) return finishNight();
+        nr.phase = 'card'; nr.revealed = false;
+        const c = nr.queue[0];
+        document.getElementById('nr-counter').textContent = `${toPersianNumerals(nr.done)} از ${toPersianNumerals(nr.total)}`;
+        stageEl().innerHTML = `
+            <div class="nr-card" id="nr-card" tabindex="0">
+                <div class="nr-label">${c.label}</div>
+                <div class="nr-law">${c.lawTitle}</div>
+                <div class="nr-text" id="nr-text" style="display:none;"></div>
+                <div class="nr-hint" id="nr-hint">برای دیدن شرح ماده بزنید</div>
+            </div>
+            <div class="nr-actions" id="nr-actions" style="visibility:hidden;">
+                <button type="button" class="nr-btn" id="nr-again">دوباره</button>
+                <button type="button" class="nr-btn primary" id="nr-know">بلدم ✓</button>
+            </div>`;
+        document.getElementById('nr-card').addEventListener('click', revealNight);
+        document.getElementById('nr-again').addEventListener('click', () => { nr.queue.push(nr.queue.shift()); nr.reviewed++; showNightCard(); });
+        document.getElementById('nr-know').addEventListener('click', () => { nr.queue.shift(); nr.done++; nr.reviewed++; showNightCard(); });
+    }
+    function revealNight() {
+        if (nr.phase !== 'card' || nr.revealed) return;
+        nr.revealed = true;
+        const c = nr.queue[0];
+        const t = document.getElementById('nr-text');
+        t.innerHTML = toPersianNumerals(formatText(c.text));
+        t.style.display = 'block';
+        document.getElementById('nr-hint').style.display = 'none';
+        document.getElementById('nr-actions').style.visibility = 'visible';
+    }
+    function finishNight() {
+        nr.phase = 'done';
+        document.getElementById('nr-counter').textContent = '';
+        recordNightReview(nr.reviewed);
+        releaseWake();
+        clearTimeout(nr.timer);
+        stageEl().innerHTML = `<div class="nr-start"><div class="nr-moon">✨</div><h2>مرور تمام شد</h2>
+            <p>${toPersianNumerals(nr.total)} کارت را مرور کردی. شب‌ات به‌خیر!</p>
+            <button type="button" class="nr-btn primary" id="nr-again-all">مرور دوباره</button>
+            <button type="button" class="nr-btn" id="nr-exit">خروج</button></div>`;
+        document.getElementById('nr-again-all').addEventListener('click', showNightStart);
+        document.getElementById('nr-exit').addEventListener('click', closeNight);
+    }
+    function sleepNight() {
+        if (!nightEl || nightEl.hidden) return;
+        nightEl.classList.add('sleeping');
+        stageEl().innerHTML = '<div class="nr-start"><div class="nr-moon">😴</div><h2>شب‌بخیر</h2></div>';
+        setTimeout(closeNight, 2200);
+    }
+    function releaseWake() { try { if (nr.wake) { nr.wake.release(); } } catch (e) { /* */ } nr.wake = null; }
+    function closeNight() {
+        if (!nightEl) return;
+        if (nr.phase === 'card' && nr.reviewed) recordNightReview(nr.reviewed);
+        nr.phase = 'start';
+        clearTimeout(nr.timer); releaseWake();
+        nightEl.classList.remove('sleeping');
+        nightEl.hidden = true;
+        document.body.classList.remove('night-open');
+        if (document.getElementById('tab-progress').classList.contains('active')) renderProgressPage();
+    }
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && nr.phase === 'card' && nightEl && !nightEl.hidden && !nr.wake && 'wakeLock' in navigator) navigator.wakeLock.request('screen').then(w => { nr.wake = w; }).catch(() => {}); });
+
+    // ----- تنظیمات: تعداد سؤال -----
+    function setupQuizCountSetting() {
+        const box = document.getElementById('quiz-count-chips');
+        if (!box) return;
+        const mark = () => box.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', parseInt(c.dataset.count, 10) === getQuizCount()));
+        box.addEventListener('click', (e) => {
+            const c = e.target.closest('.chip'); if (!c) return;
+            try { localStorage.setItem('ilh-quiz-count', c.dataset.count); } catch (err) { /* */ }
+            mark(); showToast('تعداد سؤال آزمون: ' + toPersianNumerals(c.dataset.count));
+        });
+        mark();
+    }
+
+    // ----- PWA: نصب و دانلود آفلاین -----
+    let deferredInstall = null;
+    const isStandalone = () => (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+    function updateInstallUI() {
+        const btn = document.getElementById('pwa-install-btn'), hint = document.getElementById('pwa-install-hint');
+        if (!btn || !hint) return;
+        if (isStandalone()) { btn.style.display = 'none'; hint.textContent = 'برنامه روی دستگاه شما نصب است ✓'; return; }
+        btn.style.display = '';
+        if (deferredInstall) { btn.textContent = 'نصب روی دستگاه'; hint.textContent = 'مثل یک برنامه‌ی مستقل، بدون نوار مرورگر باز می‌شود.'; }
+        else if (isIOS()) { btn.textContent = 'راهنمای نصب'; hint.textContent = 'در Safari: دکمه‌ی اشتراک‌گذاری ← «افزودن به صفحه‌ی اصلی».'; }
+        else { btn.textContent = 'راهنمای نصب'; hint.textContent = 'از منوی مرورگر گزینه‌ی «نصب برنامه / Add to Home screen» را بزنید.'; }
+    }
+    function setupPWA() {
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstall = e; updateInstallUI(); });
+        window.addEventListener('appinstalled', () => { deferredInstall = null; updateInstallUI(); showToast('برنامه نصب شد ✅'); });
+        const btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.addEventListener('click', async () => {
+            if (deferredInstall) { deferredInstall.prompt(); try { await deferredInstall.userChoice; } catch (e) { /* */ } deferredInstall = null; updateInstallUI(); }
+            else showToast(document.getElementById('pwa-install-hint').textContent);
+        });
+        updateInstallUI();
+
+        const dl = document.getElementById('offline-download-btn'), status = document.getElementById('offline-status');
+        const prog = document.getElementById('offline-progress'), fill = document.getElementById('offline-progress-fill');
+        if (!('serviceWorker' in navigator) || !dl) { if (dl) { dl.disabled = true; status.textContent = 'مرورگر شما از حالت آفلاین پشتیبانی نمی‌کند.'; } return; }
+        navigator.serviceWorker.addEventListener('message', (e) => {
+            const m = e.data || {};
+            if (m.type === 'CACHE_PROGRESS') { prog.style.display = 'block'; fill.style.width = (m.total ? Math.round(m.done / m.total * 100) : 0) + '%'; status.textContent = `در حال دانلود… ${toPersianNumerals(m.done)} از ${toPersianNumerals(m.total)}`; dl.disabled = true; }
+            if (m.type === 'CACHE_DONE') { prog.style.display = 'none'; dl.disabled = false; status.textContent = `همه‌ی ${toPersianNumerals(m.total)} فایل قانون آفلاین ذخیره شد ✓`; showToast('آماده‌ی استفاده‌ی آفلاین ✅'); }
+            if (m.type === 'CACHE_ERROR') { prog.style.display = 'none'; dl.disabled = false; status.textContent = 'دانلود کامل نشد؛ اتصال را بررسی و دوباره امتحان کن.'; }
+            if (m.type === 'CACHE_STATUS') { status.textContent = m.total ? (m.have === m.total ? `همه‌ی قوانین آفلاین ذخیره شده است ✓` : `${toPersianNumerals(m.have)} از ${toPersianNumerals(m.total)} فایل آفلاین است`) : ''; }
+        });
+        dl.addEventListener('click', () => {
+            const sw = navigator.serviceWorker.controller;
+            if (!sw) { showToast('سرویس آفلاین هنوز فعال نشده؛ یک‌بار صفحه را تازه کن'); return; }
+            sw.postMessage({ type: 'CACHE_ALL' });
+        });
+        navigator.serviceWorker.ready.then(reg => { if (reg.active) reg.active.postMessage({ type: 'CACHE_STATUS' }); }).catch(() => {});
+        // اعلان نسخه‌ی جدید
+        const hadController = !!navigator.serviceWorker.controller;
+        navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) showToast('نسخه‌ی جدید برنامه آماده شد؛ صفحه را یک‌بار ببند و باز کن'); });
+    }
+
+    // ----- میان‌برها و پارامترهای آدرس -----
+    function setupFeatureButtons() {
+        const nb = (id, fn) => { const el = document.getElementById(id); if (el) el.addEventListener('click', fn); };
+        nb('sidebar-night-btn', () => { closeSidebar(); openNight(); });
+        nb('dash-night-btn', () => openNight());
+        nb('bookmarks-night-btn', () => openNight('bookmarks'));
+    }
+    function applyUrlParams() {
+        const p = new URLSearchParams(location.search);
+        const tab = p.get('tab');
+        if (tab && document.getElementById('tab-' + tab)) {
+            goTab('tab-' + tab);
+            if (tab === 'quiz' && window.ilhQuiz && ['smart', 'wrong', 'normal'].includes(p.get('mode'))) window.ilhQuiz.setMode(p.get('mode'), '__all__');
+        }
+        if (p.get('night') === '1') openNight();
+    }
+
     function setupQuiz() {
         const lawSelect = document.getElementById('quiz-law-select');
         const scoreEl = document.getElementById('quiz-score');
@@ -1300,22 +1699,26 @@ document.addEventListener('DOMContentLoaded', () => {
         let selectedIndex = null;
 
         function populateLawSelect() {
-            const keysWithQuiz = Object.keys(lawManifest);
+            const keys = Object.keys(lawManifest);
             lawSelect.innerHTML = '';
-            if (keysWithQuiz.length === 0) {
+            if (keys.length === 0) {
                 lawSelect.innerHTML = '<option value="">فعلاً سؤالی آماده نشده</option>';
                 currentLawKey = null;
                 return;
             }
-            keysWithQuiz.forEach(k => {
+            const all = document.createElement('option');
+            all.value = '__all__';
+            all.textContent = 'همه‌ی قوانین';
+            lawSelect.appendChild(all);
+            keys.forEach(k => {
                 const opt = document.createElement('option');
                 opt.value = k;
                 opt.textContent = lawManifest[k].title;
                 lawSelect.appendChild(opt);
             });
-            currentLawKey = keysWithQuiz[0];
+            currentLawKey = keys[0];
+            lawSelect.value = currentLawKey;
         }
-
 
         // ساخت خودکار سؤال از متن واقعی مواد (همیشه درست؛ چون از خود فایل قانون ساخته می‌شود)
         function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -1328,7 +1731,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     (divs || []).forEach(d => {
                         (d.articles || []).forEach(a => {
                             const txt = (a.text || a.description || '').trim();
-                            if (a.article_number && txt.length >= 80) items.push({ label: `${lawInfo.article_word || 'ماده'} ${toPersianNumerals(a.article_number)}`, text: txt });
+                            if (a.article_number && txt.length >= 80 && !isRepealedText(txt)) items.push({ label: `${lawInfo.article_word || 'ماده'} ${toPersianNumerals(a.article_number)}`, text: txt });
                         });
                         walk(d.subdivisions);
                     });
@@ -1381,19 +1784,75 @@ document.addEventListener('DOMContentLoaded', () => {
             updateScoreLabel();
         }
 
+        let quizMode = 'normal';
+        let startToken = 0;
+        let sessionWrong = 0;
+        const modeChips = document.getElementById('quiz-mode-chips');
+        const modeHint = document.getElementById('quiz-mode-hint');
+        const wrongBadge = document.getElementById('quiz-wrong-count');
+        const HINTS = {
+            normal: 'همه‌ی سؤال‌های آماده‌ی این قانون، به ترتیب.',
+            smart: 'سؤال‌هایی که قبلاً اشتباه جواب داده‌ای یا هنوز ندیده‌ای بیشتر می‌آیند.',
+            wrong: 'فقط سؤال‌هایی که اشتباه داده‌ای؛ با دو پاسخ درست پشت‌سرهم از فهرست خارج می‌شوند.'
+        };
+        function updateWrongBadge() {
+            if (!wrongBadge) return;
+            const n = getWrongBank('__all__').length;
+            wrongBadge.textContent = n ? toPersianNumerals(n) : '';
+            wrongBadge.style.display = n ? 'inline-block' : 'none';
+        }
+        function setMode(m) {
+            quizMode = m;
+            if (modeChips) modeChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.mode === m));
+            if (modeHint) modeHint.textContent = HINTS[m] || '';
+        }
+        function poolFor(lawKey, genCount) {
+            const keys = lawKey === '__all__' ? Object.keys(lawManifest) : [lawKey];
+            const manual = [], gen = [];
+            keys.forEach(k => {
+                ((lawManifest[k] && lawManifest[k].quiz) || []).forEach(q => manual.push(Object.assign({}, q, { _law: k })));
+                if (isDataLoaded) buildGeneratedQuestions(k, lawKey === '__all__' ? 2 : genCount).forEach(q => gen.push(Object.assign(q, { _law: k })));
+            });
+            return { manual, gen };
+        }
+
         function startQuiz(lawKey) {
             currentLawKey = lawKey;
-            const manual = (lawKey && lawManifest[lawKey] && lawManifest[lawKey].quiz) ? lawManifest[lawKey].quiz : [];
-            questions = manual.concat(lawKey && isDataLoaded ? buildGeneratedQuestions(lawKey, 10) : []);
-            if (lawKey && !isDataLoaded && manual.length === 0) {
-                const t0 = setInterval(() => { if (isDataLoaded) { clearInterval(t0); if (currentLawKey === lawKey) startQuiz(lawKey); } }, 400);
+            const token = ++startToken;
+            const N = getQuizCount();
+            let list = [];
+            if (quizMode === 'wrong') {
+                list = shuffle(getWrongBank(lawKey)).slice(0, N);
+            } else if (quizMode === 'smart') {
+                const { manual, gen } = poolFor(lawKey, Math.max(N, 12));
+                const stats = loadStats();
+                const seen = new Set(), cand = [];
+                getWrongBank(lawKey).concat(manual, gen).forEach(q => { const id = qId(q); if (!seen.has(id)) { seen.add(id); cand.push(q); } });
+                list = weightedSample(cand, N, q => questionWeight(stats, q));
+            } else {
+                const { manual, gen } = poolFor(lawKey, 10);
+                list = lawKey === '__all__' ? shuffle(manual.concat(gen)).slice(0, N) : manual.concat(gen);
+            }
+            questions = list;
+            if (!isDataLoaded) {
+                const t0 = setInterval(() => {
+                    if (isDataLoaded) {
+                        clearInterval(t0);
+                        if (token === startToken && qIndex === 0 && !answered) startQuiz(lawKey);
+                    }
+                }, 400);
             }
             qIndex = 0;
             correctCount = 0;
+            sessionWrong = 0;
+            updateWrongBadge();
             resultBox.style.display = 'none';
             if (questions.length === 0) {
                 questionBox.style.display = 'none';
                 emptyMsg.style.display = 'block';
+                emptyMsg.textContent = quizMode === 'wrong'
+                    ? 'هیچ اشتباهِ فعالی نداری 🎉 در حالت «هوشمند» یا «عادی» آزمون بده تا اگر جایی اشتباه شد اینجا جمع شود.'
+                    : (isDataLoaded ? 'برای این قانون هنوز سؤالی آماده نشده.' : 'در حال آماده‌سازی سؤال‌ها…');
                 scoreEl.textContent = 'امتیاز: ۰ از ۰';
                 return;
             }
@@ -1413,7 +1872,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (i === correctIdx) el.classList.add('correct');
                 else if (i === selectedIndex) el.classList.add('incorrect');
             });
-            if (selectedIndex === correctIdx) correctCount++;
+            const ok = selectedIndex === correctIdx;
+            if (ok) correctCount++; else sessionWrong++;
+            recordAnswer(q, q._law || currentLawKey, ok);
+            updateWrongBadge();
             updateScoreLabel();
             checkBtn.style.display = 'none';
             nextBtn.style.display = 'inline-block';
@@ -1425,11 +1887,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 questionBox.style.display = 'none';
                 resultBox.style.display = 'block';
                 resultText.textContent = `از ${toPersianNumerals(questions.length)} سؤال، ${toPersianNumerals(correctCount)} مورد را درست پاسخ دادید.`;
+                const pct = Math.round(correctCount / questions.length * 100);
+                resultText.textContent += ` (${toPersianNumerals(pct)}٪)`;
+                let rb = document.getElementById('quiz-review-wrong-btn');
+                if (!rb) {
+                    rb = document.createElement('button');
+                    rb.type = 'button'; rb.id = 'quiz-review-wrong-btn'; rb.className = 'fc-btn fc-btn-primary';
+                    rb.textContent = '🔁 مرور اشتباه‌ها';
+                    rb.addEventListener('click', () => { setMode('wrong'); startQuiz(currentLawKey); });
+                    restartBtn.parentNode.insertBefore(rb, restartBtn);
+                }
+                rb.style.display = getWrongBank('__all__').length ? 'inline-block' : 'none';
             } else {
                 showQuestion();
             }
         });
 
+        if (modeChips) modeChips.addEventListener('click', (e) => {
+            const c = e.target.closest('.chip'); if (!c) return;
+            setMode(c.dataset.mode); startQuiz(currentLawKey);
+        });
+        setMode('normal');
+        window.ilhQuiz = {
+            practice(lawKey, mode) { setMode(mode || 'smart'); lawSelect.value = lawKey; lawSelect.dispatchEvent(new Event('change')); },
+            setMode(m, lawKey) { setMode(m); if (lawKey) lawSelect.value = lawKey; startQuiz(lawSelect.value || currentLawKey); }
+        };
         restartBtn.addEventListener('click', () => startQuiz(currentLawKey));
         lawSelect.addEventListener('change', () => startQuiz(lawSelect.value));
 
@@ -1550,6 +2032,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setupAboutDialog();
     setupFlashcards();
     setupQuiz();
+    setupQuizCountSetting();
+    setupPWA();
+    setupFeatureButtons();
+    applyUrlParams();
 
     // ----- ۱۱. ثبت Service Worker برای پشتیبانی آفلاین (PWA) -----
     if ('serviceWorker' in navigator) {

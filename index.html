@@ -7,6 +7,11 @@
     <link rel="icon" type="image/png" href="assets/icons/ilh_light.png">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0d6efd">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="کانون حقوقی">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -61,6 +66,14 @@
                     <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 12.5l2.2 2.2 4.3-4.6"/></svg></span>
                     <span class="sidebar-item-label">آزمون</span>
                 </button>
+                        <button class="sidebar-item tab-link" type="button" data-tab="tab-progress">
+                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+                    <span class="sidebar-item-label">آمار پیشرفت</span>
+                </button>
+                        <button class="sidebar-item" type="button" id="sidebar-night-btn">
+                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></span>
+                    <span class="sidebar-item-label">مرور شبانه</span>
+                </button>
                         <button class="sidebar-item tab-link" type="button" data-tab="tab-bookmarks">
                     <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4.5L5 21V4a1 1 0 0 1 1-1z"/></svg></span>
                     <span class="sidebar-item-label">نشان‌شده‌ها</span>
@@ -107,6 +120,25 @@
                                 <button type="button" class="font-size-btn" id="font-size-reset" aria-label="اندازه پیش‌فرض">A</button>
                                 <button type="button" class="font-size-btn" id="font-size-inc" aria-label="بزرگ‌تر">A+</button>
                             </div>
+                        </div>
+                        <div class="settings-row settings-row-col">
+                            <span class="settings-label"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg> تعداد سؤال هر آزمون</span>
+                            <div class="chip-group" id="quiz-count-chips">
+                                <button type="button" class="chip" data-count="10">۱۰</button>
+                                <button type="button" class="chip" data-count="20">۲۰</button>
+                                <button type="button" class="chip" data-count="30">۳۰</button>
+                            </div>
+                        </div>
+                        <div class="settings-row settings-row-col" id="pwa-install-row">
+                            <span class="settings-label"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg> نصب به‌عنوان برنامه</span>
+                            <button type="button" class="settings-btn" id="pwa-install-btn">نصب روی گوشی</button>
+                            <small class="settings-hint" id="pwa-install-hint"></small>
+                        </div>
+                        <div class="settings-row settings-row-col">
+                            <span class="settings-label"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg> استفاده‌ی آفلاین</span>
+                            <button type="button" class="settings-btn" id="offline-download-btn">دانلود همه‌ی قوانین</button>
+                            <div class="progress-track" id="offline-progress" style="display:none;"><div class="progress-fill" id="offline-progress-fill"></div></div>
+                            <small class="settings-hint" id="offline-status"></small>
                         </div>
                     </div>
                 </div>
@@ -175,6 +207,8 @@
                     <div class="dash-quick">
                         <button type="button" class="dash-quick-btn tab-link" data-tab="tab-flashcards"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="14" height="14" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2"/><path d="M7 13h6M7 16.5h4"/></svg><span>مرور با فلش‌کارت</span></button>
                         <button type="button" class="dash-quick-btn tab-link" data-tab="tab-quiz"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 12.5l2.2 2.2 4.3-4.6"/></svg><span>آزمون چهارگزینه‌ای</span></button>
+                        <button type="button" class="dash-quick-btn tab-link" data-tab="tab-progress"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>آمار پیشرفت</span></button>
+                        <button type="button" class="dash-quick-btn" id="dash-night-btn"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg><span>مرور شبانه</span></button>
                     </div>
                     <h3 class="dash-heading">قوانین این مجموعه</h3>
                     <p id="dash-law-count" class="dash-law-count"></p>
@@ -223,6 +257,12 @@
                     <p class="law-info">
                         از هر قانون که سؤال آماده داشته باشیم، اینجا می‌توانید به‌صورت چهارگزینه‌ای خودتان را بسنجید. اگر قانونی در فهرست نبود یعنی هنوز سؤالی برایش آماده نشده.
                     </p>
+                    <div class="chip-group quiz-mode-chips" id="quiz-mode-chips">
+                        <button type="button" class="chip active" data-mode="normal">عادی</button>
+                        <button type="button" class="chip" data-mode="smart">🧠 هوشمند</button>
+                        <button type="button" class="chip" data-mode="wrong">🔁 مرور اشتباه‌ها <span id="quiz-wrong-count" class="chip-badge"></span></button>
+                    </div>
+                    <p class="quiz-mode-hint" id="quiz-mode-hint"></p>
                     <div class="flashcard-toolbar">
                         <select id="quiz-law-select"></select>
                         <span id="quiz-score" class="quiz-score">امتیاز: ۰ از ۰</span>
@@ -245,10 +285,16 @@
                     </div>
                 </div>
 
+                <div id="tab-progress" class="tab-content">
+                    <p class="law-info">آمار پیشرفت تو فقط روی همین مرورگر ذخیره می‌شود و با آزمون‌ها، فلش‌کارت‌ها و مرور شبانه به‌روز می‌شود.</p>
+                    <div id="progress-root"></div>
+                </div>
+
                 <div id="tab-bookmarks" class="tab-content">
                     <p class="law-info">
                         موادی که با آیکون ⭐ نشان‌ کرده‌اید اینجا جمع می‌شوند تا سریع‌تر بهشان دسترسی داشته باشید.
                     </p>
+                    <div class="tab-actions"><button type="button" class="fc-btn fc-btn-primary" id="bookmarks-night-btn">🌙 مرور شبانه‌ی نشان‌شده‌ها</button></div>
                     <div id="bookmarks-list"></div>
                 </div>
 
