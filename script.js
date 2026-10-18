@@ -437,7 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (targetId === 'tab-bookmarks') renderBookmarksPage();
         if (targetId === 'tab-notes') renderNotesPage();
-        if (targetId === 'tab-quiz') initQuizTab();
         if (targetId === 'tab-progress') renderProgressPage();
         if (targetId === 'tab-dashboard') refreshDashboard();
         if (targetId === 'tab-flashcards' && fitFlashcardsFn) requestAnimationFrame(fitFlashcardsFn);
@@ -1057,316 +1056,396 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ----- 10. بخش فلش‌کارت -----
+    // =====================================================================
+    // ===== فلش‌کارت: مرور فاصله‌دار با جعبه‌ی لایتنر =====
+    // =====================================================================
     function setupFlashcards() {
-        const lawSelect = document.getElementById('flashcard-law-select');
-        const card = document.getElementById('flashcard');
-        const frontText = document.getElementById('flashcard-front-text');
-        const backText = document.getElementById('flashcard-back-text');
-        const nextBtn = document.getElementById('flashcard-next-btn');
-        const knowBtn = document.getElementById('flashcard-know-btn');
-        const boxBtn = document.getElementById('flashcard-box-btn');
-        const boxCountEl = document.getElementById('flashcard-box-count');
-        const boxView = document.getElementById('flashcard-box-view');
-        const boxList = document.getElementById('flashcard-box-list');
-        const boxCloseBtn = document.getElementById('flashcard-box-close');
-        const stage = document.getElementById('flashcard-stage');
-        const actions = document.querySelector('.flashcard-actions');
+        const $ = (id) => document.getElementById(id);
+        const lawSelect = $('flashcard-law-select');
+        const card = $('flashcard');
         if (!lawSelect || !card) return;
+        const frontText = $('flashcard-front-text'), backText = $('flashcard-back-text');
+        const starBtn = $('fc-star');
+        const R = { again: $('fc-again'), hard: $('fc-hard'), good: $('fc-good') };
+        const SUB = { again: $('fc-again-sub'), hard: $('fc-hard-sub'), good: $('fc-good-sub') };
+        const counterEl = $('fc-counter'), statsEl = $('fc-stats'), fill = $('fc-progress-fill');
+        const summaryEl = $('fc-summary'), rateRow = $('fc-rate'), footRow = document.querySelector('#tab-flashcards .fc-foot');
+        const stageEl = $('flashcard-stage');
+        const boxView = $('fc-box-view'), boxList = $('fc-box-list');
+        const modeChips = $('fc-mode-chips'), sizeChips = $('fc-size-chips'), dirBtn = $('fc-dir-btn');
 
-        const STORAGE_KEY = 'ilh_flashcard_known_box_v1';
-        let allCards = [];       // { id, lawTitle, articleWord, articleNumber, text }
-        let pool = [];           // کارت‌های فعلی بر اساس فیلتر قانون انتخابی
-        let currentCard = null;
-
-        function loadKnownBox() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                return raw ? JSON.parse(raw) : {};
-            } catch (e) { return {}; }
-        }
-        function saveKnownBox(box) {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(box)); } catch (e) { /* بی‌اهمیت */ }
-        }
-        let knownBox = loadKnownBox();
-
-        function updateBoxCount() {
-            boxCountEl.textContent = toPersianNumerals(Object.keys(knownBox).length);
-        }
-
-        // پرکردن منوی انتخاب قانون
+        // فهرست قوانین در منو (قانون مشکوک نمی‌آید)
         Object.keys(lawManifest).forEach(key => {
-            const opt = document.createElement('option');
-            opt.value = key;
-            opt.textContent = lawManifest[key].title;
-            lawSelect.appendChild(opt);
+            if (lawManifest[key].suspect) return;
+            const o = document.createElement('option');
+            o.value = key; o.textContent = lawManifest[key].title;
+            lawSelect.appendChild(o);
         });
 
-        function buildCardsFromLoadedData() {
-            allCards = [];
+        const DAY = 86400000;
+        const INTERVALS = [0, 1, 3, 7, 16, 35];            // فاصله‌ی مرور بر حسب روز برای هر جعبه
+        const SRS_KEY = 'ilh-fc-srs-v1', PREF_KEY = 'ilh-fc-prefs-v1', OLD_KEY = 'ilh_flashcard_known_box_v1';
+        const P = toPersianNumerals;
+
+        let allCards = [];
+        let srs = loadSrs();
+        const prefs = loadPrefs();
+        let session = null, current = null, flipped = false, ready = false;
+
+        // ---------- ذخیره‌سازی ----------
+        function loadSrs() {
+            let s = {};
+            try { s = JSON.parse(localStorage.getItem(SRS_KEY) || '{}') || {}; } catch (e) { s = {}; }
+            try {
+                if (!localStorage.getItem('ilh-fc-migrated')) {
+                    const old = JSON.parse(localStorage.getItem(OLD_KEY) || '{}') || {};
+                    Object.keys(old).forEach(id => { if (!s[id]) s[id] = { b: 4, d: Date.now() + 16 * DAY, n: 1, l: 0 }; });
+                    localStorage.setItem('ilh-fc-migrated', '1');
+                    localStorage.setItem(SRS_KEY, JSON.stringify(s));
+                }
+            } catch (e) { /* بی‌اهمیت */ }
+            return s;
+        }
+        function saveSrs() { try { localStorage.setItem(SRS_KEY, JSON.stringify(srs)); } catch (e) { /* */ } }
+        function loadPrefs() {
+            const d = { mode: 'due', size: 20, dir: 'num' };
+            try { return Object.assign(d, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')); } catch (e) { return d; }
+        }
+        function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (e) { /* */ } }
+
+        // ---------- ساخت کارت‌ها از داده‌ی قوانین ----------
+        function buildAllCards() {
+            const cards = [], seen = new Set();
             for (const lawKey in allLawsData) {
                 const lawInfo = lawManifest[lawKey];
-                if (!lawInfo) continue;
-                allLawsData[lawKey].forEach(fileData => {
-                    function walk(divisions) {
-                        divisions.forEach(div => {
-                            if (div.articles) {
-                                div.articles.forEach(art => {
-                                    if (!art.article_number || !(art.text || art.description)) return;
-                                    if (isRepealedText(art.text || art.description)) return; // مواد منسوخ در فلش‌کارت نمی‌آیند
-                                    allCards.push({
-                                        id: `${lawKey}::${fileData.fileInfo.path}::${art.article_number}`,
-                                        lawKey,
-                                        lawTitle: lawInfo.title,
-                                        articleWord: lawInfo.article_word || 'ماده',
-                                        articleNumber: art.article_number,
-                                        text: art.text || art.description || ''
-                                    });
+                if (!lawInfo || lawInfo.suspect) continue;
+                const word = lawInfo.article_word || 'ماده';
+                (allLawsData[lawKey] || []).forEach(fileData => {
+                    const filePath = fileData.fileInfo && fileData.fileInfo.path;
+                    (function walk(divs, section) {
+                        (divs || []).forEach(d => {
+                            const sec = d.title ? d.title : section;
+                            (d.articles || []).forEach(art => {
+                                const text = art.text || art.description || '';
+                                if (!art.article_number || !text.trim() || isRepealedText(text)) return;
+                                const id = `${lawKey}::${filePath}::${art.article_number}`;
+                                if (seen.has(id)) return; seen.add(id);
+                                const num = art.article_number;
+                                const isNum = !isNaN(parseInt(num));
+                                cards.push({
+                                    id, lawKey, lawTitle: lawInfo.title, word, number: num, section: sec || '',
+                                    label: isNum ? `${word} ${P(num)}` : P(String(num)),
+                                    plainLabel: isNum ? `${word} ${num}` : String(num),
+                                    bmId: `${lawKey}::${filePath}::${isNum ? `${word} ${num}` : String(num)}`,
+                                    text
                                 });
-                            }
-                            if (div.subdivisions) walk(div.subdivisions);
+                            });
+                            walk(d.subdivisions, sec);
                         });
-                    }
-                    if (fileData.data && fileData.data.divisions) walk(fileData.data.divisions);
+                    })(fileData.data && fileData.data.divisions, '');
                 });
             }
+            return cards;
         }
 
-        function refreshPool() {
-            const selected = lawSelect.value;
-            pool = allCards.filter(c => (selected === 'all' || c.lawKey === selected) && !knownBox[c.id]);
+        // ---------- نشان‌کردن ----------
+        const isStarred = (c) => isBookmarked(c.bmId);
+        function toggleStar() {
+            if (!current) return;
+            const list = getBookmarks();
+            const idx = list.findIndex(b => b.id === current.bmId);
+            if (idx > -1) { list.splice(idx, 1); saveBookmarks(list); showToast('از نشان‌شده‌ها حذف شد'); }
+            else {
+                list.unshift({ id: current.bmId, lawKey: current.lawKey, lawTitle: current.lawTitle, label: P(current.plainLabel), text: current.text });
+                saveBookmarks(list); showToast('⭐ به نشان‌شده‌ها اضافه شد');
+            }
+            paintStar();
+        }
+        function paintStar() {
+            if (!starBtn) return;
+            const on = current && isStarred(current);
+            starBtn.textContent = on ? '★' : '☆';
+            starBtn.classList.toggle('on', !!on);
         }
 
-        function showEmptyState(message) {
-            frontText.textContent = message;
-            backText.textContent = '';
-            card.classList.remove('flipped');
-            currentCard = null;
+        // ---------- ساخت جلسه ----------
+        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+        function pool() { const k = lawSelect.value; return allCards.filter(c => k === 'all' || !k || c.lawKey === k); }
+        function counts() {
+            const now = Date.now(); let due = 0, fresh = 0, mastered = 0, hard = 0;
+            pool().forEach(c => {
+                const r = srs[c.id];
+                if (!r) fresh++; else { if (r.d <= now) due++; if (r.b >= 4) mastered++; if (r.l > 0 && r.b <= 2) hard++; }
+            });
+            return { due, fresh, mastered, hard };
+        }
+        function buildQueue() {
+            const now = Date.now(), size = prefs.size > 0 ? prefs.size : 1e9, p = pool();
+            let q = [];
+            if (prefs.mode === 'due') {
+                const due = p.filter(c => srs[c.id] && srs[c.id].d <= now).sort((a, b) => srs[a.id].d - srs[b.id].d);
+                q = due.slice(0, size);
+                if (q.length < size) q = q.concat(shuffle(p.filter(c => !srs[c.id])).slice(0, size - q.length));
+            } else if (prefs.mode === 'all') q = shuffle(p.slice()).slice(0, size);
+            else if (prefs.mode === 'starred') q = shuffle(p.filter(isStarred)).slice(0, size);
+            else if (prefs.mode === 'hard') q = shuffle(p.filter(c => srs[c.id] && srs[c.id].l > 0 && srs[c.id].b <= 2)).slice(0, size);
+            return q;
+        }
+        function startSession(customQueue) {
+            const q = customQueue || buildQueue();
+            session = { queue: q.slice(), total: q.length, done: 0, rated: { again: 0, hard: 0, good: 0 }, missed: new Set(), reps: {} };
+            summaryEl.style.display = 'none';
+            if (!q.length) return showEmpty();
+            stageEl.style.display = ''; rateRow.style.display = ''; footRow.style.display = '';
+            nextCard();
+        }
+        function showEmpty() {
+            current = null; flipped = false; card.classList.remove('flipped');
+            const msg = {
+                due: 'امروز کارت سررسیدی نداری 🎉 می‌توانی «همه‌ی کارت‌ها» را مرور کنی.',
+                all: 'کارتی برای این قانون پیدا نشد.',
+                starred: 'هنوز ماده‌ای را نشان نکرده‌ای؛ با ☆ روی کارت‌ها یا ⭐ در متن قوانین نشان کن.',
+                hard: 'کارت سختی نداری 👌 هر کارتی که «دوباره» بزنی اینجا جمع می‌شود.'
+            }[prefs.mode];
+            frontText.textContent = ready ? msg : 'در حال آماده‌سازی کارت‌ها...';
+            backText.textContent = ''; setRateEnabled(false); paintStar(); updateProgress();
         }
 
-        function fitFace(face, max, min) {
-            if (!face || !face.clientHeight) return;
-            let fs = max;
-            face.style.fontSize = fs + 'px';
-            while (fs > min && face.scrollHeight > face.clientHeight + 1) { fs -= 1; face.style.fontSize = fs + 'px'; }
+        // ---------- نمایش کارت ----------
+        let fitFn = null;
+        function fit() {
+            [frontText, backText].forEach(el => {
+                const face = el.parentElement; if (!face) return;
+                el.style.fontSize = '';
+                let size = parseFloat(getComputedStyle(el).fontSize) || 18;
+                const max = face.clientHeight - 56;
+                let guard = 0;
+                while (el.scrollHeight > max && size > 12 && guard++ < 30) { size -= 1; el.style.fontSize = size + 'px'; }
+            });
         }
-        function fitFlashcards() {
-            fitFace(card.querySelector('.flashcard-front'), 30, 15);
-            fitFace(card.querySelector('.flashcard-back'), 21, 12);
-        }
-        fitFlashcardsFn = fitFlashcards;
-        window.addEventListener('resize', () => requestAnimationFrame(fitFlashcards));
-
-        let drawToken = 0;
-        function updateRemaining() {
-            const el = document.getElementById('flashcard-remaining');
-            if (el) el.textContent = pool.length ? `کارت‌های باقی‌مانده: ${toPersianNumerals(pool.length)}` : '';
-        }
-        function drawNextCard() {
-            refreshPool();
-            updateRemaining();
-            const token = ++drawToken;
-            const apply = () => {
-                if (token !== drawToken) return;
-                if (pool.length === 0) {
-                    showEmptyState('کارتی برای این قانون باقی نمانده — همه را بلدید یا هنوز داده‌ها بارگذاری نشده!');
-                    return;
-                }
-                const idx = Math.floor(Math.random() * pool.length);
-                currentCard = pool[idx];
-                const label = toPersianNumerals(currentCard.articleNumber);
-                frontText.innerHTML = `${currentCard.articleWord} ${label}<br><span class="fc-law-name">${currentCard.lawTitle}</span>`;
-                backText.innerHTML = toPersianNumerals(formatText(currentCard.text));
-                requestAnimationFrame(fitFlashcards);
-            };
-            // اگر کارت پشتش دیده می‌شود، اول کامل برمی‌گردد، بعد متن عوض می‌شود (جلوگیری از پرش شرح ماده بعدی)
-            if (card.classList.contains('flipped')) {
-                card.classList.remove('flipped');
-                setTimeout(apply, 380);
+        fitFn = fit; fitFlashcardsFn = fit;
+        function nextCard() {
+            if (!session || !session.queue.length) return finishSession();
+            current = session.queue[0]; flipped = false; card.classList.remove('flipped');
+            const c = current;
+            const sec = c.section ? `<br><span class="fc-section">${P(c.section)}</span>` : '';
+            if (prefs.dir === 'num') {
+                frontText.innerHTML = `${c.label}<br><span class="fc-law-name">${c.lawTitle}</span>${sec}`;
+                backText.innerHTML = P(formatText(c.text));
             } else {
-                apply();
+                const t = formatText(c.text.length > 380 ? c.text.slice(0, 380).replace(/\s+\S*$/, '') + '…' : c.text);
+                frontText.innerHTML = `<span class="fc-recall-text">${P(t)}</span>`;
+                backText.innerHTML = `${c.label}<br><span class="fc-law-name">${c.lawTitle}</span>${sec}<br><br>${P(formatText(c.text))}`;
             }
+            setRateEnabled(false); previewIntervals(); paintStar(); updateProgress();
+            requestAnimationFrame(fit);
+        }
+        function flip() {
+            if (!current) return;
+            flipped = !flipped; card.classList.toggle('flipped', flipped);
+            if (flipped) setRateEnabled(true);
+            requestAnimationFrame(fit);
+        }
+        function setRateEnabled(on) { Object.values(R).forEach(b => { b.disabled = !on; }); }
+        function humanDays(d) { return d <= 0 ? 'همین حالا' : d === 1 ? 'فردا' : `${P(d)} روز بعد`; }
+        function nextBox(rec, action) {
+            const b = rec ? rec.b : 0;
+            if (action === 'again') return 0;
+            if (action === 'hard') return Math.max(1, b);
+            return Math.min(5, b + 1);
+        }
+        function previewIntervals() {
+            if (!current) return;
+            const rec = srs[current.id];
+            SUB.again.textContent = 'همین حالا';
+            SUB.hard.textContent = 'فردا';
+            SUB.good.textContent = humanDays(INTERVALS[nextBox(rec, 'good')]);
         }
 
-        card.addEventListener('click', () => {
-            if (!currentCard) return;
-            card.classList.toggle('flipped');
-        });
+        // ---------- امتیازدهی ----------
+        function rate(action) {
+            if (!current || !flipped || !session) return;
+            const c = current, now = Date.now();
+            const old = srs[c.id] || { b: 0, d: now, n: 0, l: 0 };
+            const rec = { b: nextBox(old, action), n: (old.n || 0) + 1, l: old.l || 0, d: now };
+            if (action === 'again') { rec.l++; rec.d = now; }
+            else if (action === 'hard') rec.d = now + DAY;
+            else rec.d = now + INTERVALS[rec.b] * DAY;
+            srs[c.id] = rec; saveSrs();
+            recordFlashcardReview(action);
+            session.queue.shift();
+            session.rated[action]++;
+            if (action === 'again') {
+                session.missed.add(c.id);
+                session.reps[c.id] = (session.reps[c.id] || 0) + 1;
+                if (session.reps[c.id] < 3) session.queue.splice(Math.min(3, session.queue.length), 0, c);
+                else session.done++;
+            } else session.done++;
+            nextCard();
+        }
+        function skip() {
+            if (!session || !current) return;
+            session.queue.push(session.queue.shift());
+            if (session.queue.length === 1) return flip();
+            nextCard();
+        }
 
-        nextBtn.addEventListener('click', drawNextCard);
-
-        knowBtn.addEventListener('click', () => {
-            if (!currentCard) return;
-            knownBox[currentCard.id] = {
-                lawTitle: currentCard.lawTitle,
-                articleWord: currentCard.articleWord,
-                articleNumber: currentCard.articleNumber,
-                text: currentCard.text
-            };
-            saveKnownBox(knownBox);
-            updateBoxCount();
-            drawNextCard();
-        });
-
-        lawSelect.addEventListener('change', () => {
-            if (allCards.length === 0 && isDataLoaded) buildCardsFromLoadedData();
-            drawNextCard();
-        });
-
-        function renderBox() {
-            const entries = Object.entries(knownBox);
-            if (entries.length === 0) {
-                boxList.innerHTML = '<div class="flashcard-box-empty">جعبه هنوز خالیه — کارتی که بلد بودید را با دکمه «بلدم» به اینجا بفرستید.</div>';
-                return;
-            }
-            boxList.innerHTML = entries.map(([id, c]) => {
-                const isNum = !isNaN(parseInt(c.articleNumber));
-                const label = toPersianNumerals(c.articleNumber);
-                return `
-                <div class="flashcard-box-item" data-id="${id}">
-                    <div class="flashcard-box-item-head">
-                        <span>${c.articleWord} ${label} — ${c.lawTitle}</span>
-                        <button class="flashcard-box-remove" type="button" data-remove="${id}">حذف از جعبه</button>
-                    </div>
-                    <div class="flashcard-box-item-body">${toPersianNumerals(formatText(c.text))}</div>
+        // ---------- پایان جلسه ----------
+        function finishSession() {
+            current = null; flipped = false; card.classList.remove('flipped');
+            stageEl.style.display = 'none'; rateRow.style.display = 'none'; footRow.style.display = 'none';
+            const r = session.rated, total = r.again + r.hard + r.good;
+            const missed = session.missed.size;
+            summaryEl.innerHTML = `
+                <div class="fc-summary-emoji">${missed === 0 ? '🎉' : '👏'}</div>
+                <h3>جلسه تمام شد</h3>
+                <p>${P(total)} بار مرور شد: <b class="g">${P(r.good)}</b> بلدم، <b class="o">${P(r.hard)}</b> سخت، <b class="r">${P(r.again)}</b> دوباره.</p>
+                <div class="fc-summary-actions">
+                    ${missed ? `<button type="button" class="fc-btn fc-btn-primary" id="fc-redo-missed">🔁 مرور دوباره‌ی ${P(missed)} کارت اشتباه</button>` : ''}
+                    <button type="button" class="fc-btn" id="fc-new-session">جلسه‌ی جدید</button>
                 </div>`;
-            }).join('');
+            summaryEl.style.display = 'block'; setRateEnabled(false); updateProgress(true);
+            const missedIds = [...session.missed];
+            const redo = $('fc-redo-missed');
+            if (redo) redo.addEventListener('click', () => startSession(missedIds.map(id => allCards.find(c => c.id === id)).filter(Boolean)));
+            $('fc-new-session').addEventListener('click', () => startSession());
         }
 
-        boxBtn.addEventListener('click', () => {
-            const showing = boxView.style.display !== 'none';
-            if (showing) {
-                boxView.style.display = 'none';
-                stage.style.display = 'flex';
-                actions.style.display = 'flex';
-            } else {
-                renderBox();
-                boxView.style.display = 'block';
-                stage.style.display = 'none';
-                actions.style.display = 'none';
-            }
+        // ---------- نوار پیشرفت و آمار ----------
+        function updateProgress(done) {
+            const c = counts();
+            statsEl.textContent = ` · سررسید: ${P(c.due)} · جدید: ${P(c.fresh)} · مسلط: ${P(c.mastered)}`;
+            if (!session || !session.total) { counterEl.textContent = ready ? '' : 'در حال آماده‌سازی…'; fill.style.width = '0%'; return; }
+            const n = Math.min(session.done + (done ? 0 : 1), session.total);
+            counterEl.textContent = done ? `${P(session.total)} از ${P(session.total)}` : `کارت ${P(n)} از ${P(session.total)}`;
+            fill.style.width = Math.round(session.done / session.total * 100) + '%';
+        }
+
+        // ---------- جعبه‌ها ----------
+        function renderBoxes() {
+            const rows = new Array(6).fill(0); let fresh = 0;
+            const p = pool();
+            p.forEach(c => { const r = srs[c.id]; if (!r) fresh++; else rows[r.b]++; });
+            const names = ['جعبه ۰ — اشتباه یا تازه‌اشتباه', 'جعبه ۱ — مرور فردا', 'جعبه ۲ — مرور ۳ روزه', 'جعبه ۳ — مرور هفتگی', 'جعبه ۴ — مرور ۱۶ روزه', 'جعبه ۵ — مرور ماهانه (مسلط)'];
+            const max = Math.max(1, fresh, ...rows);
+            boxList.innerHTML = `
+                <div class="fc-box-row"><span>دیده‌نشده</span><div class="progress-track"><div class="progress-fill" style="width:${Math.round(fresh / max * 100)}%"></div></div><b>${P(fresh)}</b></div>` +
+                rows.map((n, i) => `<div class="fc-box-row"><span>${names[i]}</span><div class="progress-track"><div class="progress-fill ${i === 0 ? 'low' : ''}" style="width:${Math.round(n / max * 100)}%"></div></div><b>${P(n)}</b></div>`).join('') +
+                `<div class="fc-box-actions"><button type="button" class="fc-btn fc-btn-outline" id="fc-reset">پاک‌کردن پیشرفت این فهرست</button></div>`;
+            $('fc-reset').addEventListener('click', () => {
+                if (!confirm('پیشرفت مرور کارت‌های همین فهرست پاک شود؟')) return;
+                p.forEach(c => { delete srs[c.id]; }); saveSrs(); renderBoxes(); updateProgress(); startSession();
+            });
+        }
+
+        // ---------- رویدادها ----------
+        card.addEventListener('click', (e) => { if (!card._swiped) flip(); card._swiped = false; });
+        card.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); flip(); } });
+        R.again.addEventListener('click', () => rate('again'));
+        R.hard.addEventListener('click', () => rate('hard'));
+        R.good.addEventListener('click', () => rate('good'));
+        $('fc-skip').addEventListener('click', skip);
+        if (starBtn) starBtn.addEventListener('click', toggleStar);
+        lawSelect.addEventListener('change', () => { startSession(); });
+        modeChips.addEventListener('click', (e) => {
+            const b = e.target.closest('.chip'); if (!b) return;
+            prefs.mode = b.dataset.mode; savePrefs(); markChips(); startSession();
         });
-        boxCloseBtn.addEventListener('click', () => {
-            boxView.style.display = 'none';
-            stage.style.display = 'flex';
-            actions.style.display = 'flex';
+        sizeChips.addEventListener('click', (e) => {
+            const b = e.target.closest('.chip'); if (!b) return;
+            prefs.size = parseInt(b.dataset.size, 10); savePrefs(); markChips(); startSession();
+        });
+        dirBtn.addEventListener('click', () => { prefs.dir = prefs.dir === 'num' ? 'text' : 'num'; savePrefs(); markChips(); if (session && current) nextCard(); });
+        $('fc-boxes-btn').addEventListener('click', () => { const open = boxView.style.display === 'none'; boxView.style.display = open ? 'block' : 'none'; if (open) renderBoxes(); });
+        $('fc-box-close').addEventListener('click', () => { boxView.style.display = 'none'; });
+        function markChips() {
+            modeChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.mode === prefs.mode));
+            sizeChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', parseInt(c.dataset.size, 10) === prefs.size));
+            dirBtn.textContent = prefs.dir === 'num' ? '🔁 شماره ← متن' : '🔁 متن ← شماره';
+        }
+        markChips();
+
+        // میان‌برهای صفحه‌کلید
+        document.addEventListener('keydown', (e) => {
+            const tab = document.getElementById('tab-flashcards');
+            if (!tab || !tab.classList.contains('active')) return;
+            if (/INPUT|TEXTAREA|SELECT/.test((e.target.tagName || ''))) return;
+            const key = e.key.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+            if (key === ' ') { e.preventDefault(); flip(); }
+            else if (key === '1') rate('again');
+            else if (key === '2') rate('hard');
+            else if (key === '3') rate('good');
+            else if (key === 's' || key === 'S') toggleStar();
         });
 
-        boxList.addEventListener('click', (e) => {
-            const removeBtn = e.target.closest('[data-remove]');
-            if (removeBtn) {
-                delete knownBox[removeBtn.dataset.remove];
-                saveKnownBox(knownBox);
-                updateBoxCount();
-                renderBox();
-                return;
-            }
-            const head = e.target.closest('.flashcard-box-item-head');
-            if (head) {
-                head.parentElement.classList.toggle('open');
-            }
+        // کشیدن: راست = بلدم، چپ = دوباره (فقط وقتی کارت چرخیده)
+        let sx = 0, sy = 0, tracking = false;
+        card.addEventListener('pointerdown', (e) => { sx = e.clientX; sy = e.clientY; tracking = true; card._swiped = false; });
+        card.addEventListener('pointerup', (e) => {
+            if (!tracking) return; tracking = false;
+            const dx = e.clientX - sx, dy = e.clientY - sy;
+            if (flipped && Math.abs(dx) > 90 && Math.abs(dx) > Math.abs(dy) * 1.6) { card._swiped = true; rate(dx > 0 ? 'good' : 'again'); }
         });
+        card.addEventListener('pointercancel', () => { tracking = false; });
+        window.addEventListener('resize', () => requestAnimationFrame(fit));
 
-        updateBoxCount();
-        showEmptyState('در حال آماده‌سازی کارت‌ها...');
-
-        // وقتی دیتابیس جستجو (که همه‌ی قوانین را می‌خواند) آماده شد، کارت‌ها را بساز
-        const waitForData = setInterval(() => {
-            if (isDataLoaded) {
-                clearInterval(waitForData);
-                buildCardsFromLoadedData();
-                drawNextCard();
-            }
-        }, 400);
+        // ---------- راه‌اندازی بعد از بارگذاری داده‌ها ----------
+        window.ilhFlash = {
+            open(lawKey, mode) {
+                if (lawKey) lawSelect.value = lawKey;
+                if (mode) { prefs.mode = mode; savePrefs(); markChips(); }
+                if (ready) startSession();
+            },
+            setMode(mode) { prefs.mode = mode; savePrefs(); markChips(); if (ready) startSession(); }
+        };
+        function init() {
+            allCards = buildAllCards(); ready = true;
+            startSession();
+        }
+        showEmpty();
+        const waiter = setInterval(() => { if (isDataLoaded) { clearInterval(waiter); init(); } }, 300);
     }
 
-    // ----- ۱۰. بخش آزمون -----
+    // ----- ۱۰. (حذف‌شده) -----
 
     // =====================================================================
-    // ===== آمار پیشرفت، آزمون هوشمند، مرور شبانه و PWA =====
+    // ===== آمار پیشرفت، مرور شبانه و PWA =====
     // =====================================================================
     function isRepealedText(t) { return /^\s*[\(\[]\s*(منسوخ|منقضی)/.test(t || ''); }
     const STATS_KEY = 'ilh-stats-v1';
     function loadStats() {
         try {
             const s = JSON.parse(localStorage.getItem(STATS_KEY) || 'null');
-            if (s && s.items && s.daily) { s.laws = s.laws || {}; return s; }
+            if (s && s.daily) return s;
         } catch (e) { /* خراب بود: از نو */ }
-        return { items: {}, daily: {}, laws: {}, nights: 0, nightCards: 0 };
+        return { daily: {}, nights: 0, nightCards: 0 };
     }
     function saveStats(s) { try { localStorage.setItem(STATS_KEY, JSON.stringify(s)); } catch (e) { /* بی‌اهمیت */ } }
-    function hashStr(str) { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
-    function qId(q) { return hashStr(q.question + '|' + q.correctAnswer); }
     function dayKey(d) { d = d || new Date(); const p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
-    function getQuizCount() { const n = parseInt(localStorage.getItem('ilh-quiz-count'), 10); return [10, 20, 30].includes(n) ? n : 10; }
-
-    function recordAnswer(q, lawKey, ok) {
+    function recordFlashcardReview(action) {
         const s = loadStats();
-        const id = qId(q);
-        const it = s.items[id] || { w: 0, c: 0, streak: 0 };
-        it.last = Date.now();
-        if (lawKey && lawKey !== '__all__') it.law = lawKey;
-        if (ok) { it.c++; it.streak++; if (it.q && it.streak >= 2) delete it.q; }
-        else { it.w++; it.streak = 0; it.q = { question: q.question, options: q.options, correctAnswer: q.correctAnswer }; }
-        s.items[id] = it;
-        const d = dayKey();
-        const day = s.daily[d] || { a: 0, c: 0, n: 0 };
-        day.a++; if (ok) day.c++;
-        s.daily[d] = day;
-        if (lawKey && lawKey !== '__all__') {
-            const lw = s.laws[lawKey] || { a: 0, c: 0 };
-            lw.a++; if (ok) lw.c++;
-            s.laws[lawKey] = lw;
-        }
-        const ids = Object.keys(s.items);
-        if (ids.length > 1500) {
-            ids.filter(i => !s.items[i].q).sort((a, b) => (s.items[a].last || 0) - (s.items[b].last || 0))
-                .slice(0, ids.length - 1200).forEach(i => delete s.items[i]);
-        }
+        const day = s.daily[dayKey()] || { f: 0, g: 0, n: 0 };
+        day.f = (day.f || 0) + 1;
+        if (action === 'good') day.g = (day.g || 0) + 1;
+        s.daily[dayKey()] = day;
         saveStats(s);
     }
     function recordNightReview(n) {
         if (!n) return;
         const s = loadStats();
-        const d = dayKey();
-        const day = s.daily[d] || { a: 0, c: 0, n: 0 };
+        const day = s.daily[dayKey()] || { f: 0, g: 0, n: 0 };
         day.n = (day.n || 0) + n;
-        s.daily[d] = day;
+        s.daily[dayKey()] = day;
         s.nights = (s.nights || 0) + 1;
         s.nightCards = (s.nightCards || 0) + n;
         saveStats(s);
-    }
-    function getWrongBank(lawKey) {
-        const s = loadStats();
-        return Object.entries(s.items)
-            .filter(([, it]) => it.q && (!lawKey || lawKey === '__all__' || it.law === lawKey))
-            .map(([, it]) => Object.assign({ _law: it.law }, it.q));
-    }
-    function questionWeight(stats, q) {
-        const it = stats.items[qId(q)];
-        if (!it) return 2;                                   // هنوز ندیده
-        let w = 1 + it.w * 0.6;
-        if (it.streak === 0) w += 2;                         // آخرین بار غلط بوده
-        w -= Math.min(it.streak, 3) * 0.35;                  // پشت‌سرهم درست = کمتر بیاید
-        w += Math.min(2, (Date.now() - (it.last || 0)) / 86400000 * 0.1); // مدتی ندیده = کمی بیشتر
-        return Math.max(0.15, w);
-    }
-    function weightedSample(list, n, weightFn) {
-        const pool = list.map(x => ({ x, w: weightFn(x) }));
-        const out = [];
-        while (out.length < n && pool.length) {
-            const total = pool.reduce((a, p) => a + p.w, 0);
-            let r = Math.random() * total, i = 0;
-            for (; i < pool.length - 1; i++) { r -= pool[i].w; if (r <= 0) break; }
-            out.push(pool.splice(i, 1)[0].x);
-        }
-        return out;
     }
     function goTab(id) { const el = document.querySelector('.tab-link[data-tab="' + id + '"]'); if (el) el.click(); }
 
     // ----- صفحه‌ی آمار پیشرفت -----
     const WD = ['ی', 'د', 'س', 'چ', 'پ', 'ج', 'ش'];
     function computeStreak(daily) {
-        const active = k => daily[k] && ((daily[k].a || 0) > 0 || (daily[k].n || 0) > 0);
+        const active = k => daily[k] && ((daily[k].f || 0) > 0 || (daily[k].n || 0) > 0);
         const d = new Date();
         if (!active(dayKey(d))) d.setDate(d.getDate() - 1);
         let n = 0;
@@ -1377,73 +1456,79 @@ document.addEventListener('DOMContentLoaded', () => {
         const root = document.getElementById('progress-root');
         if (!root) return;
         const s = loadStats();
-        const days = Object.values(s.daily);
-        const totalA = days.reduce((a, d) => a + (d.a || 0), 0);
-        const totalC = days.reduce((a, d) => a + (d.c || 0), 0);
-        const acc = totalA ? Math.round(totalC / totalA * 100) : 0;
-        const items = Object.values(s.items);
-        const mastered = items.filter(i => i.streak >= 2).length;
-        const wrongActive = items.filter(i => i.q).length;
-        let known = 0;
-        try { known = Object.keys(JSON.parse(localStorage.getItem('ilh_flashcard_known_box_v1') || '{}')).length; } catch (e) { /* */ }
-        const streak = computeStreak(s.daily);
         const P = toPersianNumerals;
+        let srs = {};
+        try { srs = JSON.parse(localStorage.getItem('ilh-fc-srs-v1') || '{}') || {}; } catch (e) { srs = {}; }
+        const now = Date.now();
+        const recs = Object.entries(srs);
+        const days = Object.values(s.daily);
+        const totalReviews = days.reduce((a, d) => a + (d.f || 0), 0);
+        const totalGood = days.reduce((a, d) => a + (d.g || 0), 0);
+        const today = s.daily[dayKey()] || { f: 0, g: 0, n: 0 };
+        const dueNow = recs.filter(([, r]) => r.d <= now).length;
+        const mastered = recs.filter(([, r]) => r.b >= 4).length;
+        const hard = recs.filter(([, r]) => r.l > 0 && r.b <= 2).length;
+        const streak = computeStreak(s.daily);
+        const acc = totalReviews ? Math.round(totalGood / totalReviews * 100) : 0;
 
-        // نمودار ۷ روز اخیر
         const week = [];
         for (let i = 6; i >= 0; i--) {
             const d = new Date(); d.setDate(d.getDate() - i);
-            const rec = s.daily[dayKey(d)] || { a: 0, c: 0, n: 0 };
-            week.push({ label: WD[d.getDay()], a: rec.a || 0, c: rec.c || 0, n: rec.n || 0, today: i === 0 });
+            const rec = s.daily[dayKey(d)] || { f: 0, g: 0, n: 0 };
+            week.push({ label: WD[d.getDay()], f: rec.f || 0, g: rec.g || 0, n: rec.n || 0, today: i === 0 });
         }
-        const maxA = Math.max(5, ...week.map(w => w.a));
+        const maxF = Math.max(5, ...week.map(w => w.f));
         const bars = week.map(w => {
-            const h = Math.round(w.a / maxA * 100), hc = w.a ? Math.round(w.c / w.a * h) : 0;
-            return `<div class="pg-bar${w.today ? ' today' : ''}" title="${P(w.a)} پاسخ، ${P(w.c)} درست${w.n ? '، ' + P(w.n) + ' کارت شبانه' : ''}">
-                <span class="pg-bar-num">${w.a ? P(w.a) : ''}</span>
-                <div class="pg-bar-col"><div class="pg-bar-wrong" style="height:${h}%"><div class="pg-bar-right" style="height:${h ? Math.round(hc / h * 100) : 0}%"></div></div></div>
+            const h = Math.round(w.f / maxF * 100), hg = w.f ? Math.round(w.g / w.f * h) : 0;
+            return `<div class="pg-bar${w.today ? ' today' : ''}" title="${P(w.f)} مرور، ${P(w.g)} بلدم${w.n ? '، ' + P(w.n) + ' کارت شبانه' : ''}">
+                <span class="pg-bar-num">${w.f ? P(w.f) : ''}</span>
+                <div class="pg-bar-col"><div class="pg-bar-wrong" style="height:${h}%"><div class="pg-bar-right" style="height:${h ? Math.round(hg / h * 100) : 0}%"></div></div></div>
                 <span class="pg-bar-day">${w.label}</span>${w.n ? '<span class="pg-bar-moon">🌙</span>' : ''}</div>`;
         }).join('');
 
-        // ضعیف‌ترین قوانین
-        const weak = Object.entries(s.laws)
-            .filter(([k, v]) => v.a >= 3 && lawManifest[k])
-            .map(([k, v]) => ({ k, a: v.a, pct: Math.round(v.c / v.a * 100) }))
-            .sort((x, y) => x.pct - y.pct).slice(0, 5);
-        const weakHtml = weak.length ? weak.map(w => `
-            <div class="pg-law">
-                <div class="pg-law-head"><span>${lawManifest[w.k].title}</span><b>${P(w.pct)}٪</b></div>
-                <div class="progress-track"><div class="progress-fill ${w.pct < 50 ? 'low' : ''}" style="width:${w.pct}%"></div></div>
-                <button type="button" class="pg-link" data-practice="${w.k}">تمرین هوشمند این قانون ←</button>
-            </div>`).join('') : '<p class="pg-empty">هنوز برای هیچ قانونی حداقل ۳ پاسخ ثبت نشده. چند آزمون بده تا نقاط ضعف نشان داده شود.</p>';
+        // تسلط به تفکیک قانون
+        const byLaw = {};
+        recs.forEach(([id, r]) => {
+            const k = id.split('::')[0]; if (!lawManifest[k]) return;
+            const o = byLaw[k] || { seen: 0, mastered: 0 };
+            o.seen++; if (r.b >= 3) o.mastered++; byLaw[k] = o;
+        });
+        const lawRows = Object.entries(byLaw).filter(([, v]) => v.seen >= 3).sort((a, b) => b[1].seen - a[1].seen).slice(0, 6);
+        const lawHtml = lawRows.length ? lawRows.map(([k, v]) => {
+            const pct = Math.round(v.mastered / v.seen * 100);
+            return `<div class="pg-law">
+                <div class="pg-law-head"><span>${lawManifest[k].title}</span><b>${P(pct)}٪ مسلط (${P(v.mastered)} از ${P(v.seen)})</b></div>
+                <div class="progress-track"><div class="progress-fill ${pct < 40 ? 'low' : ''}" style="width:${pct}%"></div></div>
+                <button type="button" class="pg-link" data-open-law="${k}">مرور این قانون ←</button></div>`;
+        }).join('') : '<p class="pg-empty">هنوز برای هیچ قانونی حداقل ۳ کارت مرور نشده. چند جلسه فلش‌کارت بزن تا میزان تسلط نشان داده شود.</p>';
 
         root.innerHTML = `
             <div class="pg-grid">
-                <div class="pg-card"><b>${P(totalA)}</b><span>پاسخ ثبت‌شده</span></div>
-                <div class="pg-card"><b>${P(acc)}٪</b><span>درصد پاسخ درست</span></div>
+                <div class="pg-card"><b>${P(totalReviews)}</b><span>مرور فلش‌کارت</span></div>
+                <div class="pg-card"><b>${P(acc)}٪</b><span>پاسخ «بلدم»</span></div>
+                <div class="pg-card"><b>${P(today.f || 0)}</b><span>مرور امروز</span></div>
+                <div class="pg-card"><b>${P(dueNow)}</b><span>سررسید مرور</span></div>
+                <div class="pg-card"><b>${P(mastered)}</b><span>کارت مسلط</span></div>
                 <div class="pg-card"><b>${P(streak)}</b><span>روز پیاپی فعالیت 🔥</span></div>
-                <div class="pg-card"><b>${P(mastered)}</b><span>سؤال مسلط‌شده</span></div>
-                <div class="pg-card"><b>${P(known)}</b><span>کارت «بلدم»</span></div>
-                <div class="pg-card"><b>${P(s.nightCards || 0)}</b><span>کارت مرور شبانه 🌙</span></div>
             </div>
             <h3 class="pg-title">۷ روز اخیر</h3>
             <div class="pg-chart">${bars}</div>
-            <div class="pg-legend"><span><i class="lg-right"></i> درست</span><span><i class="lg-wrong"></i> اشتباه</span></div>
-            <h3 class="pg-title">قوانینی که بیشتر نیاز به تمرین دارند</h3>
-            ${weakHtml}
+            <div class="pg-legend"><span><i class="lg-right"></i> بلدم</span><span><i class="lg-wrong"></i> سایر</span><span>🌙 کارت شبانه: ${P(s.nightCards || 0)}</span></div>
+            <h3 class="pg-title">تسلط به تفکیک قانون</h3>
+            ${lawHtml}
             <div class="pg-actions">
-                <button type="button" class="fc-btn fc-btn-primary" id="pg-smart">🧠 آزمون هوشمند</button>
-                <button type="button" class="fc-btn" id="pg-wrong">🔁 مرور اشتباه‌ها (${P(wrongActive)})</button>
+                <button type="button" class="fc-btn fc-btn-primary" id="pg-due">🃏 مرور امروز</button>
+                <button type="button" class="fc-btn" id="pg-hard">🔥 سخت‌ها (${P(hard)})</button>
                 <button type="button" class="fc-btn" id="pg-night">🌙 مرور شبانه</button>
                 <button type="button" class="fc-btn fc-btn-outline" id="pg-reset">پاک‌کردن آمار</button>
             </div>`;
-        root.querySelectorAll('[data-practice]').forEach(b => b.addEventListener('click', () => { goTab('tab-quiz'); window.ilhQuiz && window.ilhQuiz.practice(b.dataset.practice, 'smart'); }));
-        const go = (mode) => { goTab('tab-quiz'); window.ilhQuiz && window.ilhQuiz.setMode(mode, '__all__'); };
-        document.getElementById('pg-smart').addEventListener('click', () => go('smart'));
-        document.getElementById('pg-wrong').addEventListener('click', () => go('wrong'));
+        const openFlash = (law, mode) => { goTab('tab-flashcards'); window.ilhFlash && window.ilhFlash.open(law, mode); };
+        root.querySelectorAll('[data-open-law]').forEach(b => b.addEventListener('click', () => openFlash(b.dataset.openLaw, 'all')));
+        document.getElementById('pg-due').addEventListener('click', () => openFlash('all', 'due'));
+        document.getElementById('pg-hard').addEventListener('click', () => openFlash('all', 'hard'));
         document.getElementById('pg-night').addEventListener('click', () => openNight());
         document.getElementById('pg-reset').addEventListener('click', () => {
-            if (confirm('همه‌ی آمار پیشرفت و فهرست اشتباه‌ها پاک شود؟ (نشان‌شده‌ها و یادداشت‌ها دست‌نخورده می‌ماند)')) {
+            if (confirm('آمار روزانه‌ی مرور پاک شود؟ (جعبه‌های فلش‌کارت، نشان‌شده‌ها و یادداشت‌ها دست‌نخورده می‌ماند)')) {
                 localStorage.removeItem(STATS_KEY); renderProgressPage(); showToast('آمار پاک شد');
             }
         });
@@ -1513,6 +1598,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const all = [];
         if (isDataLoaded) {
             for (const k in allLawsData) {
+                if (lawManifest[k] && lawManifest[k].suspect) continue;
                 const w = (lawManifest[k] && lawManifest[k].article_word) || 'ماده';
                 (allLawsData[k] || []).forEach(f => {
                     (function walk(divs) {
@@ -1604,17 +1690,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('visibilitychange', () => { if (!document.hidden && nr.phase === 'card' && nightEl && !nightEl.hidden && !nr.wake && 'wakeLock' in navigator) navigator.wakeLock.request('screen').then(w => { nr.wake = w; }).catch(() => {}); });
 
     // ----- تنظیمات: تعداد سؤال -----
-    function setupQuizCountSetting() {
-        const box = document.getElementById('quiz-count-chips');
-        if (!box) return;
-        const mark = () => box.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', parseInt(c.dataset.count, 10) === getQuizCount()));
-        box.addEventListener('click', (e) => {
-            const c = e.target.closest('.chip'); if (!c) return;
-            try { localStorage.setItem('ilh-quiz-count', c.dataset.count); } catch (err) { /* */ }
-            mark(); showToast('تعداد سؤال آزمون: ' + toPersianNumerals(c.dataset.count));
-        });
-        mark();
-    }
 
     // ----- PWA: نصب و دانلود آفلاین -----
     let deferredInstall = null;
@@ -1672,254 +1747,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const tab = p.get('tab');
         if (tab && document.getElementById('tab-' + tab)) {
             goTab('tab-' + tab);
-            if (tab === 'quiz' && window.ilhQuiz && ['smart', 'wrong', 'normal'].includes(p.get('mode'))) window.ilhQuiz.setMode(p.get('mode'), '__all__');
         }
+        if (tab === 'flashcards' && window.ilhFlash && ['due', 'all', 'starred', 'hard'].includes(p.get('mode'))) window.ilhFlash.setMode(p.get('mode'));
         if (p.get('night') === '1') openNight();
     }
-
-    function setupQuiz() {
-        const lawSelect = document.getElementById('quiz-law-select');
-        const scoreEl = document.getElementById('quiz-score');
-        const emptyMsg = document.getElementById('quiz-empty-msg');
-        const questionBox = document.getElementById('quiz-question-box');
-        const questionText = document.getElementById('quiz-question-text');
-        const optionsList = document.getElementById('quiz-options-list');
-        const checkBtn = document.getElementById('quiz-check-btn');
-        const nextBtn = document.getElementById('quiz-next-btn');
-        const resultBox = document.getElementById('quiz-result-box');
-        const resultText = document.getElementById('quiz-result-text');
-        const restartBtn = document.getElementById('quiz-restart-btn');
-        if (!lawSelect) return;
-
-        let currentLawKey = null;
-        let questions = [];
-        let qIndex = 0;
-        let correctCount = 0;
-        let answered = false;
-        let selectedIndex = null;
-
-        function populateLawSelect() {
-            const keys = Object.keys(lawManifest);
-            lawSelect.innerHTML = '';
-            if (keys.length === 0) {
-                lawSelect.innerHTML = '<option value="">فعلاً سؤالی آماده نشده</option>';
-                currentLawKey = null;
-                return;
-            }
-            const all = document.createElement('option');
-            all.value = '__all__';
-            all.textContent = 'همه‌ی قوانین';
-            lawSelect.appendChild(all);
-            keys.forEach(k => {
-                const opt = document.createElement('option');
-                opt.value = k;
-                opt.textContent = lawManifest[k].title;
-                lawSelect.appendChild(opt);
-            });
-            currentLawKey = keys[0];
-            lawSelect.value = currentLawKey;
-        }
-
-        // ساخت خودکار سؤال از متن واقعی مواد (همیشه درست؛ چون از خود فایل قانون ساخته می‌شود)
-        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-        function snippet(s, n) { s = s.replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n).replace(/\s+\S*$/, '') + '…' : s; }
-        function buildGeneratedQuestions(lawKey, count) {
-            const lawInfo = lawManifest[lawKey];
-            const items = [];
-            (allLawsData[lawKey] || []).forEach(fd => {
-                (function walk(divs) {
-                    (divs || []).forEach(d => {
-                        (d.articles || []).forEach(a => {
-                            const txt = (a.text || a.description || '').trim();
-                            if (a.article_number && txt.length >= 80 && !isRepealedText(txt)) items.push({ label: `${lawInfo.article_word || 'ماده'} ${toPersianNumerals(a.article_number)}`, text: txt });
-                        });
-                        walk(d.subdivisions);
-                    });
-                })(fd.data && fd.data.divisions);
-            });
-            if (items.length < 4) return [];
-            const seen = new Set(), pool = items.filter(i => !seen.has(i.label) && seen.add(i.label));
-            const qs = [];
-            shuffle(pool.slice()).slice(0, count).forEach((it, n) => {
-                const others = shuffle(pool.filter(o => o.label !== it.label)).slice(0, 3);
-                if (n % 2 === 0) {
-                    const opts = shuffle([it.label, ...others.map(o => o.label)]);
-                    qs.push({ question: `متن زیر مربوط به کدام ماده است؟\n«${snippet(it.text, 200)}»`, options: opts, correctAnswer: it.label });
-                } else {
-                    const mk = o => snippet(o.text, 110);
-                    const opts = shuffle([mk(it), ...others.map(mk)]);
-                    qs.push({ question: `کدام گزینه آغاز «${it.label} ${lawInfo.title}» است؟`, options: opts, correctAnswer: mk(it) });
-                }
-            });
-            return qs;
-        }
-
-        function updateScoreLabel() {
-            scoreEl.textContent = `امتیاز: ${toPersianNumerals(correctCount)} از ${toPersianNumerals(qIndex + (answered ? 1 : 0))}`;
-        }
-
-        function showQuestion() {
-            answered = false;
-            selectedIndex = null;
-            const q = questions[qIndex];
-            questionText.textContent = `${toPersianNumerals(qIndex + 1)}. ${q.question}`; questionText.style.whiteSpace = 'pre-line';
-            const opts = q.options || [];
-            optionsList.innerHTML = '';
-            opts.forEach((optText, i) => {
-                const optEl = document.createElement('label');
-                optEl.className = 'quiz-option';
-                optEl.innerHTML = `<input type="radio" name="quiz-opt"><span class="quiz-radio-dot"></span><span class="quiz-opt-text"></span>`;
-                optEl.querySelector('.quiz-opt-text').textContent = optText;
-                optEl.addEventListener('click', () => {
-                    if (answered) return;
-                    optionsList.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
-                    optEl.classList.add('selected');
-                    optEl.querySelector('input').checked = true;
-                    selectedIndex = i;
-                });
-                optionsList.appendChild(optEl);
-            });
-            checkBtn.style.display = 'inline-block';
-            nextBtn.style.display = 'none';
-            updateScoreLabel();
-        }
-
-        let quizMode = 'normal';
-        let startToken = 0;
-        let sessionWrong = 0;
-        const modeChips = document.getElementById('quiz-mode-chips');
-        const modeHint = document.getElementById('quiz-mode-hint');
-        const wrongBadge = document.getElementById('quiz-wrong-count');
-        const HINTS = {
-            normal: 'همه‌ی سؤال‌های آماده‌ی این قانون، به ترتیب.',
-            smart: 'سؤال‌هایی که قبلاً اشتباه جواب داده‌ای یا هنوز ندیده‌ای بیشتر می‌آیند.',
-            wrong: 'فقط سؤال‌هایی که اشتباه داده‌ای؛ با دو پاسخ درست پشت‌سرهم از فهرست خارج می‌شوند.'
-        };
-        function updateWrongBadge() {
-            if (!wrongBadge) return;
-            const n = getWrongBank('__all__').length;
-            wrongBadge.textContent = n ? toPersianNumerals(n) : '';
-            wrongBadge.style.display = n ? 'inline-block' : 'none';
-        }
-        function setMode(m) {
-            quizMode = m;
-            if (modeChips) modeChips.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.mode === m));
-            if (modeHint) modeHint.textContent = HINTS[m] || '';
-        }
-        function poolFor(lawKey, genCount) {
-            const keys = lawKey === '__all__' ? Object.keys(lawManifest) : [lawKey];
-            const manual = [], gen = [];
-            keys.forEach(k => {
-                ((lawManifest[k] && lawManifest[k].quiz) || []).forEach(q => manual.push(Object.assign({}, q, { _law: k })));
-                if (isDataLoaded) buildGeneratedQuestions(k, lawKey === '__all__' ? 2 : genCount).forEach(q => gen.push(Object.assign(q, { _law: k })));
-            });
-            return { manual, gen };
-        }
-
-        function startQuiz(lawKey) {
-            currentLawKey = lawKey;
-            const token = ++startToken;
-            const N = getQuizCount();
-            let list = [];
-            if (quizMode === 'wrong') {
-                list = shuffle(getWrongBank(lawKey)).slice(0, N);
-            } else if (quizMode === 'smart') {
-                const { manual, gen } = poolFor(lawKey, Math.max(N, 12));
-                const stats = loadStats();
-                const seen = new Set(), cand = [];
-                getWrongBank(lawKey).concat(manual, gen).forEach(q => { const id = qId(q); if (!seen.has(id)) { seen.add(id); cand.push(q); } });
-                list = weightedSample(cand, N, q => questionWeight(stats, q));
-            } else {
-                const { manual, gen } = poolFor(lawKey, 10);
-                list = lawKey === '__all__' ? shuffle(manual.concat(gen)).slice(0, N) : manual.concat(gen);
-            }
-            questions = list;
-            if (!isDataLoaded) {
-                const t0 = setInterval(() => {
-                    if (isDataLoaded) {
-                        clearInterval(t0);
-                        if (token === startToken && qIndex === 0 && !answered) startQuiz(lawKey);
-                    }
-                }, 400);
-            }
-            qIndex = 0;
-            correctCount = 0;
-            sessionWrong = 0;
-            updateWrongBadge();
-            resultBox.style.display = 'none';
-            if (questions.length === 0) {
-                questionBox.style.display = 'none';
-                emptyMsg.style.display = 'block';
-                emptyMsg.textContent = quizMode === 'wrong'
-                    ? 'هیچ اشتباهِ فعالی نداری 🎉 در حالت «هوشمند» یا «عادی» آزمون بده تا اگر جایی اشتباه شد اینجا جمع شود.'
-                    : (isDataLoaded ? 'برای این قانون هنوز سؤالی آماده نشده.' : 'در حال آماده‌سازی سؤال‌ها…');
-                scoreEl.textContent = 'امتیاز: ۰ از ۰';
-                return;
-            }
-            emptyMsg.style.display = 'none';
-            questionBox.style.display = 'block';
-            showQuestion();
-        }
-
-        checkBtn.addEventListener('click', () => {
-            if (selectedIndex === null) { showToast('اول یک گزینه را انتخاب کنید'); return; }
-            if (answered) return;
-            answered = true;
-            const q = questions[qIndex];
-            const opts = q.options || [];
-            const correctIdx = opts.findIndex(o => o === q.correctAnswer);
-            optionsList.querySelectorAll('.quiz-option').forEach((el, i) => {
-                if (i === correctIdx) el.classList.add('correct');
-                else if (i === selectedIndex) el.classList.add('incorrect');
-            });
-            const ok = selectedIndex === correctIdx;
-            if (ok) correctCount++; else sessionWrong++;
-            recordAnswer(q, q._law || currentLawKey, ok);
-            updateWrongBadge();
-            updateScoreLabel();
-            checkBtn.style.display = 'none';
-            nextBtn.style.display = 'inline-block';
-        });
-
-        nextBtn.addEventListener('click', () => {
-            qIndex++;
-            if (qIndex >= questions.length) {
-                questionBox.style.display = 'none';
-                resultBox.style.display = 'block';
-                resultText.textContent = `از ${toPersianNumerals(questions.length)} سؤال، ${toPersianNumerals(correctCount)} مورد را درست پاسخ دادید.`;
-                const pct = Math.round(correctCount / questions.length * 100);
-                resultText.textContent += ` (${toPersianNumerals(pct)}٪)`;
-                let rb = document.getElementById('quiz-review-wrong-btn');
-                if (!rb) {
-                    rb = document.createElement('button');
-                    rb.type = 'button'; rb.id = 'quiz-review-wrong-btn'; rb.className = 'fc-btn fc-btn-primary';
-                    rb.textContent = '🔁 مرور اشتباه‌ها';
-                    rb.addEventListener('click', () => { setMode('wrong'); startQuiz(currentLawKey); });
-                    restartBtn.parentNode.insertBefore(rb, restartBtn);
-                }
-                rb.style.display = getWrongBank('__all__').length ? 'inline-block' : 'none';
-            } else {
-                showQuestion();
-            }
-        });
-
-        if (modeChips) modeChips.addEventListener('click', (e) => {
-            const c = e.target.closest('.chip'); if (!c) return;
-            setMode(c.dataset.mode); startQuiz(currentLawKey);
-        });
-        setMode('normal');
-        window.ilhQuiz = {
-            practice(lawKey, mode) { setMode(mode || 'smart'); lawSelect.value = lawKey; lawSelect.dispatchEvent(new Event('change')); },
-            setMode(m, lawKey) { setMode(m); if (lawKey) lawSelect.value = lawKey; startQuiz(lawSelect.value || currentLawKey); }
-        };
-        restartBtn.addEventListener('click', () => startQuiz(currentLawKey));
-        lawSelect.addEventListener('change', () => startQuiz(lawSelect.value));
-
-        populateLawSelect();
-        if (currentLawKey) startQuiz(currentLawKey);
-        else { questionBox.style.display = 'none'; emptyMsg.style.display = 'block'; }
-    }
-    function initQuizTab() { /* المان‌های آزمون در بارگذاری اولیه ساخته شده‌اند */ }
 
     // ----- ۱۲. جایگزینی ظاهر <select> با یک منوی کشویی هم‌رنگ با رابط کاربری پروژه -----
     // نسخه‌ی native (برای مقدار/رویداد change) پنهان می‌ماند؛ کل منطق موجود دست‌نخورده کار می‌کند.
@@ -1982,7 +1813,6 @@ document.addEventListener('DOMContentLoaded', () => {
         new MutationObserver(renderOptions).observe(selectEl, { childList: true });
     }
     enhanceSelect(document.getElementById('flashcard-law-select'));
-    enhanceSelect(document.getElementById('quiz-law-select'));
 
     // ----- داشبورد (صفحه‌ی اصلی) -----
     function refreshDashboard() {
@@ -2031,8 +1861,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAllDataForSearch();
     setupAboutDialog();
     setupFlashcards();
-    setupQuiz();
-    setupQuizCountSetting();
     setupPWA();
     setupFeatureButtons();
     applyUrlParams();

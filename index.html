@@ -62,10 +62,6 @@
                     <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="14" height="14" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2"/><path d="M7 13h6M7 16.5h4"/></svg></span>
                     <span class="sidebar-item-label">فلش‌کارت</span>
                 </button>
-                        <button class="sidebar-item tab-link" type="button" data-tab="tab-quiz">
-                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 12.5l2.2 2.2 4.3-4.6"/></svg></span>
-                    <span class="sidebar-item-label">آزمون</span>
-                </button>
                         <button class="sidebar-item tab-link" type="button" data-tab="tab-progress">
                     <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
                     <span class="sidebar-item-label">آمار پیشرفت</span>
@@ -119,14 +115,6 @@
                                 <button type="button" class="font-size-btn" id="font-size-dec" aria-label="کوچک‌تر">A-</button>
                                 <button type="button" class="font-size-btn" id="font-size-reset" aria-label="اندازه پیش‌فرض">A</button>
                                 <button type="button" class="font-size-btn" id="font-size-inc" aria-label="بزرگ‌تر">A+</button>
-                            </div>
-                        </div>
-                        <div class="settings-row settings-row-col">
-                            <span class="settings-label"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg> تعداد سؤال هر آزمون</span>
-                            <div class="chip-group" id="quiz-count-chips">
-                                <button type="button" class="chip" data-count="10">۱۰</button>
-                                <button type="button" class="chip" data-count="20">۲۰</button>
-                                <button type="button" class="chip" data-count="30">۳۰</button>
                             </div>
                         </div>
                         <div class="settings-row settings-row-col" id="pwa-install-row">
@@ -206,7 +194,6 @@
                     </div>
                     <div class="dash-quick">
                         <button type="button" class="dash-quick-btn tab-link" data-tab="tab-flashcards"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="14" height="14" rx="2"/><path d="M7 7V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2"/><path d="M7 13h6M7 16.5h4"/></svg><span>مرور با فلش‌کارت</span></button>
-                        <button type="button" class="dash-quick-btn tab-link" data-tab="tab-quiz"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 12.5l2.2 2.2 4.3-4.6"/></svg><span>آزمون چهارگزینه‌ای</span></button>
                         <button type="button" class="dash-quick-btn tab-link" data-tab="tab-progress"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>آمار پیشرفت</span></button>
                         <button type="button" class="dash-quick-btn" id="dash-night-btn"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg><span>مرور شبانه</span></button>
                     </div>
@@ -215,19 +202,35 @@
                     <div id="dash-law-list" class="dash-law-list"></div>
                 </div>
 <div id="tab-flashcards" class="tab-content">
-                    <p class="law-info">
-                        این بخش فقط برای مرور و به‌خاطرسپاری موادِ قانون است، نه آزمون — هیچ پاسخ درست یا غلطی سنجیده نمی‌شود. یک کارت می‌آید، روی آن بزنید تا بچرخد و شرح ماده را پشت آن ببینید. اگر آن را بلد بودید بزنید «بلدم» تا برود توی جعبه‌ی بلدها؛ هروقت خواستید از دکمه‌ی «مرور جعبه» آن‌ها را دوباره ببینید.
-                    </p>
+                    <p class="law-info">مرور هوشمند مواد قانون با روش جعبه‌ی لایتنر: کارتی که بلد نیستید زودتر برمی‌گردد و کارتی که بلدید با فاصله‌ی بیشتر. روی کارت بزنید تا بچرخد، بعد «دوباره»، «سخت» یا «بلدم» را انتخاب کنید.</p>
                     <div class="flashcard-toolbar">
                         <select id="flashcard-law-select">
                             <option value="all">همه‌ی قوانین</option>
                         </select>
-                        <button id="flashcard-box-btn" type="button" class="fc-btn fc-btn-outline">📦 مرور جعبه (<span id="flashcard-box-count">۰</span>)</button>
+                        <button id="fc-boxes-btn" type="button" class="fc-btn fc-btn-outline">📦 جعبه‌ها</button>
                     </div>
-
-                    <div class="flashcard-meta"><span id="flashcard-remaining"></span></div>
+                    <div class="chip-group fc-chips" id="fc-mode-chips">
+                        <button type="button" class="chip active" data-mode="due">مرور امروز</button>
+                        <button type="button" class="chip" data-mode="all">همه‌ی کارت‌ها</button>
+                        <button type="button" class="chip" data-mode="starred">⭐ نشان‌شده‌ها</button>
+                        <button type="button" class="chip" data-mode="hard">🔥 سخت‌ها</button>
+                    </div>
+                    <div class="fc-options">
+                        <div class="chip-group fc-chips" id="fc-size-chips">
+                            <button type="button" class="chip" data-size="10">۱۰</button>
+                            <button type="button" class="chip active" data-size="20">۲۰</button>
+                            <button type="button" class="chip" data-size="30">۳۰</button>
+                            <button type="button" class="chip" data-size="0">همه</button>
+                        </div>
+                        <button id="fc-dir-btn" type="button" class="chip">🔁 شماره ← متن</button>
+                    </div>
+                    <div class="fc-progress">
+                        <div class="progress-track"><div class="progress-fill" id="fc-progress-fill"></div></div>
+                        <div class="fc-counter"><span id="fc-counter"></span><span id="fc-stats"></span></div>
+                    </div>
                     <div id="flashcard-stage">
-                        <div id="flashcard" class="flashcard">
+                        <button id="fc-star" type="button" class="fc-star" aria-label="نشان‌کردن ماده">☆</button>
+                        <div id="flashcard" class="flashcard" tabindex="0">
                             <div class="flashcard-inner">
                                 <div class="flashcard-face flashcard-front">
                                     <span id="flashcard-front-text">در حال آماده‌سازی کارت‌ها...</span>
@@ -238,55 +241,27 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="flashcard-actions">
-                        <button id="flashcard-next-btn" type="button" class="fc-btn">🔀 کارت بعدی</button>
-                        <button id="flashcard-know-btn" type="button" class="fc-btn fc-btn-primary">✅ بلدم</button>
+                    <div class="fc-rate" id="fc-rate">
+                        <button type="button" class="fc-rate-btn again" id="fc-again" disabled><b>دوباره</b><small id="fc-again-sub"></small></button>
+                        <button type="button" class="fc-rate-btn hard" id="fc-hard" disabled><b>سخت</b><small id="fc-hard-sub"></small></button>
+                        <button type="button" class="fc-rate-btn good" id="fc-good" disabled><b>بلدم</b><small id="fc-good-sub"></small></button>
                     </div>
-
-                    <div id="flashcard-box-view" class="flashcard-box-view" style="display:none;">
+                    <div class="fc-foot">
+                        <button type="button" class="pg-link" id="fc-skip">رد شدن از این کارت ←</button>
+                        <span class="fc-hint">میان‌بر: فاصله = چرخاندن · ۱ دوباره · ۲ سخت · ۳ بلدم · S نشان‌کردن · کشیدن به چپ/راست</span>
+                    </div>
+                    <div id="fc-summary" class="fc-summary" style="display:none;"></div>
+                    <div id="fc-box-view" class="flashcard-box-view" style="display:none;">
                         <div class="flashcard-box-header">
-                            <h3>جعبه‌ی بلدها</h3>
-                            <button id="flashcard-box-close" type="button" class="fc-btn fc-btn-outline">بستن و برگشت به مرور</button>
+                            <h3>جعبه‌های مرور</h3>
+                            <button id="fc-box-close" type="button" class="fc-btn fc-btn-outline">بستن</button>
                         </div>
-                        <div id="flashcard-box-list"></div>
-                    </div>
-                </div>
-
-                <div id="tab-quiz" class="tab-content">
-                    <p class="law-info">
-                        از هر قانون که سؤال آماده داشته باشیم، اینجا می‌توانید به‌صورت چهارگزینه‌ای خودتان را بسنجید. اگر قانونی در فهرست نبود یعنی هنوز سؤالی برایش آماده نشده.
-                    </p>
-                    <div class="chip-group quiz-mode-chips" id="quiz-mode-chips">
-                        <button type="button" class="chip active" data-mode="normal">عادی</button>
-                        <button type="button" class="chip" data-mode="smart">🧠 هوشمند</button>
-                        <button type="button" class="chip" data-mode="wrong">🔁 مرور اشتباه‌ها <span id="quiz-wrong-count" class="chip-badge"></span></button>
-                    </div>
-                    <p class="quiz-mode-hint" id="quiz-mode-hint"></p>
-                    <div class="flashcard-toolbar">
-                        <select id="quiz-law-select"></select>
-                        <span id="quiz-score" class="quiz-score">امتیاز: ۰ از ۰</span>
-                    </div>
-                    <div id="quiz-stage">
-                        <p id="quiz-empty-msg" style="display:none;">برای این قانون هنوز سؤالی آماده نشده — به‌زودی اضافه می‌شود.</p>
-                        <div id="quiz-question-box" style="display:none;">
-                            <h3 id="quiz-question-text"></h3>
-                            <div id="quiz-options-list" class="quiz-options-list"></div>
-                            <div class="flashcard-actions">
-                                <button id="quiz-check-btn" type="button" class="fc-btn fc-btn-primary">بررسی پاسخ</button>
-                                <button id="quiz-next-btn" type="button" class="fc-btn" style="display:none;">سؤال بعدی</button>
-                            </div>
-                        </div>
-                        <div id="quiz-result-box" style="display:none;">
-                            <h3>نتیجه</h3>
-                            <p id="quiz-result-text"></p>
-                            <button id="quiz-restart-btn" type="button" class="fc-btn">شروع دوباره</button>
-                        </div>
+                        <div id="fc-box-list"></div>
                     </div>
                 </div>
 
                 <div id="tab-progress" class="tab-content">
-                    <p class="law-info">آمار پیشرفت تو فقط روی همین مرورگر ذخیره می‌شود و با آزمون‌ها، فلش‌کارت‌ها و مرور شبانه به‌روز می‌شود.</p>
+                    <p class="law-info">آمار پیشرفت تو فقط روی همین مرورگر ذخیره می‌شود و با فلش‌کارت‌ها و مرور شبانه به‌روز می‌شود.</p>
                     <div id="progress-root"></div>
                 </div>
 

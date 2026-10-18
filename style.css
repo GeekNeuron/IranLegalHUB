@@ -880,9 +880,6 @@ body.dark-theme .tool-padding {
     background: #222;
     border-color: var(--border-color-dark);
 }
-
-.quiz-setup { display: flex; align-items: center; gap: 10px; }
-.quiz-setup input { flex-grow: 1; }
 .download-link { text-decoration: none; font-weight: bold; color: var(--accent-color-light); }
 body.dark-theme .download-link { color: var(--accent-color-dark); }
 
@@ -1154,65 +1151,6 @@ body.dark-theme .flashcard-box-item {
 @media (max-width: 768px) {
     .flashcard-toolbar { flex-direction: column; align-items: stretch; }
     #flashcard-law-select { max-width: 100%; }
-}
-/* ===== پایان استایل‌های فلش‌کارت ===== */
-
-/* ===== شروع استایل‌های آزمون ===== */
-.quiz-score {
-    font-weight: 700;
-    color: var(--accent-color-light);
-    white-space: nowrap;
-}
-body.dark-theme .quiz-score { color: var(--accent-color-dark); }
-#quiz-law-select {
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color-light);
-    background-color: #fff;
-    color: var(--text-color-light);
-    font-family: 'Vazirmatn', sans-serif;
-    font-size: 1em;
-    flex-grow: 1;
-    max-width: 320px;
-}
-body.dark-theme #quiz-law-select {
-    background-color: #2c2c2c;
-    color: var(--text-color-dark);
-    border-color: var(--border-color-dark);
-}
-#quiz-question-box {
-    background: #fff;
-    border: 1px solid var(--border-color-light);
-    border-radius: 12px;
-    padding: 20px;
-    animation: fadeSlideIn 0.3s ease;
-}
-body.dark-theme #quiz-question-box {
-    background: #1e1e1e;
-    border-color: var(--border-color-dark);
-}
-#quiz-question-text { margin-top: 0; line-height: 1.8; }
-.quiz-options-list { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
-.quiz-option {
-    display: block;
-    padding: 12px 16px;
-    border: 1.5px solid var(--border-color-light);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
-}
-.quiz-option:hover { background-color: var(--hover-bg-light); transform: translateX(-2px); }
-body.dark-theme .quiz-option { border-color: var(--border-color-dark); }
-body.dark-theme .quiz-option:hover { background-color: var(--hover-bg-dark); }
-.quiz-option.selected { border-color: var(--accent-color-light); background-color: var(--hover-bg-light); }
-body.dark-theme .quiz-option.selected { border-color: var(--accent-color-dark); background-color: var(--hover-bg-dark); }
-.quiz-option.correct { border-color: #198754; background-color: rgba(25,135,84,0.12); }
-.quiz-option.incorrect { border-color: #dc3545; background-color: rgba(220,53,69,0.12); }
-.quiz-option input { margin-left: 10px; }
-#quiz-result-box {
-    text-align: center;
-    padding: 30px 15px;
-    animation: popIn 0.3s ease;
 }
 /* ===== پایان استایل‌های آزمون ===== */
 
@@ -1589,12 +1527,8 @@ body.dark-theme .flashcard-box-item { background: var(--surface); border-color: 
 .flashcard-box-item-body { color: inherit; }
 .flashcard-box-empty, .bm-note-empty { color: var(--muted); }
 .fc-btn-outline { background: transparent; }
-body.dark-theme .fc-btn-outline { background: transparent; border-color: var(--accent-color-dark); color: var(--accent-color-dark); }
-.bm-note-item, #quiz-question-box { background: var(--surface); border-color: var(--line); color: inherit; }
+body.dark-theme .fc-btn-outline { background: transparent; border-color: var(--accent-color-dark); color: var(--accent-color-dark); }.bm-note-item { background: var(--surface); border-color: var(--line); color: inherit; }
 .bm-note-item-sub { color: var(--muted); }
-.quiz-option { background: transparent; border-color: var(--line); }
-.quiz-option.correct { background: rgba(25, 135, 84, 0.16); }
-.quiz-option.incorrect { background: rgba(220, 53, 69, 0.16); }
 .tool-padding { background: var(--surface); border-color: var(--line); color: inherit; }
 body.dark-theme .ilh-switch-track { background-color: #555; }
 body.dark-theme .ilh-switch input:checked + .ilh-switch-track { background-color: var(--accent-color-dark); }
@@ -1843,21 +1777,6 @@ body.dark-theme .flashcard-back { border-top-color: var(--accent-color-dark); }
 .flashcard:active { transform: scale(0.99); }
 .flashcard-inner { transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1); }
 .flashcard-actions .fc-btn { min-width: 130px; border-radius: 12px; padding: 11px 20px; }
-
-/* ===== اجزای فرم هم‌رنگ با رابط پروژه ===== */
-.quiz-option { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-.quiz-option input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
-.quiz-radio-dot {
-    flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
-    border: 2px solid var(--border-color-light); background: var(--surface);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease; position: relative;
-}
-body.dark-theme .quiz-radio-dot { border-color: var(--border-color-dark); }
-.quiz-option.selected .quiz-radio-dot { border-color: var(--accent-color-light); box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 10px var(--accent-color-light); }
-body.dark-theme .quiz-option.selected .quiz-radio-dot { border-color: var(--accent-color-dark); box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 10px var(--accent-color-dark); }
-.quiz-option.correct .quiz-radio-dot { border-color: #198754; box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 10px #198754; }
-.quiz-option.incorrect .quiz-radio-dot { border-color: #dc3545; box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 10px #dc3545; }
-.quiz-opt-text { flex: 1; line-height: 1.9; }
 textarea {
     font-family: inherit; background: var(--surface); color: inherit;
     border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px;
@@ -1868,7 +1787,6 @@ body.dark-theme textarea:focus { border-color: var(--accent-color-dark); }
 * { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
 .flashcard-toolbar .ilh-select { flex: 1 1 200px; min-width: 0; }
 .flashcard-toolbar .ilh-select-trigger { width: 100%; }
-.quiz-question-text, #quiz-question-text { white-space: pre-line; }
 
 /* ===== چاپ/PDF: همه‌چیز با فونت وزیرمتن، سفید و خوانا ===== */
 @media print {
@@ -1904,8 +1822,6 @@ body.dark-theme .related-chip { color: var(--accent-color-dark); }
 .chip.active { background: var(--accent-color-light); border-color: var(--accent-color-light); color: #fff; }
 body.dark-theme .chip.active { background: var(--accent-color-dark); border-color: var(--accent-color-dark); }
 .chip-badge { display: none; margin-right: 4px; min-width: 18px; padding: 0 6px; border-radius: 10px; background: #dc3545; color: #fff; font-size: 0.8em; }
-.quiz-mode-chips { margin: 4px 0 6px; }
-.quiz-mode-hint { margin: 0 0 12px; color: var(--muted); font-size: 0.88em; min-height: 1.3em; }
 .settings-row-col { flex-direction: column; align-items: stretch !important; gap: 8px; }
 .settings-btn { font-family: inherit; padding: 9px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: inherit; cursor: pointer; }
 .settings-btn:hover:not(:disabled) { border-color: var(--accent-color-light); }
@@ -1972,3 +1888,36 @@ body.night-open { overflow: hidden; }
 .night-review .chip { background: #0c0b09; border-color: #3a342a; color: #a8987a; }
 .night-review .chip.active { background: #2b2415; border-color: #5a4a26; color: #f0dfb8; }
 @media print { .night-review { display: none !important; } }
+
+/* ===== فلش‌کارت جدید: مرور فاصله‌دار ===== */
+.fc-chips { margin: 6px 0; }
+.fc-options { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 6px 0 4px; }
+.fc-progress { margin: 10px 0 4px; }
+.fc-counter { display: flex; justify-content: center; gap: 4px; margin-top: 6px; font-size: 0.85em; color: var(--muted); flex-wrap: wrap; }
+#flashcard-stage { position: relative; }
+.fc-star { position: absolute; top: 10px; left: 12px; z-index: 5; width: 40px; height: 40px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.22); color: #fff; font-size: 1.5em; line-height: 1; cursor: pointer; backdrop-filter: blur(2px); }
+.fc-star.on { color: #ffd54a; background: rgba(0,0,0,0.25); }
+.fc-section { display: inline-block; margin-top: 8px; font-size: 0.5em; font-weight: 400; opacity: 0.85; line-height: 1.8; }
+.fc-recall-text { display: block; font-size: 0.8em; font-weight: 400; line-height: 2; text-align: justify; }
+.fc-rate { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 6px 0 10px; }
+.fc-rate-btn { font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 6px; border-radius: 14px; border: 2px solid transparent; cursor: pointer; background: var(--surface); color: inherit; transition: transform .15s ease, opacity .2s ease; }
+.fc-rate-btn b { font-size: 1.02em; }
+.fc-rate-btn small { font-size: 0.75em; opacity: .75; min-height: 1.2em; }
+.fc-rate-btn:active:not(:disabled) { transform: scale(0.96); }
+.fc-rate-btn:disabled { opacity: .4; cursor: default; }
+.fc-rate-btn.again { border-color: #dc3545; color: #b02a37; }
+.fc-rate-btn.hard { border-color: #f0ad4e; color: #a56a00; }
+.fc-rate-btn.good { border-color: #198754; color: #146c43; }
+body.dark-theme .fc-rate-btn.again { color: #ea868f; } body.dark-theme .fc-rate-btn.hard { color: #ffc107; } body.dark-theme .fc-rate-btn.good { color: #75b798; }
+.fc-foot { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 14px; }
+.fc-hint { font-size: 0.72em; color: var(--muted); text-align: center; line-height: 1.8; }
+.fc-summary { text-align: center; padding: 26px 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); margin: 14px 0; }
+.fc-summary h3 { margin: 6px 0; }
+.fc-summary p { line-height: 2; }
+.fc-summary b.g { color: #198754; } .fc-summary b.o { color: #c77700; } .fc-summary b.r { color: #dc3545; }
+.fc-summary-emoji { font-size: 2.6em; }
+.fc-summary-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 12px; }
+.fc-box-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 36px; gap: 10px; align-items: center; margin: 10px 0; font-size: 0.9em; }
+.fc-box-row b { text-align: center; }
+.fc-box-actions { margin-top: 14px; }
+@media (max-width: 480px) { .fc-box-row { grid-template-columns: 1fr 70px 30px; font-size: 0.82em; } .fc-hint { font-size: 0.68em; } }
