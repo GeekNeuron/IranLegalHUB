@@ -1,5 +1,9 @@
 // ===== شروع کد نهایی script.js (بدون ابزارها + با انیمیشن نرم) =====
 
+// ذخیره‌سازی امن (اگر مرورگر localStorage را مسدود کند، برنامه از کار نیفتد)
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* بی‌اهمیت */ } }
+
 // 0. آیکون‌های SVG داخلی (جایگزین Font Awesome، بدون وابستگی به CDN)
 const ICONS = {
     book: '<span class="icon-inline"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>',
@@ -19,6 +23,7 @@ function normalizeFa(str) {
         .replace(/[\u064A\u0649]/g, '\u06CC')
         .replace(/\u0643/g, '\u06A9')
         .replace(/\u0640/g, '')
+        .replace(/\u200c/g, ' ')
         .replace(/[\u0660-\u0669]/g, d => String(d.charCodeAt(0) - 0x0660))
         .replace(/[\u06F0-\u06F9]/g, d => String(d.charCodeAt(0) - 0x06F0));
 }
@@ -101,7 +106,7 @@ function getBookmarks() {
     try { return JSON.parse(localStorage.getItem('ilh-bookmarks') || '[]'); } catch (e) { return []; }
 }
 function saveBookmarks(list) {
-    localStorage.setItem('ilh-bookmarks', JSON.stringify(list));
+    lsSet('ilh-bookmarks', JSON.stringify(list));
     updateBookmarksBadge();
 }
 function isBookmarked(id) {
@@ -142,7 +147,7 @@ function getNotes() {
     try { return JSON.parse(localStorage.getItem('ilh-notes') || '{}'); } catch (e) { return {}; }
 }
 function saveNotes(map) {
-    localStorage.setItem('ilh-notes', JSON.stringify(map));
+    lsSet('ilh-notes', JSON.stringify(map));
     updateNotesBadge();
 }
 function getNoteText(id) {
@@ -221,7 +226,7 @@ function recordRecentLaw(lawKey) {
     let list = getRecentLaws().filter(k => k !== lawKey);
     list.unshift(lawKey);
     list = list.slice(0, 5);
-    localStorage.setItem('ilh-recent-laws', JSON.stringify(list));
+    lsSet('ilh-recent-laws', JSON.stringify(list));
     renderRecentLawsSection();
 }
 function renderRecentLawsSection() {
@@ -404,12 +409,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (themeSwitch) themeSwitch.addEventListener('change', () => applyTheme(themeSwitch.checked, true));
 
     // ----- تنظیمات: اندازه متن -----
-    let fontScale = parseFloat(localStorage.getItem('ilh-font-scale')) || 1;
+    let fontScale = parseFloat(lsGet('ilh-font-scale')) || 1;
     function applyFontScale(scale) {
         scale = Math.min(1.3, Math.max(0.85, Math.round(scale * 100) / 100));
         fontScale = scale;
         mainContent.style.fontSize = scale + 'em';
-        localStorage.setItem('ilh-font-scale', scale);
+        lsSet('ilh-font-scale', scale);
     }
     applyFontScale(fontScale);
     const fontDecBtn = document.getElementById('font-size-dec');
@@ -696,7 +701,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="article-preview">${toPersianNumerals(preview)}</div>
                         <div class="article-collapse"><div class="article-collapse-inner">
-                            <div class="article-body">${toPersianNumerals(formatText(rawText))}</div>
+                            <div class="article-body">${rawText ? toPersianNumerals(formatText(rawText)) : '<em>متن این ماده هنوز وارد نشده است؛ به منبع رسمی مراجعه کنید.</em>'}</div>
                         </div></div>
                     `;
                     // ذخیره متن خام (بدون HTML) برای کپی/اشتراک‌گذاری/نشان/یادداشت دقیق
@@ -828,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(term.length > 1) resultsContainer.innerHTML = '<p class="search-empty">موردی یافت نشد.</p>';
             }
 
-            const regex = new RegExp(escapeRegex(term), 'gi');
+            const regex = new RegExp(escapeRegex(term).replace(/ +/g, '[ \u200c]+'), 'gi');
 
             relevantResults.forEach(res => {
                 const resDiv = document.createElement('div');
@@ -955,7 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const escapedTerm = escapeRegex(term);
-        const regex = new RegExp(escapedTerm, 'gi');
+        const regex = new RegExp(escapedTerm.replace(/ +/g, '[ \u200c]+'), 'gi');
         const lawCount = new Set(results.map(r => r.lawInfo.title)).size;
 
         const countP = document.createElement('p');
@@ -1035,11 +1040,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     searchInput.addEventListener('input', runSearch);
-    if (searchScopeSelect) {
-        searchScopeSelect.addEventListener('change', () => {
-            if (searchInput.value.trim().length > 1) runSearch();
-        });
-    }
 
     // ----- 9. دیالوگ «درباره» -----
     function setupAboutDialog() {
@@ -1565,7 +1565,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if ((e.key === ' ' || e.key === 'Enter') && nr.phase === 'card' && !nr.revealed) { e.preventDefault(); revealNight(); }
         });
     }
-    const nr = { queue: [], total: 0, done: 0, reviewed: 0, revealed: false, phase: 'start', timer: null, timerMin: parseInt(localStorage.getItem('ilh-night-timer'), 10) || 0, wake: null };
+    const nr = { queue: [], total: 0, done: 0, reviewed: 0, revealed: false, phase: 'start', timer: null, timerMin: parseInt(lsGet('ilh-night-timer'), 10) || 0, wake: null };
     function stageEl() { return document.getElementById('nr-stage'); }
     function showNightStart() {
         nr.phase = 'start';

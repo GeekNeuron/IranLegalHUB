@@ -11,6 +11,7 @@ const lawManifest = {
         title: 'قانون مدنی',
         info: 'قانون مدنی ایران در سه جلد تصویب شده و دارای ۱۳۳۵ ماده است. این قانون شالوده اصلی حقوق خصوصی ایران را تشکیل می‌دهد.',
         article_word: 'ماده',
+        warning: 'در جلد دوم، مواد ۹۵۸، ۹۶۱ و ۹۶۳ تا ۹۷۵ هنوز وارد نشده‌اند (این مواد در قانون وجود دارند). برای آن‌ها به منبع رسمی مراجعه کنید.',
         files: [
             { title: 'جلد اول (اموال، عقود، وصیت و ارث)', path: 'laws/civil_code/civil_code_vol_1.json' },
             { title: 'جلد دوم (اشخاص)', path: 'laws/civil_code/civil_code_vol_2.json' },
@@ -51,8 +52,6 @@ const lawManifest = {
         info: 'قانون آیین دادرسی کیفری در سال ۱۳۹۲ به تصویب رسید و دارای ۶۹۹ ماده است.',
         related: [{ key: 'tab-criminal-courts-law', label: 'قانون پیشین (منسوخ ۱۳۶۸): دادگاه‌های کیفری ۱ و ۲' }, { key: 'tab-general-courts-law', label: 'دادگاه‌های عمومی و انقلاب' }],
         article_word: 'ماده',
-        suspect: true,
-        warning: 'هشدار: متن و شماره‌ی بخشی از مواد این قانون (مثلاً ماده ۱۹۰ و ۱۹۵ و چند ماده‌ی فصل تحقیقات مقدماتی) با نسخه‌ی رسمی همخوانی ندارد. تا جایگزینی با متن اصلی، برای مطالعه و آزمون از آن استفاده نکنید.',
         files: [
             { title: 'تمام مواد', path: 'laws/criminal_procedure_code/criminal_procedure_code.json' }
         ]
@@ -165,6 +164,7 @@ const lawManifest = {
         title: 'قانون مالیات بر ارزش افزوده',
         info: 'قانون مالیات بر ارزش افزوده مصوب ۱۴۰۰/۰۳/۰۲ مجلس شورای اسلامی. تکمیل شد.',
         article_word: 'ماده',
+        warning: 'مواد ۴۹ تا ۵۴ (نسخه‌ی ۱۴۰۰) هنوز وارد نشده‌اند. برای آن‌ها به منبع رسمی مراجعه کنید.',
         files: [
             { title: 'تمام مواد', path: 'laws/five_statutes/vat_law.json' }
         ]
@@ -181,6 +181,7 @@ const lawManifest = {
         title: 'قانون نظام صنفی کشور',
         info: 'قانون نظام صنفی کشور مصوب ۱۳۸۲/۱۲/۲۴ با الحاقات و اصلاحات تا ۱۴۰۳/۰۵/۰۲. تکمیل شد.',
         article_word: 'ماده',
+        warning: 'متن ماده ۶۵ هنوز وارد نشده است. به منبع رسمی مراجعه کنید.',
         files: [
             { title: 'تمام مواد', path: 'laws/five_statutes/trade_unions_law.json' }
         ]
@@ -260,7 +261,7 @@ const lawManifest = {
     'tab-civil-liability-law': {
         title: 'قانون مسئولیت مدنی',
         info: 'قانون مسئولیت مدنی مصوب ۱۳۳۹، مبنای جبران خسارت (تقصیر، تخفیف خسارت، مسئولیت کارفرما و دولت).',
-        related: [{ key: 'tab-third-party-insurance-law', label: 'بیمه اجباری شخص ثالث' }, { key: 'tab-civil-code', label: 'قانون مدنی' }],
+        related: [{ key: 'tab-third-party-insurance-law', label: 'بیمه اجباری شخص ثالث' }, { key: 'tab-civil-code', label: 'قانون مدنی' }, { key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }],
         article_word: 'ماده',
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/civil_liability_law.json' }
@@ -472,7 +473,7 @@ const lawManifest = {
     },
     'tab-cadastre-law': {
         title: 'قانون جامع حدنگار (کاداستر) کشور',
-        info: 'قانون جامع حدنگار (کاداستر) کشور مصوب ۱۳۹۳/۱۲/۱۲: تعاریف، سازمان متولی، سند مالکیت حدنگار و نظام جامع اطلاعات.',
+        info: 'قانون جامع حدنگار (کاداستر) کشور مصوب ۱۳۹۳/۱۱/۱۲: تعاریف، سازمان متولی، سند مالکیت حدنگار و نظام جامع اطلاعات.',
         article_word: 'ماده',
         warning: 'متن این قانون از PDF استخراج شده است؛ ممکن است فاصله یا املای برخی کلمات نیاز به ویرایش داشته باشد.',
         related: [{ key: 'tab-registration-law', label: 'قانون ثبت اسناد و املاک' }, { key: 'tab-unregistered-property-law', label: 'تعیین تکلیف وضعیت ثبتی' }],
@@ -514,7 +515,7 @@ const lawManifest = {
         info: 'نظامنامه قانون وکالت مصوب ۱۳۱۶ (۱۱۲ ماده): تشکیلات وکلا، کانون، ترفیع، تکالیف، لباس وکالت و محاکم انتظامی. موادی که با آیین‌نامه ۱۴۰۰ مغایرند ملغی هستند.',
         article_word: 'ماده',
         warning: 'موادی از این نظام‌نامه که با آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلا (۱۴۰۰) مغایرت دارد ملغی است. مواد ۹۷ و ۱۰۴ در منبع نبودند.',
-        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyer-license-law', label: 'قانون کیفیت اخذ پروانه وکالت' }],
+        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyer-license-law', label: 'قانون کیفیت اخذ پروانه وکالت' }, { key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی استقلال کانون وکلا (۱۴۰۰)' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/lawyers_bylaw.json' }
         ]
@@ -524,16 +525,152 @@ const lawManifest = {
         info: 'آیین‌نامه تعرفه حق‌الوکاله، حق‌المشاوره و هزینه سفر وکلای دادگستری مصوب ۱۳۸۵/۰۴/۲۷ رئیس قوه قضاییه (۱۸ ماده). این آیین‌نامه با آیین‌نامه ۱۳۹۸/۱۲/۲۸ ملغی شده است.',
         article_word: 'ماده',
         warning: 'این آیین‌نامه به موجب آیین‌نامه تعرفه حق‌الوکاله، حق‌المشاوره و هزینه سفر وکلای دادگستری مصوب ۱۳۹۸/۱۲/۲۸ رئیس قوه قضاییه ملغی شده و فقط برای مطالعه و مقایسه نگه داشته شده است. مبالغ آن معتبر نیست.',
-        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
+        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyer-fee-tariff-1398', label: 'آیین‌نامه تعرفه ۱۳۹۸ (جایگزین)' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/lawyer_fee_tariff_1385.json' }
+        ]
+    },
+    'tab-building-presale-law': {
+        title: 'قانون پیش‌فروش ساختمان',
+        info: 'قانون پیش‌فروش ساختمان مصوب ۱۳۸۹/۱۰/۱۲ مجلس شورای اسلامی (۲۵ ماده). مواد ۲۰ و ۲۱ به موجب ماده ۱۵ قانون الزام به ثبت رسمی معاملات اموال غیرمنقول (۱۴۰۳) نسخ صریح شده‌اند.',
+        article_word: 'ماده',
+        related: [{ key: 'tab-registration-obligation-law', label: 'قانون الزام به ثبت رسمی معاملات اموال غیرمنقول' }, { key: 'tab-civil-code', label: 'قانون مدنی' }, { key: 'tab-registration-law', label: 'قانون ثبت اسناد و املاک' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch5/building_presale_law.json' }
+        ]
+    },
+    'tab-securities-market-law': {
+        title: 'قانون بازار اوراق بهادار جمهوری اسلامی ایران',
+        info: 'قانون بازار اوراق بهادار جمهوری اسلامی ایران مصوب ۱۳۸۴/۰۹/۰۱ مجلس شورای اسلامی (۶۰ ماده): بورس، شورای عالی بورس، سازمان بورس و نهادهای مالی.',
+        article_word: 'ماده',
+        related: [{ key: 'tab-commercial-code', label: 'قانون تجارت' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch5/securities_market_law.json' }
+        ]
+    },
+    'tab-bar-independence-bylaw-1400': {
+        title: 'آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلا (۱۴۰۰)',
+        info: 'آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلای دادگستری مصوب ۱۴۰۰/۰۴/۰۲ رئیس قوه قضاییه با اصلاحات ۱۴۰۲/۰۴/۱۱ (۱۶۴ ماده): انتخابات کانون، آزمون ورودی، پروانه وکالت و انتظامیات.',
+        article_word: 'ماده',
+        related: [{ key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-lawyers-bylaw', label: 'نظامنامه قانون وکالت (۱۳۱۶)' }, { key: 'tab-bar-independence-bylaw-1334', label: 'آیین‌نامه ۱۳۳۴ (منسوخ)' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch5/bar_independence_bylaw_1400.json' }
+        ]
+    },
+    'tab-lawyer-fee-tariff-1398': {
+        title: 'آیین‌نامه تعرفه حق‌الوکاله ۱۳۹۸',
+        info: 'آیین‌نامه تعرفه حق‌الوکاله، حق‌المشاوره و هزینه سفر وکلای دادگستری مصوب ۱۳۹۸/۱۲/۲۸ رئیس قوه قضاییه (۳۴ ماده). جایگزین آیین‌نامه ۱۳۸۵ شده است.',
+        article_word: 'ماده',
+        related: [{ key: 'tab-lawyer-fee-tariff-1385', label: 'آیین‌نامه تعرفه ۱۳۸۵ (ملغی)' }, { key: 'tab-lawyer-fee-organization', label: 'آیین‌نامه ساماندهی حق‌الوکاله (دستگاه‌های اجرایی)' }, { key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch5/lawyer_fee_tariff_1398.json' }
+        ]
+    },
+    'tab-lawyers-coop-fund-law': {
+        title: 'قانون تشکیل صندوق تعاون وکلاء (۱۳۵۰)',
+        info: 'قانون تشکیل صندوق تعاون وکلاء و تأمین هزینه‌های کانون وکلای دادگستری مصوب ۱۳۵۰/۳/۳۱ (۷ ماده).',
+        article_word: 'ماده',
+        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/lawyers_coop_fund_law.json' }
+        ]
+    },
+    'tab-lawyers-support-fund-law': {
+        title: 'قانون تشکیل صندوق حمایت وکلا و کارگشایان (۱۳۵۵)',
+        info: 'قانون تشکیل صندوق حمایت وکلا و کارگشایان دادگستری مصوب ۱۳۵۵/۱۰/۲۹ با اصلاحات تا ۱۳۷۵/۰۸/۲۳ (۱۸ ماده).',
+        article_word: 'ماده',
+        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyers-support-fund-bylaw-8', label: 'آیین‌نامه ماده ۸' }, { key: 'tab-lawyers-support-fund-bylaw-10', label: 'آیین‌نامه ماده ۱۰' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/lawyers_support_fund_law.json' }
+        ]
+    },
+    'tab-lawyers-support-fund-bylaw-8': {
+        title: 'آیین‌نامه ماده ۸ صندوق حمایت وکلا (۱۳۷۷)',
+        info: 'آیین‌نامه ماده (۸) قانون تشکیل صندوق حمایت وکلا و کارگشایان دادگستری مصوب ۱۳۷۷/۱۲/۵ با اصلاحات تا ۱۴۰۰/۰۵/۱۷ (۲۲ ماده).',
+        article_word: 'ماده',
+        related: [{ key: 'tab-lawyers-support-fund-law', label: 'قانون صندوق حمایت وکلا' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/support_fund_bylaw_8.json' }
+        ]
+    },
+    'tab-lawyers-support-fund-bylaw-10': {
+        title: 'آیین‌نامه ماده ۱۰ صندوق حمایت: وکالت تسخیری و معاضدتی (۱۳۷۸)',
+        info: 'آیین‌نامه اجرایی ماده ۱۰ قانون تشکیل صندوق حمایت وکلا و کارگشایان دادگستری مصوب ۱۳۷۸/۱۲/۲۱ رئیس قوه قضاییه (۱۲ ماده): حق‌الوکاله وکالت تسخیری و معاضدتی.',
+        article_word: 'ماده',
+        related: [{ key: 'tab-lawyers-support-fund-law', label: 'قانون صندوق حمایت وکلا' }, { key: 'tab-lawyer-fee-tariff-1398', label: 'آیین‌نامه تعرفه ۱۳۹۸' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/support_fund_bylaw_10.json' }
+        ]
+    },
+    'tab-bar-independence-bylaw-1334': {
+        title: 'آیین‌نامه استقلال کانون وکلا (۱۳۳۴، منسوخ)',
+        info: 'آیین‌نامه لایحه قانونی استقلال کانون وکلای دادگستری مصوب ۱۳۳۴ (۸۹ ماده). به موجب ماده ۱۶۴ آیین‌نامه ۱۴۰۰ نسخ شده است.',
+        article_word: 'ماده',
+        warning: 'این آیین‌نامه به موجب ماده ۱۶۴ آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلا (۱۴۰۰) نسخ شده و فقط برای مطالعه‌ی تاریخی است.',
+        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰ (جایگزین)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/bar_independence_bylaw_1334.json' }
+        ]
+    },
+    'tab-transfer-bylaw-west-azarbaijan': {
+        title: 'آیین‌نامه نقل و انتقال وکلای کانون آذربایجان غربی',
+        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری آذربایجان غربی (10 ماده).',
+        article_word: 'ماده',
+        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_west_azarbaijan.json' }
+        ]
+    },
+    'tab-transfer-bylaw-kerman': {
+        title: 'آیین‌نامه نقل و انتقال وکلای کانون کرمان',
+        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری کرمان (9 ماده).',
+        article_word: 'ماده',
+        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_kerman.json' }
+        ]
+    },
+    'tab-transfer-bylaw-khuzestan': {
+        title: 'آیین‌نامه نقل و انتقال وکلای کانون خوزستان',
+        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری خوزستان (15 ماده).',
+        article_word: 'ماده',
+        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_khuzestan.json' }
+        ]
+    },
+    'tab-transfer-bylaw-fars': {
+        title: 'آیین‌نامه نقل و انتقال وکلای کانون فارس و کهگیلویه و بویراحمد',
+        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری فارس و کهگیلویه و بویراحمد (15 ماده).',
+        article_word: 'ماده',
+        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_fars.json' }
+        ]
+    },
+    'tab-transfer-bylaw-markazi': {
+        title: 'آیین‌نامه نقل و انتقال وکلای کانون مرکز',
+        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری مرکز (12 ماده).',
+        article_word: 'ماده',
+        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_markazi.json' }
+        ]
+    },
+    'tab-lawyer-selection-resolution': {
+        title: 'مصوبه مجمع تشخیص: انتخاب وکیل (۱۳۷۰)',
+        info: 'مصوبه مجمع تشخیص مصلحت نظام در خصوص حق اصحاب دعوی در انتخاب وکیل، مصوب ۱۳۷۰/۰۷/۱۱ (ماده واحده و سه تبصره).',
+        article_word: 'ماده',
+        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
+        files: [
+            { title: 'تمام مواد', path: 'laws/batch6/lawyer_selection_resolution.json' }
         ]
     },
     'tab-lawyer-fee-organization': {
         title: 'آیین‌نامه ساماندهی حق‌الوکاله و حق‌المشاوره (دستگاه‌های اجرایی)',
         info: 'آیین‌نامه ساماندهی حق‌الوکاله و حق‌المشاوره خدمات وکلای دادگستری و مشاوران حقوقی در دستگاه‌های اجرایی (تصویب‌نامه ۱۳۹۷/۰۹/۲۴ هیئت وزیران، ۶ ماده).',
         article_word: 'ماده',
-        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت' }, { key: 'tab-lawyer-fee-tariff-1385', label: 'آیین‌نامه تعرفه ۱۳۸۵ (ملغی)' }],
+        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت' }, { key: 'tab-lawyer-fee-tariff-1385', label: 'آیین‌نامه تعرفه ۱۳۸۵ (ملغی)' }, { key: 'tab-lawyer-fee-tariff-1398', label: 'آیین‌نامه تعرفه ۱۳۹۸' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/lawyer_fee_organization.json' }
         ]
