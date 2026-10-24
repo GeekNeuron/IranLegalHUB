@@ -77,6 +77,10 @@
                     <span class="sidebar-item-label">یادداشت‌های من</span>
                     <span class="sidebar-badge" id="notes-count-badge" style="display:none;">۰</span>
                 </button>
+                        <button class="sidebar-item tab-link" type="button" data-tab="tab-calculators">
+                    <span class="sidebar-item-icon"><svg class="sb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M16 15h0"/></svg></span>
+                    <span class="sidebar-item-label">محاسبات حقوقی</span>
+                </button>
                     </div>
                 </div>
 
@@ -277,6 +281,61 @@
                     <div id="notes-list"></div>
                 </div>
 
+                                <div id="tab-calculators" class="tab-content">
+                    <p class="law-info">
+                        ابزارهای محاسبه بر پایه‌ی متن قوانین همین برنامه ساخته شده‌اند و فقط برای مطالعه و تمرین‌اند، نه جایگزین نظر وکیل یا دادگاه. همه‌ی محاسبات روی مرورگر شما انجام می‌شود و جایی ارسال نمی‌شود.
+                    </p>
+
+                    <section class="calc-card">
+                        <h3>سهم‌الارث (طبقه‌ی اول و زوجین)</h3>
+                        <p class="calc-hint">بر پایه‌ی مواد ۸۶۱ تا ۹۱۳ و ۹۴۶ قانون مدنی. وراث طبقه‌ی دوم و سوم، نوه و حالت‌های خاص پوشش داده نمی‌شود.</p>
+                        <div class="calc-grid">
+                            <label>زوج یا زوجه
+                                <select id="inh-spouse">
+                                    <option value="none">ندارد</option>
+                                    <option value="husband">شوهر</option>
+                                    <option value="wife">زوجه (زن)</option>
+                                </select>
+                            </label>
+                            <label id="inh-wives-wrap" style="display:none">تعداد زوجه (۱ تا ۴)
+                                <input id="inh-wives" type="text" inputmode="numeric" value="1">
+                            </label>
+                            <label>تعداد پسر
+                                <input id="inh-sons" type="text" inputmode="numeric" value="0">
+                            </label>
+                            <label>تعداد دختر
+                                <input id="inh-daughters" type="text" inputmode="numeric" value="0">
+                            </label>
+                            <label class="calc-check"><input id="inh-father" type="checkbox"> پدر زنده است</label>
+                            <label class="calc-check"><input id="inh-mother" type="checkbox"> مادر زنده است</label>
+                            <label class="calc-check"><input id="inh-blocked" type="checkbox"> مادر حاجب دارد (ماده ۸۹۲ ب)</label>
+                            <label>خالص ترکه (ریال، اختیاری)
+                                <input id="inh-estate" type="text" inputmode="numeric" placeholder="مثلاً ۱۰۰۰۰۰۰۰۰۰">
+                            </label>
+                        </div>
+                        <button type="button" class="fc-btn" id="inh-run">محاسبه</button>
+                        <div id="calc-inherit-result" class="calc-result"></div>
+                    </section>
+
+                    <section class="calc-card">
+                        <h3>خسارت تأخیر تأدیه (ماده ۵۲۲ آیین دادرسی مدنی)</h3>
+                        <p class="calc-hint">خسارت = اصل دین × (شاخص زمان پرداخت ÷ شاخص زمان سررسید) − اصل دین.</p>
+                        <div class="calc-grid">
+                            <label>اصل دین (ریال)
+                                <input id="late-principal" type="text" inputmode="numeric" placeholder="۱۰۰۰۰۰۰۰۰۰">
+                            </label>
+                            <label>شاخص ماه سررسید
+                                <input id="late-due" type="text" inputmode="decimal">
+                            </label>
+                            <label>شاخص ماه پرداخت
+                                <input id="late-pay" type="text" inputmode="decimal">
+                            </label>
+                        </div>
+                        <button type="button" class="fc-btn" id="late-run">محاسبه</button>
+                        <div id="calc-late-result" class="calc-result"></div>
+                    </section>
+                </div>
+
                 <div id="tab-global-search" class="tab-content">
                     <p class="law-info">نتایج جستجو در همه‌ی قوانین، گروه‌بندی‌شده بر اساس هر قانون.</p>
                     <div id="global-search-results"></div>
@@ -311,5 +370,6 @@
 
     <script src="data.js"></script>
     <script src="script.js"></script>
+    <script src="calculators.js"></script>
 </body>
 </html>
