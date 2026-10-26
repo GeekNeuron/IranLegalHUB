@@ -4,6 +4,26 @@
 function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* بی‌اهمیت */ } }
 
+// گروه‌بندی قوانین؛ کلیدهای بدون گروه در «سایر» می‌آیند
+function getLawGroups() {
+    if (typeof lawManifest === 'undefined') return [];
+    const defs = (typeof lawGroups !== 'undefined' ? lawGroups : []);
+    const used = new Set();
+    const groups = defs.map(g => {
+        const keys = g.keys.filter(k => lawManifest[k]);
+        keys.forEach(k => used.add(k));
+        return { id: g.id, title: g.title, keys };
+    }).filter(g => g.keys.length);
+    const rest = Object.keys(lawManifest).filter(k => !used.has(k));
+    if (rest.length) groups.push({ id: 'other', title: 'سایر', keys: rest });
+    return groups;
+}
+function openLawGroupOf(key) {
+    document.querySelectorAll('details.law-group').forEach(d => {
+        if (d.querySelector(`[data-tab="${cssEscape(key)}"]`)) d.open = true;
+    });
+}
+
 // 0. آیکون‌های SVG داخلی (جایگزین Font Awesome، بدون وابستگی به CDN)
 const ICONS = {
     book: '<span class="icon-inline"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>',
@@ -359,13 +379,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSidebarLawsList() {
         const listEl = document.getElementById('sidebar-full-laws-list');
         if (!listEl || typeof lawManifest === 'undefined') return;
-        let html = '';
-        for (const key in lawManifest) {
-            html += `<button type="button" class="sidebar-item sidebar-sublink tab-link" data-tab="${key}">
-                        <span class="sidebar-item-label">${lawManifest[key].title}</span>
-                     </button>`;
-        }
-        listEl.innerHTML = html;
+        listEl.innerHTML = getLawGroups().map(g => `
+            <details class="law-group" data-group="${g.id}">
+                <summary class="sidebar-item law-group-head"><span class="sidebar-item-label">${g.title}</span><span class="law-group-count">${toPersianNumerals(g.keys.length)}</span></summary>
+                <div class="law-group-body">${g.keys.map(key => `<button type="button" class="sidebar-item sidebar-sublink tab-link" data-tab="${key}"><span class="sidebar-item-label">${lawManifest[key].title}</span></button>`).join('')}</div>
+            </details>`).join('');
         renderRecentLawsSection();
     }
     renderSidebarLawsList();
@@ -438,6 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetTab) targetTab.classList.add('active');
 
         if (typeof lawManifest !== 'undefined' && lawManifest[targetId]) {
+            openLawGroupOf(targetId);
             recordRecentLaw(targetId);
         }
         if (targetId === 'tab-bookmarks') renderBookmarksPage();
@@ -1075,11 +1094,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const modeChips = $('fc-mode-chips'), sizeChips = $('fc-size-chips'), dirBtn = $('fc-dir-btn');
 
         // فهرست قوانین در منو (قانون مشکوک نمی‌آید)
-        Object.keys(lawManifest).forEach(key => {
-            if (lawManifest[key].suspect) return;
-            const o = document.createElement('option');
-            o.value = key; o.textContent = lawManifest[key].title;
-            lawSelect.appendChild(o);
+        getLawGroups().forEach(g => {
+            const og = document.createElement('optgroup');
+            og.label = g.title;
+            g.keys.forEach(key => {
+                if (lawManifest[key].suspect) return;
+                const o = document.createElement('option');
+                o.value = key; o.textContent = lawManifest[key].title;
+                og.appendChild(o);
+            });
+            if (og.children.length) lawSelect.appendChild(og);
         });
 
         const DAY = 86400000;
@@ -1835,7 +1859,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!countEl || !listEl) return;
         const keys = Object.keys(lawManifest);
         countEl.innerHTML = `در حال حاضر <strong>${toPersianNumerals(keys.length)}</strong> قانون در این مجموعه گنجانده شده است. برای ورود به هر قانون روی آن بزنید:`;
-        listEl.innerHTML = keys.map(k => `<button type="button" class="dash-law-card tab-link" data-tab="${k}"><span>${lawManifest[k].title}</span></button>`).join('');
+        listEl.className = 'dash-groups';
+        listEl.innerHTML = getLawGroups().map((g, i) => `
+            <details class="law-group dash-group"${i === 0 ? ' open' : ''}>
+                <summary><span>${g.title}</span><span class="law-group-count">${toPersianNumerals(g.keys.length)}</span></summary>
+                <div class="dash-law-list">${g.keys.map(k => `<button type="button" class="dash-law-card tab-link" data-tab="${k}"><span>${lawManifest[k].title}</span></button>`).join('')}</div>
+            </details>`).join('');
         refreshDashboard();
         const t = setInterval(() => { if (isDataLoaded) { clearInterval(t); refreshDashboard(); } }, 500);
     }

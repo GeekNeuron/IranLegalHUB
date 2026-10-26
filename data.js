@@ -50,7 +50,7 @@ const lawManifest = {
     'tab-criminal-procedure-code': {
         title: 'قانون آیین دادرسی کیفری',
         info: 'قانون آیین دادرسی کیفری در سال ۱۳۹۲ به تصویب رسید و دارای ۶۹۹ ماده است.',
-        related: [{ key: 'tab-criminal-courts-law', label: 'قانون پیشین (منسوخ ۱۳۶۸): دادگاه‌های کیفری ۱ و ۲' }, { key: 'tab-general-courts-law', label: 'دادگاه‌های عمومی و انقلاب' }],
+        related: [ { key: 'tab-general-courts-law', label: 'دادگاه‌های عمومی و انقلاب' }],
         article_word: 'ماده',
         files: [
             { title: 'تمام مواد', path: 'laws/criminal_procedure_code/criminal_procedure_code.json' }
@@ -162,9 +162,8 @@ const lawManifest = {
     },
     'tab-vat-law': {
         title: 'قانون مالیات بر ارزش افزوده',
-        info: 'قانون مالیات بر ارزش افزوده مصوب ۱۴۰۰/۰۳/۰۲ مجلس شورای اسلامی. تکمیل شد.',
+        info: 'قانون مالیات بر ارزش افزوده مصوب ۱۴۰۰/۰۳/۰۲ مجلس شورای اسلامی با اصلاحات تا ۱۴۰۱/۱۱/۰۵ (۵۷ ماده).',
         article_word: 'ماده',
-        warning: 'مواد ۴۹ تا ۵۴ (نسخه‌ی ۱۴۰۰) هنوز وارد نشده‌اند. برای آن‌ها به منبع رسمی مراجعه کنید.',
         files: [
             { title: 'تمام مواد', path: 'laws/five_statutes/vat_law.json' }
         ]
@@ -309,16 +308,6 @@ const lawManifest = {
         article_word: 'ماده',
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/government_revenue_law.json' }
-        ]
-    },
-    'tab-criminal-courts-law': {
-        title: 'قانون تشکیل دادگاه‌های کیفری ۱ و ۲ (منسوخ)',
-        info: 'این قانون مصوب ۱۳۶۸ منسوخ شده و فقط برای مطالعه‌ی تاریخی نگه داشته شده است؛ برای رسیدگی کنونی به قانون آیین دادرسی کیفری مراجعه کنید.',
-        warning: 'این قانون منسوخ شده است؛ برای رسیدگی کیفری کنونی به قانون آیین دادرسی کیفری مراجعه کنید.',
-        related: [{ key: 'tab-criminal-procedure-code', label: 'جایگزین: آیین دادرسی کیفری' }, { key: 'tab-general-courts-law', label: 'دادگاه‌های عمومی و انقلاب' }],
-        article_word: 'ماده',
-        files: [
-            { title: 'تمام مواد', path: 'laws/batch3/criminal_courts_1_2_law.json' }
         ]
     },
     'tab-hosbi-law': {
@@ -520,16 +509,6 @@ const lawManifest = {
             { title: 'تمام مواد', path: 'laws/batch4/lawyers_bylaw.json' }
         ]
     },
-    'tab-lawyer-fee-tariff-1385': {
-        title: 'آیین‌نامه تعرفه حق‌الوکاله ۱۳۸۵ (ملغی)',
-        info: 'آیین‌نامه تعرفه حق‌الوکاله، حق‌المشاوره و هزینه سفر وکلای دادگستری مصوب ۱۳۸۵/۰۴/۲۷ رئیس قوه قضاییه (۱۸ ماده). این آیین‌نامه با آیین‌نامه ۱۳۹۸/۱۲/۲۸ ملغی شده است.',
-        article_word: 'ماده',
-        warning: 'این آیین‌نامه به موجب آیین‌نامه تعرفه حق‌الوکاله، حق‌المشاوره و هزینه سفر وکلای دادگستری مصوب ۱۳۹۸/۱۲/۲۸ رئیس قوه قضاییه ملغی شده و فقط برای مطالعه و مقایسه نگه داشته شده است. مبالغ آن معتبر نیست.',
-        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyer-fee-tariff-1398', label: 'آیین‌نامه تعرفه ۱۳۹۸ (جایگزین)' }],
-        files: [
-            { title: 'تمام مواد', path: 'laws/batch4/lawyer_fee_tariff_1385.json' }
-        ]
-    },
     'tab-building-presale-law': {
         title: 'قانون پیش‌فروش ساختمان',
         info: 'قانون پیش‌فروش ساختمان مصوب ۱۳۸۹/۱۰/۱۲ مجلس شورای اسلامی (۲۵ ماده). مواد ۲۰ و ۲۱ به موجب ماده ۱۵ قانون الزام به ثبت رسمی معاملات اموال غیرمنقول (۱۴۰۳) نسخ صریح شده‌اند.',
@@ -552,7 +531,7 @@ const lawManifest = {
         title: 'آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلا (۱۴۰۰)',
         info: 'آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلای دادگستری مصوب ۱۴۰۰/۰۴/۰۲ رئیس قوه قضاییه با اصلاحات ۱۴۰۲/۰۴/۱۱ (۱۶۴ ماده): انتخابات کانون، آزمون ورودی، پروانه وکالت و انتظامیات.',
         article_word: 'ماده',
-        related: [{ key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-lawyers-bylaw', label: 'نظامنامه قانون وکالت (۱۳۱۶)' }, { key: 'tab-bar-independence-bylaw-1334', label: 'آیین‌نامه ۱۳۳۴ (منسوخ)' }],
+        related: [{ key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-lawyers-bylaw', label: 'نظامنامه قانون وکالت (۱۳۱۶)' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch5/bar_independence_bylaw_1400.json' }
         ]
@@ -561,7 +540,7 @@ const lawManifest = {
         title: 'آیین‌نامه تعرفه حق‌الوکاله ۱۳۹۸',
         info: 'آیین‌نامه تعرفه حق‌الوکاله، حق‌المشاوره و هزینه سفر وکلای دادگستری مصوب ۱۳۹۸/۱۲/۲۸ رئیس قوه قضاییه (۳۴ ماده). جایگزین آیین‌نامه ۱۳۸۵ شده است.',
         article_word: 'ماده',
-        related: [{ key: 'tab-lawyer-fee-tariff-1385', label: 'آیین‌نامه تعرفه ۱۳۸۵ (ملغی)' }, { key: 'tab-lawyer-fee-organization', label: 'آیین‌نامه ساماندهی حق‌الوکاله (دستگاه‌های اجرایی)' }, { key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }],
+        related: [ { key: 'tab-lawyer-fee-organization', label: 'آیین‌نامه ساماندهی حق‌الوکاله (دستگاه‌های اجرایی)' }, { key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch5/lawyer_fee_tariff_1398.json' }
         ]
@@ -602,61 +581,6 @@ const lawManifest = {
             { title: 'تمام مواد', path: 'laws/batch6/support_fund_bylaw_10.json' }
         ]
     },
-    'tab-bar-independence-bylaw-1334': {
-        title: 'آیین‌نامه استقلال کانون وکلا (۱۳۳۴، منسوخ)',
-        info: 'آیین‌نامه لایحه قانونی استقلال کانون وکلای دادگستری مصوب ۱۳۳۴ (۸۹ ماده). به موجب ماده ۱۶۴ آیین‌نامه ۱۴۰۰ نسخ شده است.',
-        article_word: 'ماده',
-        warning: 'این آیین‌نامه به موجب ماده ۱۶۴ آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلا (۱۴۰۰) نسخ شده و فقط برای مطالعه‌ی تاریخی است.',
-        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰ (جایگزین)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
-        files: [
-            { title: 'تمام مواد', path: 'laws/batch6/bar_independence_bylaw_1334.json' }
-        ]
-    },
-    'tab-transfer-bylaw-west-azarbaijan': {
-        title: 'آیین‌نامه نقل و انتقال وکلای کانون آذربایجان غربی',
-        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری آذربایجان غربی (10 ماده).',
-        article_word: 'ماده',
-        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
-        files: [
-            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_west_azarbaijan.json' }
-        ]
-    },
-    'tab-transfer-bylaw-kerman': {
-        title: 'آیین‌نامه نقل و انتقال وکلای کانون کرمان',
-        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری کرمان (9 ماده).',
-        article_word: 'ماده',
-        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
-        files: [
-            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_kerman.json' }
-        ]
-    },
-    'tab-transfer-bylaw-khuzestan': {
-        title: 'آیین‌نامه نقل و انتقال وکلای کانون خوزستان',
-        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری خوزستان (15 ماده).',
-        article_word: 'ماده',
-        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
-        files: [
-            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_khuzestan.json' }
-        ]
-    },
-    'tab-transfer-bylaw-fars': {
-        title: 'آیین‌نامه نقل و انتقال وکلای کانون فارس و کهگیلویه و بویراحمد',
-        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری فارس و کهگیلویه و بویراحمد (15 ماده).',
-        article_word: 'ماده',
-        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
-        files: [
-            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_fars.json' }
-        ]
-    },
-    'tab-transfer-bylaw-markazi': {
-        title: 'آیین‌نامه نقل و انتقال وکلای کانون مرکز',
-        info: 'آیین‌نامه نقل و انتقالات و تغییر محل اشتغال وکلای عضو کانون وکلای دادگستری مرکز (12 ماده).',
-        article_word: 'ماده',
-        related: [{ key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
-        files: [
-            { title: 'تمام مواد', path: 'laws/batch6/transfer_bylaw_markazi.json' }
-        ]
-    },
     'tab-lawyer-selection-resolution': {
         title: 'مصوبه مجمع تشخیص: انتخاب وکیل (۱۳۷۰)',
         info: 'مصوبه مجمع تشخیص مصلحت نظام در خصوص حق اصحاب دعوی در انتخاب وکیل، مصوب ۱۳۷۰/۰۷/۱۱ (ماده واحده و سه تبصره).',
@@ -670,9 +594,24 @@ const lawManifest = {
         title: 'آیین‌نامه ساماندهی حق‌الوکاله و حق‌المشاوره (دستگاه‌های اجرایی)',
         info: 'آیین‌نامه ساماندهی حق‌الوکاله و حق‌المشاوره خدمات وکلای دادگستری و مشاوران حقوقی در دستگاه‌های اجرایی (تصویب‌نامه ۱۳۹۷/۰۹/۲۴ هیئت وزیران، ۶ ماده).',
         article_word: 'ماده',
-        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت' }, { key: 'tab-lawyer-fee-tariff-1385', label: 'آیین‌نامه تعرفه ۱۳۸۵ (ملغی)' }, { key: 'tab-lawyer-fee-tariff-1398', label: 'آیین‌نامه تعرفه ۱۳۹۸' }],
+        related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت' }, { key: 'tab-lawyer-fee-tariff-1398', label: 'آیین‌نامه تعرفه ۱۳۹۸' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/lawyer_fee_organization.json' }
         ]
     }
 };
+
+// گروه‌بندی قوانین برای سایدبار، داشبورد و فهرست فلش‌کارت (کلیدهای بدون گروه خودکار به «سایر» می‌روند)
+const lawGroups = [
+    { id: 'core', title: 'قوانین پایه', keys: ['tab-constitution', 'tab-civil-code', 'tab-islamic-penal-code', 'tab-commercial-code', 'tab-civil-procedure-code', 'tab-criminal-procedure-code'] },
+    { id: 'family', title: 'خانواده و اشخاص', keys: ['tab-family-protection-law', 'tab-family-youth-population-law', 'tab-divorce-rules-law', 'tab-child-protection-law', 'tab-hosbi-law', 'tab-civil-liability-law', 'tab-contracting-maturity-law'] },
+    { id: 'property', title: 'ملک، ثبت و اسناد', keys: ['tab-registration-law', 'tab-registration-obligation-law', 'tab-unregistered-property-law', 'tab-cadastre-law', 'tab-notaries-law', 'tab-document-facilitation-law', 'tab-landlord-tenant-law', 'tab-land-housing-rent-law', 'tab-apartment-ownership-law', 'tab-building-presale-law'] },
+    { id: 'business', title: 'تجارت و مالی', keys: ['tab-check-issuance-law', 'tab-electronic-commerce-law', 'tab-securities-market-law', 'tab-insurance-law', 'tab-third-party-insurance-law', 'tab-anti-money-laundering-law', 'tab-economic-disruptors-law', 'tab-consumer-rights-law', 'tab-trade-unions-law'] },
+    { id: 'tax', title: 'مالیات و گمرک', keys: ['tab-direct-taxes-law', 'tab-direct-tax-amendment-law', 'tab-vat-law', 'tab-customs-law', 'tab-government-revenue-law'] },
+    { id: 'labor', title: 'کار و تأمین اجتماعی', keys: ['tab-labor-code', 'tab-social-security-law'] },
+    { id: 'crime', title: 'جرایم و مجازات‌های خاص', keys: ['tab-computer-crimes-law', 'tab-anti-narcotics-law', 'tab-smuggling-law', 'tab-bribery-embezzlement-law', 'tab-prison-reduction-law', 'tab-traffic-violations-law', 'tab-citizen-rights-law'] },
+    { id: 'procedure', title: 'دادرسی، اجرا و دادگاه‌ها', keys: ['tab-general-courts-law', 'tab-civil-judgment-enforcement-law', 'tab-financial-judgment-enforcement-law', 'tab-dispute-resolution-councils-law', 'tab-administrative-justice-court-law', 'tab-judges-conduct-law'] },
+    { id: 'admin', title: 'اداری و عمومی', keys: ['tab-administrative-violations-law', 'tab-military-service-law'] },
+    { id: 'ip', title: 'مالکیت فکری', keys: ['tab-authors-rights-law', 'tab-software-rights-law'] },
+    { id: 'lawyers', title: 'وکالت و کانون وکلا', keys: ['tab-lawyers-law', 'tab-lawyers-bylaw', 'tab-lawyer-license-law', 'tab-bar-association-independence-law', 'tab-bar-independence-bylaw-1400', 'tab-lawyer-fee-tariff-1398', 'tab-lawyer-fee-organization', 'tab-lawyers-support-fund-bylaw-10', 'tab-lawyer-selection-resolution', 'tab-lawyers-support-fund-law', 'tab-lawyers-coop-fund-law', 'tab-lawyers-support-fund-bylaw-8'] },
+];
