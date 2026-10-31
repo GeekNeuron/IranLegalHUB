@@ -1,6 +1,6 @@
 // Service Worker کانون حقوقی ایران — پشتیبانی آفلاین (PWA)
 // نکته: با هر تغییر در فایل‌های برنامه/قوانین، عدد نسخه‌ی زیر را بالا ببرید.
-const CACHE_NAME = 'ilh-cache-v14';
+const CACHE_NAME = 'ilh-cache-v16';
 const APP_SHELL = [
     './',
     './index.html',

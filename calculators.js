@@ -31,29 +31,57 @@
         if (spouse === 'wife') spouseTotal = hasChild ? frac(1, 8) : frac(1, 4);
 
         var motherShare = ZERO, fatherShare = ZERO;
-        var motherBlocked = !!inp.motherBlocked && father && !hasChild;
-        if (inp.motherBlocked && !motherBlocked) {
-            notes.push('حجب مادر (ماده ۸۹۲ ب) فقط وقتی اثر دارد که پدر زنده و فرزند نباشد؛ نادیده گرفته شد.');
+        var motherBlocked = !!inp.motherBlocked && father;
+        if (inp.motherBlocked && !father) {
+            notes.push('حجب مادر (ماده ۸۹۲ ب) فقط وقتی اثر دارد که پدر زنده باشد؛ نادیده گرفته شد.');
         }
-        if (mother) motherShare = hasChild ? frac(1, 6) : (motherBlocked ? frac(1, 6) : frac(1, 3));
+        if (mother) motherShare = (hasChild || motherBlocked) ? frac(1, 6) : frac(1, 3);
         if (father && hasChild) fatherShare = frac(1, 6);
-
-        var assigned = add(add(spouseTotal, motherShare), fatherShare);
-        var rest = sub(ONE, assigned);
+        var rest;
 
         if (hasChild) {
-            var weight = 2 * sons + daughters;
-            var unit = div(rest, frac(weight, 1));
-            if (sons) heirs.push({ role: 'هر پسر' + (sons > 1 ? ' (' + sons + ' نفر)' : ''), each: mul(unit, frac(2, 1)), count: sons });
-            if (daughters) heirs.push({ role: 'هر دختر' + (daughters > 1 ? ' (' + daughters + ' نفر)' : ''), each: unit, count: daughters });
-        } else if (father) {
-            fatherShare = rest;            // پدر بقیه را می‌برد
-            rest = ZERO;
-        } else if (mother) {
-            // ماده ۹۰۵: زائد بر فریضه به مادر رد می‌شود، نه به زوج/زوجه
-            motherShare = add(motherShare, rest);
-            notes.push('باقی‌مانده طبق ماده ۹۰۵ به مادر رد شده است (به زوج یا زوجه رد نمی‌شود).');
-            rest = ZERO;
+            var parentsFard = add(motherShare, fatherShare);
+            var childrenRest = sub(sub(ONE, spouseTotal), parentsFard);
+            if (sons > 0) {
+                // وجود پسر: ابوین و زوج فرض می‌برند و بقیه به اولاد با نسبت دو به یک (ماده ۹۰۷)
+                var weight = 2 * sons + daughters;
+                var unit = div(childrenRest, frac(weight, 1));
+                heirs.push({ role: 'هر پسر' + (sons > 1 ? ' (' + sons + ' نفر)' : ''), each: mul(unit, frac(2, 1)), count: sons });
+                if (daughters) heirs.push({ role: 'هر دختر' + (daughters > 1 ? ' (' + daughters + ' نفر)' : ''), each: unit, count: daughters });
+            } else {
+                // فقط دختر: فرض یک دختر نصف و چند دختر دو ثلث (مواد ۹۰۸ و ۹۰۹)
+                var daughtersFard = daughters === 1 ? frac(1, 2) : frac(2, 3);
+                var fardSum = add(add(spouseTotal, parentsFard), daughtersFard);
+                var dEach;
+                if (fardSum.n > fardSum.d) {
+                    // نقص بر دختران وارد می‌شود
+                    dEach = div(childrenRest, frac(daughters, 1));
+                    notes.push('چون مجموع فرض‌ها از کل ترکه بیشتر می‌شود، نقص بر دختران وارد شده است.');
+                    if (father) fatherShare = frac(1, 6);
+                } else if (fardSum.n < fardSum.d) {
+                    // رد: مابقی به نسبت فرض‌ها بین دختران و ابوین، نه زوج/زوجه و نه مادر دارای حاجب (مواد ۹۰۸ و ۹۰۹)
+                    var extra = sub(ONE, fardSum);
+                    var wD = daughtersFard, wF = father ? frac(1, 6) : ZERO, wM = (mother && !motherBlocked) ? frac(1, 6) : ZERO;
+                    var wSum = add(add(wD, wF), wM);
+                    dEach = div(add(daughtersFard, mul(extra, div(wD, wSum))), frac(daughters, 1));
+                    if (father) fatherShare = add(frac(1, 6), mul(extra, div(wF, wSum)));
+                    if (mother) motherShare = add(frac(1, 6), mul(extra, div(wM, wSum)));
+                    notes.push('مابقی طبق مواد ۹۰۸ و ۹۰۹ به نسبت فرض‌ها بین دختران و ابوین رد شده است (به زوج یا زوجه و مادر دارای حاجب رد نمی‌شود).');
+                } else {
+                    dEach = div(daughtersFard, frac(daughters, 1));
+                    if (father) fatherShare = frac(1, 6);
+                }
+                heirs.push({ role: 'هر دختر' + (daughters > 1 ? ' (' + daughters + ' نفر)' : ''), each: dEach, count: daughters });
+            }
+        } else {
+            rest = sub(ONE, add(add(spouseTotal, motherShare), fatherShare));
+            if (father) {
+                fatherShare = rest;            // پدر بقیه را می‌برد
+            } else if (mother) {
+                // ماده ۹۰۵: زائد بر فریضه به مادر رد می‌شود، نه به زوج/زوجه
+                motherShare = add(motherShare, rest);
+                notes.push('باقی‌مانده طبق ماده ۹۰۵ به مادر رد شده است (به زوج یا زوجه رد نمی‌شود).');
+            }
         }
         if (father) heirs.unshift({ role: 'پدر', each: fatherShare, count: 1 });
         if (mother) heirs.unshift({ role: 'مادر' + (motherBlocked ? ' (دارای حاجب)' : ''), each: motherShare, count: 1 });
@@ -63,7 +91,7 @@
         var total = ZERO;
         heirs.forEach(function (h) { total = add(total, mul(h.each, frac(h.count, 1))); });
         if (spouse === 'wife') notes.push('طبق ماده ۹۴۶، زوجه از عین اموال غیرمنقول (عرصه) ارث نمی‌برد و سهمش از قیمت غیرمنقول پرداخت می‌شود.');
-        if (hasChild) notes.push('با وجود فرزند، نوه ارث نمی‌برد (ماده ۹۱۰). اگر فرزندی در زمان فوت زنده نبوده و فرزند او زنده است، این ابزار آن را پوشش نمی‌دهد (ماده‌های ۹۱۱ و ۹۱۲).');
+        if (hasChild) notes.push('با وجود فرزند، نوه ارث نمی‌برد. اگر فرزندی در زمان فوت زنده نبوده و فرزند او زنده است، این ابزار آن را پوشش نمی‌دهد.');
         notes.push('پیش از تقسیم، کفن و دیون و وصایا (تا یک‌سوم، ماده ۸۶۹) از ترکه کسر می‌شود. مبلغ را «خالص ترکه» وارد کنید.');
         return { heirs: heirs, total: total, ok: total.n === total.d, notes: notes };
     }
