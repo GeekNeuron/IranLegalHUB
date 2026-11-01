@@ -18,6 +18,13 @@ function getLawGroups() {
     if (rest.length) groups.push({ id: 'other', title: 'سایر', keys: rest });
     return groups;
 }
+function lawArticleCountLabel(key) {
+    const law = (typeof lawManifest !== 'undefined') ? lawManifest[key] : null;
+    if (!law) return '';
+    const c = law.article_count;
+    if (!c) return 'ماده واحده';
+    return toPersianNumerals(c) + ' ' + (law.article_word || 'ماده');
+}
 function openLawGroupOf(key) {
     document.querySelectorAll('details.law-group').forEach(d => {
         if (d.querySelector(`[data-tab="${cssEscape(key)}"]`)) d.open = true;
@@ -1861,9 +1868,9 @@ document.addEventListener('DOMContentLoaded', () => {
         countEl.innerHTML = `در حال حاضر <strong>${toPersianNumerals(keys.length)}</strong> قانون در این مجموعه گنجانده شده است. برای ورود به هر قانون روی آن بزنید:`;
         listEl.className = 'dash-groups';
         listEl.innerHTML = getLawGroups().map((g, i) => `
-            <details class="law-group dash-group"${i === 0 ? ' open' : ''}>
+            <details class="law-group dash-group">
                 <summary><span>${g.title}</span><span class="law-group-count">${toPersianNumerals(g.keys.length)}</span></summary>
-                <div class="dash-law-list">${g.keys.map(k => `<button type="button" class="dash-law-card tab-link" data-tab="${k}"><span>${lawManifest[k].title}</span></button>`).join('')}</div>
+                <div class="dash-law-list">${g.keys.map(k => `<button type="button" class="dash-law-card tab-link" data-tab="${k}"><span class="dash-law-name">${lawManifest[k].title}</span><span class="dash-law-meta">${lawArticleCountLabel(k)}</span></button>`).join('')}</div>
             </details>`).join('');
         refreshDashboard();
         const t = setInterval(() => { if (isDataLoaded) { clearInterval(t); refreshDashboard(); } }, 500);

@@ -2,7 +2,8 @@ const lawManifest = {
     'tab-constitution': {
         title: 'قانون اساسی',
         info: 'قانون اساسی جمهوری اسلامی ایران در سال ۱۳۵۸ تصویب و در سال ۱۳۶۸ بازنگری شد. این قانون دارای ۱۷۷ اصل و یک مقدمه است.',
-        article_word: 'اصل', 
+        article_word: 'اصل',
+        article_count: 177, 
         files: [
             { title: 'تمام اصول', path: 'laws/constitution/constitution.json' }
         ] // آزمون این بخش هنوز آماده نیست
@@ -11,6 +12,7 @@ const lawManifest = {
         title: 'قانون مدنی',
         info: 'قانون مدنی ایران در سه جلد تصویب شده و دارای ۱۳۳۵ ماده است. این قانون شالوده اصلی حقوق خصوصی ایران را تشکیل می‌دهد.',
         article_word: 'ماده',
+        article_count: 1335,
         files: [
             { title: 'جلد اول (اموال، عقود، وصیت و ارث)', path: 'laws/civil_code/civil_code_vol_1.json' },
             { title: 'جلد دوم (اشخاص)', path: 'laws/civil_code/civil_code_vol_2.json' },
@@ -21,6 +23,7 @@ const lawManifest = {
         title: 'قانون مجازات اسلامی',
         info: 'قانون مجازات اسلامی مصوب ۱۳۹۲ (کتاب‌های اول تا چهارم) به‌همراه کتاب پنجم: تعزیرات و مجازات‌های بازدارنده مصوب ۱۳۷۵ با اصلاحات بعدی.',
         article_word: 'ماده',
+        article_count: 1018,
         files: [
             { title: 'کتاب اول: کلیات', path: 'laws/islamic_penal_code/islamic_penal_code_book_1.json' },
             { title: 'کتاب دوم: حدود', path: 'laws/islamic_penal_code/islamic_penal_code_book_2.json' },
@@ -33,6 +36,7 @@ const lawManifest = {
         title: 'قانون تجارت',
         info: 'قانون تجارت ایران در سال ۱۳۱۱ تصویب شد. بخش شرکت‌های سهامی آن در سال ۱۳۴۷ با لایحه‌ای کامل جایگزین گردید.',
         article_word: 'ماده',
+        article_count: 900,
         files: [
             { title: 'بخش اول: شرکت‌های سهامی (لایحه ۱۳۴۷)', path: 'laws/commercial_code/part_1_joint_stock_companies.json' },
             { title: 'بخش دوم: بدنه اصلی قانون (مصوب ۱۳۱۱)', path: 'laws/commercial_code/part_2_main_body.json' }
@@ -42,6 +46,7 @@ const lawManifest = {
         title: 'قانون آیین دادرسی مدنی',
         info: 'قانون آیین دادرسی دادگاه‌های عمومی و انقلاب در امور مدنی در سال ۱۳۷۹ تصویب شد و دارای ۵۲۹ ماده است.',
         article_word: 'ماده',
+        article_count: 529,
         files: [
             { title: 'تمام مواد', path: 'laws/civil_procedure_code/civil_procedure_code.json' }
         ]
@@ -51,6 +56,7 @@ const lawManifest = {
         info: 'قانون آیین دادرسی کیفری در سال ۱۳۹۲ به تصویب رسید و دارای ۶۹۹ ماده است.',
         related: [ { key: 'tab-general-courts-law', label: 'دادگاه‌های عمومی و انقلاب' }],
         article_word: 'ماده',
+        article_count: 699,
         files: [
             { title: 'تمام مواد', path: 'laws/criminal_procedure_code/criminal_procedure_code.json' }
         ]
@@ -59,6 +65,7 @@ const lawManifest = {
         title: 'قانون کار',
         info: 'قانون کار جمهوری اسلامی ایران مصوب ۱۳۶۹/۸/۲۹ با اصلاحات ۱۳۹۰، ۲۰۳ ماده. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 203,
         files: [
             { title: 'تمام مواد', path: 'laws/labor_code/labor_code.json' }
         ]
@@ -67,6 +74,7 @@ const lawManifest = {
         title: 'قانون حمایت خانواده',
         info: 'قانون حمایت خانواده مصوب ۱۳۹۱/۱۲/۰۱ با اصلاح ماده ۵۳ در ۱۳۹۹. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 58,
         files: [
             { title: 'تمام مواد', path: 'laws/family_protection_law/family_protection_law.json' }
         ]
@@ -75,6 +83,7 @@ const lawManifest = {
         title: 'قانون صدور چک',
         info: 'قانون صدور چک مصوب ۱۳۵۵/۴/۱۶ با اصلاحات و الحاقات تا ۱۴۰۰/۱/۲۹ (و اصلاح مبالغ جزای نقدی ۱۴۰۳-۱۴۰۴). تکمیل شد.',
         article_word: 'ماده',
+        article_count: 28,
         files: [
             { title: 'تمام مواد', path: 'laws/check_issuance_law/check_issuance_law.json' }
         ]
@@ -83,6 +92,7 @@ const lawManifest = {
         title: 'قانون ثبت اسناد و املاک',
         info: 'قانون ثبت اسناد و املاک مصوب ۱۳۱۰/۱۲/۲۶ با اصلاحات تا ۱۴۰۲، ۱۵۷ ماده. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 163,
         files: [
             { title: 'تمام مواد', path: 'laws/registration_law/registration_law.json' }
         ]
@@ -91,6 +101,7 @@ const lawManifest = {
         title: 'قانون روابط موجر و مستأجر',
         info: 'قانون روابط موجر و مستأجر مصوب ۱۳۷۶/۰۵/۲۶ با اصلاح ماده ۲ در ۱۴۰۳. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 13,
         files: [
             { title: 'تمام مواد', path: 'laws/landlord_tenant_law/landlord_tenant_law.json' }
         ]
@@ -99,6 +110,7 @@ const lawManifest = {
         title: 'قانون تجارت الکترونیکی',
         info: 'قانون تجارت الکترونیکی مصوب ۱۳۸۲/۱۰/۱۷، ۸۱ ماده. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 81,
         files: [
             { title: 'تمام مواد', path: 'laws/electronic_commerce_law/electronic_commerce_law.json' }
         ]
@@ -107,6 +119,7 @@ const lawManifest = {
         title: 'قانون مالیات‌های مستقیم',
         info: 'قانون مالیات‌های مستقیم مصوب ۱۳۶۶/۱۲/۳ با اصلاحات تا ۱۴۰۳ (بزرگ‌ترین قانون مجموعه). تکمیل شد — ۲۲۵ ماده/بند موجود در متن فعلی؛ بقیه شماره‌ها طی اصلاحات تاریخی نسخ شده و در قانون فعلی وجود ندارند.',
         article_word: 'ماده',
+        article_count: 291,
         files: [
             { title: 'تمام مواد', path: 'laws/direct_taxes_law/direct_taxes_law.json' }
         ]
@@ -115,6 +128,7 @@ const lawManifest = {
         title: 'قانون تأمین اجتماعی',
         info: 'قانون تأمین اجتماعی مصوب ۱۳۵۴/۰۴/۰۳ با اصلاحات تا ۱۴۰۴، ۱۱۸ ماده. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 118,
         files: [
             { title: 'تمام مواد', path: 'laws/social_security_law/social_security_law.json' }
         ]
@@ -123,6 +137,7 @@ const lawManifest = {
         title: 'قانون دیوان عدالت اداری',
         info: 'قانون دیوان عدالت اداری مصوب ۱۳۹۲/۳/۲۵ با اصلاحات عمده ۱۴۰۲/۲/۱۰، ۱۲۴ ماده. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 124,
         files: [
             { title: 'تمام مواد', path: 'laws/administrative_justice_court_law/administrative_justice_court_law.json' }
         ]
@@ -131,6 +146,7 @@ const lawManifest = {
         title: 'قانون جرائم رایانه‌ای',
         info: 'قانون جرائم رایانه‌ای مصوب ۱۳۸۸/۰۳/۰۵ (اکنون مواد ۷۲۹ تا ۷۸۲ کتاب پنجم قانون مجازات اسلامی). تکمیل شد.',
         article_word: 'ماده',
+        article_count: 56,
         files: [
             { title: 'تمام مواد', path: 'laws/computer_crimes_law/computer_crimes_law.json' }
         ]
@@ -139,6 +155,7 @@ const lawManifest = {
         title: 'قانون تشکیل دادگاه‌های عمومی و انقلاب',
         info: 'قانون تشکیل دادگاه‌های عمومی و انقلاب مصوب ۱۳۷۳/۰۴/۱۵ با اصلاحات ۱۳۸۱، ۱۳۸۵ و ۱۳۹۲ (بسیاری از مواد منسوخ‌اند و برای مرجعیت تاریخی حفظ شده‌اند). تکمیل شد.',
         article_word: 'ماده',
+        article_count: 39,
         files: [
             { title: 'تمام مواد', path: 'laws/general_courts_law/general_courts_law.json' }
         ]
@@ -147,6 +164,7 @@ const lawManifest = {
         title: 'قانون حمایت از حقوق مصرف‌کنندگان',
         info: 'قانون حمایت از حقوق مصرف‌کنندگان مصوب ۱۳۸۸/۰۷/۱۵ مجلس شورای اسلامی. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 22,
         files: [
             { title: 'تمام مواد', path: 'laws/five_statutes/consumer_rights_law.json' }
         ]
@@ -155,6 +173,7 @@ const lawManifest = {
         title: 'قانون بیمه',
         info: 'قانون بیمه مصوب ۱۳۱۶/۰۲/۰۷ مجلس شورای ملی، شامل مقررات معاملات بیمه، فسخ و بطلان و مسئولیت بیمه‌گر. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 36,
         files: [
             { title: 'تمام مواد', path: 'laws/five_statutes/insurance_law.json' }
         ]
@@ -163,6 +182,7 @@ const lawManifest = {
         title: 'قانون مالیات بر ارزش افزوده',
         info: 'قانون مالیات بر ارزش افزوده مصوب ۱۴۰۰/۰۳/۰۲ مجلس شورای اسلامی با اصلاحات تا ۱۴۰۱/۱۱/۰۵ (۵۷ ماده).',
         article_word: 'ماده',
+        article_count: 57,
         files: [
             { title: 'تمام مواد', path: 'laws/five_statutes/vat_law.json' }
         ]
@@ -171,6 +191,7 @@ const lawManifest = {
         title: 'قانون رسیدگی به تخلفات اداری',
         info: 'قانون رسیدگی به تخلفات اداری مصوب ۱۳۷۲/۰۹/۰۷ مجلس شورای اسلامی. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 27,
         files: [
             { title: 'تمام مواد', path: 'laws/five_statutes/administrative_violations_law.json' }
         ]
@@ -179,6 +200,7 @@ const lawManifest = {
         title: 'قانون نظام صنفی کشور',
         info: 'قانون نظام صنفی کشور مصوب ۱۳۸۲/۱۲/۲۴ با الحاقات و اصلاحات تا ۱۴۰۳/۰۵/۰۲. تکمیل شد.',
         article_word: 'ماده',
+        article_count: 102,
         files: [
             { title: 'تمام مواد', path: 'laws/five_statutes/trade_unions_law.json' }
         ]
@@ -187,6 +209,7 @@ const lawManifest = {
         title: 'قانون اجرای احکام مدنی',
         info: 'قانون اجرای احکام مدنی مصوب ۱۳۵۶ مجلس شورای ملی با اصلاحات بعدی، شامل ترتیب اجرای احکام، توقیف و فروش اموال و تأدیه طلب.',
         article_word: 'ماده',
+        article_count: 180,
         files: [
             { title: 'تمام مواد', path: 'laws/batch2/civil_judgment_enforcement_law.json' }
         ]
@@ -195,6 +218,7 @@ const lawManifest = {
         title: 'قانون نحوه اجرای محکومیت‌های مالی',
         info: 'قانون نحوه اجرای محکومیت‌های مالی مصوب ۱۳۹۴ مجمع تشخیص مصلحت نظام.',
         article_word: 'ماده',
+        article_count: 29,
         files: [
             { title: 'تمام مواد', path: 'laws/batch2/financial_judgment_enforcement_law.json' }
         ]
@@ -203,6 +227,7 @@ const lawManifest = {
         title: 'قانون شوراهای حل اختلاف',
         info: 'قانون شوراهای حل اختلاف مصوب ۱۴۰۲ مجلس شورای اسلامی.',
         article_word: 'ماده',
+        article_count: 41,
         files: [
             { title: 'تمام مواد', path: 'laws/batch2/dispute_resolution_councils_law.json' }
         ]
@@ -211,6 +236,7 @@ const lawManifest = {
         title: 'قانون رسیدگی به تخلفات رانندگی',
         info: 'قانون رسیدگی به تخلفات رانندگی مصوب ۱۳۸۹ مجلس شورای اسلامی با اصلاحات و الحاقات بعدی.',
         article_word: 'ماده',
+        article_count: 35,
         files: [
             { title: 'تمام مواد', path: 'laws/batch2/traffic_violations_law.json' }
         ]
@@ -219,6 +245,7 @@ const lawManifest = {
         title: 'قانون تملک آپارتمان‌ها',
         info: 'قانون تملک آپارتمان‌ها مصوب ۱۳۴۳ با آخرین اصلاحات.',
         article_word: 'ماده',
+        article_count: 16,
         files: [
             { title: 'تمام مواد', path: 'laws/batch2/apartment_ownership_law.json' }
         ]
@@ -227,6 +254,7 @@ const lawManifest = {
         title: 'قانون مبارزه با مواد مخدر',
         info: 'قانون اصلاح قانون مبارزه با مواد مخدر و الحاق موادی به آن، مصوب ۱۳۷۶ با آخرین اصلاحات تا ۱۳۹۶.',
         article_word: 'ماده',
+        article_count: 46,
         files: [
             { title: 'تمام مواد', path: 'laws/batch2/anti_narcotics_law.json' }
         ]
@@ -235,6 +263,7 @@ const lawManifest = {
         title: 'قانون مبارزه با پولشویی',
         info: 'قانون مبارزه با پولشویی مصوب ۱۳۸۶ با آخرین اصلاحات تا ۱۳۹۷.',
         article_word: 'ماده',
+        article_count: 15,
         files: [
             { title: 'تمام مواد', path: 'laws/batch2/anti_money_laundering_law.json' }
         ]
@@ -243,6 +272,7 @@ const lawManifest = {
         title: 'قانون حمایت از خانواده و جوانی جمعیت',
         info: 'قانون حمایت از خانواده و جوانی جمعیت مصوب ۱۴۰۰ مجلس شورای اسلامی.',
         article_word: 'ماده',
+        article_count: 74,
         files: [
             { title: 'تمام مواد', path: 'laws/batch2/family_youth_population_law.json' }
         ]
@@ -251,6 +281,7 @@ const lawManifest = {
         title: 'لایحه قانونی استقلال کانون وکلای دادگستری',
         info: 'لایحه قانونی استقلال کانون وکلای دادگستری مصوب ۱۳۳۳ کمیسیون مشترک مجلسین با اصلاحات بعدی.',
         article_word: 'ماده',
+        article_count: 26,
         files: [
             { title: 'تمام مواد', path: 'laws/batch2/bar_association_independence_law.json' }
         ]
@@ -260,6 +291,7 @@ const lawManifest = {
         info: 'قانون مسئولیت مدنی مصوب ۱۳۳۹، مبنای جبران خسارت (تقصیر، تخفیف خسارت، مسئولیت کارفرما و دولت).',
         related: [{ key: 'tab-third-party-insurance-law', label: 'بیمه اجباری شخص ثالث' }, { key: 'tab-civil-code', label: 'قانون مدنی' }, { key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی ۱۴۰۰' }],
         article_word: 'ماده',
+        article_count: 16,
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/civil_liability_law.json' }
         ]
@@ -270,6 +302,7 @@ const lawManifest = {
         warning: 'این قانون (۱۳۹۵) جایگزین قانون بیمه اجباری شخص ثالث مصوب ۱۳۸۷ شده است و مواد قانون ۱۳۸۷ دیگر اعتبار ندارد.',
         related: [{ key: 'tab-civil-liability-law', label: 'مبنای مسئولیت: قانون مسئولیت مدنی' }, { key: 'tab-insurance-law', label: 'قانون بیمه' }],
         article_word: 'ماده',
+        article_count: 66,
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/third_party_insurance_law.json' }
         ]
@@ -279,6 +312,7 @@ const lawManifest = {
         info: 'قانون حمایت از حقوق مؤلفان، مصنفان و هنرمندان مصوب ۱۳۴۸ (حق مؤلف و حقوق آثار ادبی و هنری).',
         related: [{ key: 'tab-software-rights-law', label: 'حقوق پدیدآورندگان نرم‌افزار' }],
         article_word: 'ماده',
+        article_count: 33,
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/authors_rights_law.json' }
         ]
@@ -287,6 +321,7 @@ const lawManifest = {
         title: 'قانون نظارت بر رفتار قضات',
         info: 'قانون نظارت بر رفتار قضات مصوب ۱۳۹۰: تخلفات انتظامی قضات، دادسرا و دادگاه عالی انتظامی و رسیدگی به صلاحیت قضات.',
         article_word: 'ماده',
+        article_count: 56,
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/judges_conduct_supervision_law.json' }
         ]
@@ -296,6 +331,7 @@ const lawManifest = {
         info: 'قانون حمایت از حقوق پدیدآورندگان نرم‌افزارهای رایانه‌ای مصوب ۱۳۷۹ (حقوق مادی و معنوی نرم‌افزار).',
         related: [{ key: 'tab-authors-rights-law', label: 'حقوق مؤلفان، مصنفان و هنرمندان' }],
         article_word: 'ماده',
+        article_count: 17,
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/software_rights_law.json' }
         ]
@@ -304,6 +340,7 @@ const lawManifest = {
         title: 'قانون وصول برخی از درآمدهای دولت و مصرف آن در موارد معین',
         info: 'قانون وصول برخی از درآمدهای دولت و مصرف آن در موارد معین مصوب ۱۳۷۳؛ شامل هزینه‌های دادرسی و ثبتی و درآمد دستگاه‌ها.',
         article_word: 'ماده',
+        article_count: 91,
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/government_revenue_law.json' }
         ]
@@ -313,6 +350,7 @@ const lawManifest = {
         info: 'قانون امور حسبی مصوب ۱۳۱۹: قیمومت، امینی، غایب مفقودالاثر، ترکه، وصیت، تقسیم و تصدیق انحصار وراثت (۳۷۸ ماده).',
         related: [{ key: 'tab-civil-code', label: 'قانون مدنی (ارجاع مواد ۱۲۱۹ به بعد)' }, { key: 'tab-civil-procedure-code', label: 'آیین دادرسی مدنی (ارجاع مواد ۵، ۷، ۱۶)' }],
         article_word: 'ماده',
+        article_count: 378,
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/hosbi_law.json' }
         ]
@@ -321,6 +359,7 @@ const lawManifest = {
         title: 'قانون امور گمرکی',
         info: 'قانون امور گمرکی مصوب ۱۳۹۰/۰۸/۲۲ با آخرین اصلاحات تا ۱۳۹۳/۰۴/۱۴ (۱۶۵ ماده): ارزش‌گذاری، رویه‌های گمرکی، تخلفات و قاچاق، کارگزار گمرکی و مراجع رسیدگی به اختلافات گمرکی.',
         article_word: 'ماده',
+        article_count: 165,
         warning: 'متن این صفحه تا آخرین اصلاحات ۱۳۹۳/۰۴/۱۴ است؛ برای اصلاحات بعدی به منابع رسمی مراجعه کنید.',
         related: [{ key: 'tab-islamic-penal-code', label: 'قانون مجازات اسلامی' }, { key: 'tab-direct-taxes-law', label: 'قانون مالیات‌های مستقیم' }, { key: 'tab-vat-law', label: 'مالیات بر ارزش افزوده' }],
         files: [
@@ -331,6 +370,7 @@ const lawManifest = {
         title: 'قانون خدمت وظیفه عمومی',
         info: 'قانون خدمت وظیفه عمومی (نظام وظیفه و سربازی) مصوب ۱۳۶۳/۰۷/۲۹ با اصلاحات تا ۱۳۹۶/۰۵/۱۷: مشمولیت، دوره ضرورت، معافیت‌ها، غیبت و جرائم و مجازات‌ها؛ به‌همراه قانون الحاق موادی به آن (۱۳۶۵).',
         article_word: 'ماده',
+        article_count: 94,
         warning: 'مواد ۱۷، ۱۸ و ۲۳ در صفحه‌ی منبع نبود و در این مجموعه نیامده است.',
         related: [{ key: 'tab-islamic-penal-code', label: 'قانون مجازات اسلامی' }, { key: 'tab-administrative-violations-law', label: 'قانون رسیدگی به تخلفات اداری' }],
         files: [
@@ -342,6 +382,7 @@ const lawManifest = {
         title: 'قانون کاهش مجازات حبس تعزیری',
         info: 'قانون کاهش مجازات حبس تعزیری مصوب ۱۳۹۹/۰۲/۲۳: کاهش یا تبدیل حبس در کتاب پنجم (تعزیرات)، اصلاح مواد ۱۸، ۱۹، ۲۳، ۲۸، ۳۷، ۴۷، ۵۷، ۶۲، ۷۲، ۱۰۴، ۱۳۴، ۱۳۷ و ۱۳۹ قانون مجازات اسلامی.',
         article_word: 'ماده',
+        article_count: 15,
         related: [{ key: 'tab-islamic-penal-code', label: 'قانون مجازات اسلامی (کتاب ۱ تا ۵)' }, { key: 'tab-criminal-procedure-code', label: 'آیین دادرسی کیفری' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/prison_reduction_law.json' }
@@ -351,6 +392,7 @@ const lawManifest = {
         title: 'قانون تشدید مجازات مرتکبین ارتشاء، اختلاس و کلاهبرداری',
         info: 'قانون تشدید مجازات مرتکبین ارتشاء و اختلاس و کلاهبرداری مصوب ۱۳۶۴/۰۶/۲۸ (با اصلاحات ۱۳۶۷/۰۹/۱۵ مجمع تشخیص مصلحت نظام): کلاهبرداری، ارتشاء، اختلاس و جرائم در حکم آن (۸ ماده).',
         article_word: 'ماده',
+        article_count: 8,
         related: [{ key: 'tab-islamic-penal-code', label: 'قانون مجازات اسلامی' }, { key: 'tab-prison-reduction-law', label: 'قانون کاهش مجازات حبس تعزیری' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch3/bribery_embezzlement_law.json' }
@@ -360,6 +402,7 @@ const lawManifest = {
         title: 'قانون احترام به آزادی‌های مشروع و حفظ حقوق شهروندی',
         info: 'قانون احترام به آزادی‌های مشروع و حفظ حقوق شهروندی مصوب ۱۳۸۳/۰۲/۱۵: ماده واحده با ۱۵ بند درباره‌ی تکالیف محاکم، دادسراها و ضابطان در دستگیری، بازجویی، بازداشت و تفتیش.',
         article_word: 'ماده',
+        article_count: 0,
         related: [{ key: 'tab-constitution', label: 'قانون اساسی (اصول ۳۲ تا ۳۹)' }, { key: 'tab-criminal-procedure-code', label: 'آیین دادرسی کیفری' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/citizen_rights_law.json' }
@@ -369,6 +412,7 @@ const lawManifest = {
         title: 'قانون مجازات اخلالگران در نظام اقتصادی کشور',
         info: 'قانون مجازات اخلالگران در نظام اقتصادی کشور مصوب ۱۳۶۹/۰۹/۱۹ مجمع تشخیص مصلحت: اخلال در نظام پولی، ارزی، قاچاق عمده و جرائم اقتصادی مرتبط (۲ ماده با بندهای متعدد).',
         article_word: 'ماده',
+        article_count: 2,
         related: [{ key: 'tab-smuggling-law', label: 'قانون مبارزه با قاچاق کالا و ارز' }, { key: 'tab-bribery-embezzlement-law', label: 'قانون تشدید مجازات ارتشاء، اختلاس و کلاهبرداری' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/economic_disruptors_law.json' }
@@ -378,6 +422,7 @@ const lawManifest = {
         title: 'قانون الزام به ثبت رسمی معاملات اموال غیرمنقول',
         info: 'قانون الزام به ثبت رسمی معاملات اموال غیرمنقول مصوب ۱۴۰۱/۰۹/۰۶: الزام به ثبت رسمی انتقال مالکیت، سامانه‌ی ساماندهی اسناد غیررسمی و تنظیم قراردادهای خصوصی در دفاتر اسناد رسمی.',
         article_word: 'ماده',
+        article_count: 15,
         related: [{ key: 'tab-registration-law', label: 'قانون ثبت اسناد و املاک' }, { key: 'tab-notaries-law', label: 'قانون دفاتر اسناد رسمی' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/registration_obligation_law.json' }
@@ -387,6 +432,7 @@ const lawManifest = {
         title: 'قانون حمایت از اطفال و نوجوانان',
         info: 'قانون حمایت از اطفال و نوجوانان مصوب ۱۳۹۹/۰۲/۲۳ (جایگزین قانون ۱۳۸۱): حمایت از افراد زیر ۱۸ سال، وضعیت مخاطره‌آمیز و جرائم علیه آنان (۵۱ ماده).',
         article_word: 'ماده',
+        article_count: 51,
         related: [{ key: 'tab-family-protection-law', label: 'قانون حمایت خانواده' }, { key: 'tab-islamic-penal-code', label: 'قانون مجازات اسلامی' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/child_protection_law.json' }
@@ -396,6 +442,7 @@ const lawManifest = {
         title: 'قانون مبارزه با قاچاق کالا و ارز',
         info: 'قانون مبارزه با قاچاق کالا و ارز مصوب ۱۳۹۲/۱۰/۰۳ با اصلاحات بعدی (۸۹ ماده با مواد مکرر): تعریف قاچاق، مجازات‌ها، رسیدگی و ستاد مبارزه.',
         article_word: 'ماده',
+        article_count: 89,
         related: [{ key: 'tab-customs-law', label: 'قانون امور گمرکی' }, { key: 'tab-economic-disruptors-law', label: 'قانون مجازات اخلالگران در نظام اقتصادی' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/smuggling_goods_currency_law.json' }
@@ -405,6 +452,7 @@ const lawManifest = {
         title: 'قانون وکالت',
         info: 'قانون وکالت مصوب ۱۳۱۵/۱۱/۲۵ با اصلاحات بعدی (۵۸ ماده): درجات وکالت، شرایط پروانه، تکالیف و تخلفات وکلا.',
         article_word: 'ماده',
+        article_count: 58,
         related: [{ key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-civil-procedure-code', label: 'آیین دادرسی مدنی' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/lawyers_law.json' }
@@ -414,6 +462,7 @@ const lawManifest = {
         title: 'قانون ساماندهی بازار زمین، مسکن و اجاره‌بها',
         info: 'قانون ساماندهی بازار زمین، مسکن و اجاره‌بها مصوب ۱۴۰۳/۰۲/۱۰ (۱۵ ماده): اصلاح مواد مالیاتی مربوط به اجاره و املاک خالی و سایر مقررات بازار مسکن.',
         article_word: 'ماده',
+        article_count: 15,
         related: [{ key: 'tab-direct-taxes-law', label: 'قانون مالیات‌های مستقیم' }, { key: 'tab-landlord-tenant-law', label: 'قانون روابط موجر و مستأجر' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/land_housing_rent_law.json' }
@@ -423,6 +472,7 @@ const lawManifest = {
         title: 'قانون اصلاح قانون مالیات‌های مستقیم (۱۳۹۴)',
         info: 'قانون اصلاح قانون مالیات‌های مستقیم مصوب ۱۳۹۴/۰۴/۳۱ (لازم‌الاجرا از ۱۳۹۵/۰۱/۰۱): ماده واحده با ۶۰ بند؛ هر «بند» جای «ماده» آمده است.',
         article_word: 'بند',
+        article_count: 60,
         related: [{ key: 'tab-direct-taxes-law', label: 'قانون مالیات‌های مستقیم' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/direct_tax_amendment_law.json' }
@@ -432,6 +482,7 @@ const lawManifest = {
         title: 'قانون اصلاح مقررات مربوط به طلاق',
         info: 'قانون اصلاح مقررات مربوط به طلاق مصوب ۱۳۷۱/۰۸/۲۸ (ماده واحده با تبصره‌ها).',
         article_word: 'ماده',
+        article_count: 0,
         warning: 'این قانون جز بند «ب» تبصره ۶ به موجب بند ۸ ماده ۵۸ قانون حمایت خانواده (۱۳۹۱) نسخ شده و فقط برای مطالعه و مقایسه نگه داشته شده است.',
         related: [{ key: 'tab-family-protection-law', label: 'قانون حمایت خانواده (جایگزین)' }],
         files: [
@@ -442,6 +493,7 @@ const lawManifest = {
         title: 'قانون دفاتر اسناد رسمی و کانون سردفتران و دفتریاران',
         info: 'قانون دفاتر اسناد رسمی و کانون سردفتران و دفتریاران مصوب ۱۳۵۴/۰۴/۲۵: تشکیلات دفترخانه، شرایط سردفتر و دفتریار، تکالیف و تخلفات انتظامی.',
         article_word: 'ماده',
+        article_count: 66,
         warning: 'مواد ۵۵ و ۶۲ در فایل منبع نبودند. متن این قانون از PDF استخراج شده است؛ ممکن است فاصله یا املای برخی کلمات نیاز به ویرایش داشته باشد.',
         related: [{ key: 'tab-registration-law', label: 'قانون ثبت اسناد و املاک' }, { key: 'tab-registration-obligation-law', label: 'قانون الزام به ثبت رسمی معاملات' }],
         files: [
@@ -452,6 +504,7 @@ const lawManifest = {
         title: 'قانون تعیین تکلیف وضعیت ثبتی اراضی و ساختمان‌های فاقد سند رسمی',
         info: 'قانون تعیین تکلیف وضعیت ثبتی اراضی و ساختمان‌های فاقد سند رسمی مصوب ۱۳۹۰/۰۹/۲۰ (۱۸ ماده): صدور سند برای املاک بدون سابقه یا دارای سابقه‌ی ناقص ثبتی از طریق هیأت‌ها.',
         article_word: 'ماده',
+        article_count: 18,
         warning: 'متن این قانون از PDF استخراج شده است؛ ممکن است فاصله یا املای برخی کلمات نیاز به ویرایش داشته باشد.',
         related: [{ key: 'tab-registration-law', label: 'قانون ثبت اسناد و املاک' }, { key: 'tab-registration-obligation-law', label: 'قانون الزام به ثبت رسمی معاملات' }],
         files: [
@@ -462,6 +515,7 @@ const lawManifest = {
         title: 'قانون جامع حدنگار (کاداستر) کشور',
         info: 'قانون جامع حدنگار (کاداستر) کشور مصوب ۱۳۹۳/۱۱/۱۲: تعاریف، سازمان متولی، سند مالکیت حدنگار و نظام جامع اطلاعات.',
         article_word: 'ماده',
+        article_count: 20,
         warning: 'متن این قانون از PDF استخراج شده است؛ ممکن است فاصله یا املای برخی کلمات نیاز به ویرایش داشته باشد.',
         related: [{ key: 'tab-registration-law', label: 'قانون ثبت اسناد و املاک' }, { key: 'tab-unregistered-property-law', label: 'تعیین تکلیف وضعیت ثبتی' }],
         files: [
@@ -472,6 +526,7 @@ const lawManifest = {
         title: 'قانون تسهیل تنظیم اسناد در دفاتر اسناد رسمی',
         info: 'قانون تسهیل تنظیم اسناد در دفاتر اسناد رسمی مصوب ۱۳۸۵/۰۵/۲۴ (۸ ماده): تنظیم سند رسمی انتقال برای املاک دارای ابهام یا بازداشت.',
         article_word: 'ماده',
+        article_count: 8,
         warning: 'متن این قانون از PDF استخراج شده است؛ ممکن است فاصله یا املای برخی کلمات نیاز به ویرایش داشته باشد.',
         related: [{ key: 'tab-notaries-law', label: 'قانون دفاتر اسناد رسمی' }],
         files: [
@@ -482,6 +537,7 @@ const lawManifest = {
         title: 'قانون راجع به رشد متعاملین',
         info: 'قانون راجع به رشد متعاملین مصوب ۱۳۱۳/۰۶/۱۳ (ماده واحده): لزوم احراز رشد در معاملات برای افراد زیر ۱۸ سال شمسی.',
         article_word: 'ماده',
+        article_count: 0,
         warning: 'متن این قانون از PDF استخراج شده است؛ ممکن است فاصله یا املای برخی کلمات نیاز به ویرایش داشته باشد.',
         related: [{ key: 'tab-civil-code', label: 'قانون مدنی' }, { key: 'tab-notaries-law', label: 'قانون دفاتر اسناد رسمی' }],
         files: [
@@ -492,6 +548,7 @@ const lawManifest = {
         title: 'قانون کیفیت اخذ پروانه وکالت دادگستری',
         info: 'قانون کیفیت اخذ پروانه وکالت دادگستری مصوب ۱۳۷۶/۰۱/۱۷ (۷ ماده): پذیرش کارآموز وکالت با آزمون، شرایط پروانه، هیئت مدیره کانون‌ها و محل دفتر وکالت. ماده ۳ آن منسوخ شده است.',
         article_word: 'ماده',
+        article_count: 7,
         related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyers-bylaw', label: 'نظامنامه قانون وکالت' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/lawyer_license_law.json' }
@@ -501,6 +558,7 @@ const lawManifest = {
         title: 'نظامنامه قانون وکالت',
         info: 'نظامنامه قانون وکالت مصوب ۱۳۱۶ (۱۱۲ ماده): تشکیلات وکلا، کانون، ترفیع، تکالیف، لباس وکالت و محاکم انتظامی. موادی که با آیین‌نامه ۱۴۰۰ مغایرند ملغی هستند.',
         article_word: 'ماده',
+        article_count: 112,
         warning: 'موادی از این نظام‌نامه که با آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلا (۱۴۰۰) مغایرت دارد ملغی است. مواد ۹۷ و ۱۰۴ در منبع نبودند.',
         related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyer-license-law', label: 'قانون کیفیت اخذ پروانه وکالت' }, { key: 'tab-bar-independence-bylaw-1400', label: 'آیین‌نامه اجرایی استقلال کانون وکلا (۱۴۰۰)' }],
         files: [
@@ -511,6 +569,7 @@ const lawManifest = {
         title: 'قانون پیش‌فروش ساختمان',
         info: 'قانون پیش‌فروش ساختمان مصوب ۱۳۸۹/۱۰/۱۲ مجلس شورای اسلامی (۲۵ ماده). مواد ۲۰ و ۲۱ به موجب ماده ۱۵ قانون الزام به ثبت رسمی معاملات اموال غیرمنقول (۱۴۰۳) نسخ صریح شده‌اند.',
         article_word: 'ماده',
+        article_count: 25,
         related: [{ key: 'tab-registration-obligation-law', label: 'قانون الزام به ثبت رسمی معاملات اموال غیرمنقول' }, { key: 'tab-civil-code', label: 'قانون مدنی' }, { key: 'tab-registration-law', label: 'قانون ثبت اسناد و املاک' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch5/building_presale_law.json' }
@@ -520,6 +579,7 @@ const lawManifest = {
         title: 'قانون بازار اوراق بهادار جمهوری اسلامی ایران',
         info: 'قانون بازار اوراق بهادار جمهوری اسلامی ایران مصوب ۱۳۸۴/۰۹/۰۱ مجلس شورای اسلامی (۶۰ ماده): بورس، شورای عالی بورس، سازمان بورس و نهادهای مالی.',
         article_word: 'ماده',
+        article_count: 60,
         related: [{ key: 'tab-commercial-code', label: 'قانون تجارت' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch5/securities_market_law.json' }
@@ -529,6 +589,7 @@ const lawManifest = {
         title: 'آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلا (۱۴۰۰)',
         info: 'آیین‌نامه اجرایی لایحه قانونی استقلال کانون وکلای دادگستری مصوب ۱۴۰۰/۰۴/۰۲ رئیس قوه قضاییه با اصلاحات ۱۴۰۲/۰۴/۱۱ (۱۶۴ ماده): انتخابات کانون، آزمون ورودی، پروانه وکالت و انتظامیات.',
         article_word: 'ماده',
+        article_count: 164,
         related: [{ key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-lawyers-bylaw', label: 'نظامنامه قانون وکالت (۱۳۱۶)' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch5/bar_independence_bylaw_1400.json' }
@@ -538,6 +599,7 @@ const lawManifest = {
         title: 'آیین‌نامه تعرفه حق‌الوکاله ۱۳۹۸',
         info: 'آیین‌نامه تعرفه حق‌الوکاله، حق‌المشاوره و هزینه سفر وکلای دادگستری مصوب ۱۳۹۸/۱۲/۲۸ رئیس قوه قضاییه (۳۴ ماده). جایگزین آیین‌نامه ۱۳۸۵ شده است.',
         article_word: 'ماده',
+        article_count: 34,
         related: [ { key: 'tab-lawyer-fee-organization', label: 'آیین‌نامه ساماندهی حق‌الوکاله (دستگاه‌های اجرایی)' }, { key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch5/lawyer_fee_tariff_1398.json' }
@@ -547,6 +609,7 @@ const lawManifest = {
         title: 'قانون تشکیل صندوق تعاون وکلاء (۱۳۵۰)',
         info: 'قانون تشکیل صندوق تعاون وکلاء و تأمین هزینه‌های کانون وکلای دادگستری مصوب ۱۳۵۰/۳/۳۱ (۷ ماده).',
         article_word: 'ماده',
+        article_count: 7,
         related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch6/lawyers_coop_fund_law.json' }
@@ -556,6 +619,7 @@ const lawManifest = {
         title: 'قانون تشکیل صندوق حمایت وکلا و کارگشایان (۱۳۵۵)',
         info: 'قانون تشکیل صندوق حمایت وکلا و کارگشایان دادگستری مصوب ۱۳۵۵/۱۰/۲۹ با اصلاحات تا ۱۳۷۵/۰۸/۲۳ (۱۸ ماده).',
         article_word: 'ماده',
+        article_count: 18,
         related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }, { key: 'tab-lawyers-support-fund-bylaw-8', label: 'آیین‌نامه ماده ۸' }, { key: 'tab-lawyers-support-fund-bylaw-10', label: 'آیین‌نامه ماده ۱۰' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch6/lawyers_support_fund_law.json' }
@@ -565,6 +629,7 @@ const lawManifest = {
         title: 'آیین‌نامه ماده ۸ صندوق حمایت وکلا (۱۳۷۷)',
         info: 'آیین‌نامه ماده (۸) قانون تشکیل صندوق حمایت وکلا و کارگشایان دادگستری مصوب ۱۳۷۷/۱۲/۵ با اصلاحات تا ۱۴۰۰/۰۵/۱۷ (۲۲ ماده).',
         article_word: 'ماده',
+        article_count: 22,
         related: [{ key: 'tab-lawyers-support-fund-law', label: 'قانون صندوق حمایت وکلا' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch6/support_fund_bylaw_8.json' }
@@ -574,6 +639,7 @@ const lawManifest = {
         title: 'آیین‌نامه ماده ۱۰ صندوق حمایت: وکالت تسخیری و معاضدتی (۱۳۷۸)',
         info: 'آیین‌نامه اجرایی ماده ۱۰ قانون تشکیل صندوق حمایت وکلا و کارگشایان دادگستری مصوب ۱۳۷۸/۱۲/۲۱ رئیس قوه قضاییه (۱۲ ماده): حق‌الوکاله وکالت تسخیری و معاضدتی.',
         article_word: 'ماده',
+        article_count: 12,
         related: [{ key: 'tab-lawyers-support-fund-law', label: 'قانون صندوق حمایت وکلا' }, { key: 'tab-lawyer-fee-tariff-1398', label: 'آیین‌نامه تعرفه ۱۳۹۸' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch6/support_fund_bylaw_10.json' }
@@ -583,6 +649,7 @@ const lawManifest = {
         title: 'مصوبه مجمع تشخیص: انتخاب وکیل (۱۳۷۰)',
         info: 'مصوبه مجمع تشخیص مصلحت نظام در خصوص حق اصحاب دعوی در انتخاب وکیل، مصوب ۱۳۷۰/۰۷/۱۱ (ماده واحده و سه تبصره).',
         article_word: 'ماده',
+        article_count: 0,
         related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت (۱۳۱۵)' }, { key: 'tab-bar-association-independence-law', label: 'لایحه استقلال کانون وکلا' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch6/lawyer_selection_resolution.json' }
@@ -592,6 +659,7 @@ const lawManifest = {
         title: 'آیین‌نامه ساماندهی حق‌الوکاله و حق‌المشاوره (دستگاه‌های اجرایی)',
         info: 'آیین‌نامه ساماندهی حق‌الوکاله و حق‌المشاوره خدمات وکلای دادگستری و مشاوران حقوقی در دستگاه‌های اجرایی (تصویب‌نامه ۱۳۹۷/۰۹/۲۴ هیئت وزیران، ۶ ماده).',
         article_word: 'ماده',
+        article_count: 6,
         related: [{ key: 'tab-lawyers-law', label: 'قانون وکالت' }, { key: 'tab-lawyer-fee-tariff-1398', label: 'آیین‌نامه تعرفه ۱۳۹۸' }],
         files: [
             { title: 'تمام مواد', path: 'laws/batch4/lawyer_fee_organization.json' }
